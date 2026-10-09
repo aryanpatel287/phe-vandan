@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+*/node_modules/
+screenshot-runner/node_modules/
+
+# Automated Test Artifacts & Screenshots
+screenshots/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment & Local Configuration
+.env
+.env.local
+.env.*.local
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
