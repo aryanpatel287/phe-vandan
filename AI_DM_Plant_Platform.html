@@ -24,9 +24,22 @@
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      reg.update();
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') reg.update();
+      });
+    }).catch(function(err) {
       console.log('SW registration note:', err);
     });
+  });
+
+  var refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
   });
 }
 </script>
@@ -202,25 +215,43 @@ if ('serviceWorker' in navigator) {
   <div class="section__head"><span class="section__num">08</span><span class="section__title">P&ID Schematic</span></div>
   <div class="schematic">
 <svg viewBox="0 0 980 360" xmlns="http://www.w3.org/2000/svg">
-<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#171717" stroke-width="1.2"/></marker></defs>
+<defs>
+  <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+    <path d="M0,0 L6,3 L0,6" fill="none" stroke="#171717" stroke-width="1.2"/>
+  </marker>
+  <style>
+    .blk-d { fill: #fffbeb !important; stroke: #d97706 !important; stroke-width: 1.5px; }
+    .blk-c { fill: #ecfdf5 !important; stroke: #059669 !important; stroke-width: 1.5px; }
+    .blk-a { fill: #eff6ff !important; stroke: #2563eb !important; stroke-width: 1.5px; }
+    .blk-b { fill: #f5f3ff !important; stroke: #7c3aed !important; stroke-width: 1.5px; }
+    .blk-recirc { fill: #f0fdf4 !important; stroke: #16a34a !important; stroke-width: 1.5px; }
+    .tank  { fill: #f8fafc !important; stroke: #64748b !important; stroke-width: 1.5px; }
+    .pipe  { fill: none !important; stroke: #171717 !important; stroke-width: 1.5px; }
+    .pipe-rej { fill: none !important; stroke: #dc2626 !important; stroke-width: 1.5px; stroke-dasharray: 4 3; }
+    .lbl   { font-family: Inter, system-ui, sans-serif; font-size: 11px; font-weight: 700; fill: #171717 !important; text-anchor: middle; }
+    .lbl-num { font-family: monospace; font-size: 10px; fill: #525252 !important; text-anchor: middle; }
+    .val   { font-family: monospace; font-size: 10px; font-weight: 600; fill: #451a03 !important; text-anchor: middle; }
+    .title { font-family: Inter, system-ui, sans-serif; font-size: 11px; font-weight: 500; fill: #737373 !important; }
+  </style>
+</defs>
 
-<rect class="blk blk-d" x="20" y="40" width="120" height="64" rx="8"/><text class="lbl" x="80" y="68">RAW WATER</text><text class="lbl-num" x="80" y="84" id="sc-raw">450 ppm</text><text class="val" x="80" y="98" id="sc-raw-q">2,400 L/h</text>
-<rect class="blk blk-c" x="180" y="40" width="120" height="64" rx="8"/><text class="lbl" x="240" y="68">MMF + ACF</text><text class="lbl-num" x="240" y="84">Pretreatment</text><text class="val" x="240" y="98">SDI<3 / Cl<0.1</text>
-<rect class="blk blk-c" x="340" y="40" width="120" height="64" rx="8"/><text class="lbl" x="400" y="68">SOFTENER</text><text class="lbl-num" x="400" y="84">Na+ exchange</text><text class="val" x="400" y="98">0 hardness</text>
-<rect class="blk blk-c" x="500" y="40" width="100" height="64" rx="8"/><text class="lbl" x="550" y="68">5um CART</text><text class="lbl-num" x="550" y="84">Guard filter</text>
-<rect class="blk blk-a" x="640" y="40" width="130" height="64" rx="8"/><text class="lbl" x="705" y="68">RO MEMBRANE</text><text class="lbl-num" x="705" y="84">2:1 array</text><text class="val" x="705" y="98" id="sc-perm">9 ppm</text>
-<path class="pipe" d="M140,72 H180" marker-end="url(#ah)"/><path class="pipe" d="M300,72 H340" marker-end="url(#ah)"/><path class="pipe" d="M460,72 H500" marker-end="url(#ah)"/><path class="pipe" d="M600,72 H640" marker-end="url(#ah)"/>
-<path class="pipe-rej" d="M705,104 V130 H830 V40 H860"/><text class="lbl-num" x="765" y="124" style="fill:var(--node-d)" id="sc-rej-text">reject 600 L/h</text><rect class="tank" x="860" y="20" width="100" height="44" rx="6"/><text class="lbl-num" x="910" y="46" style="fill:var(--node-d)">DRAIN / REUSE</text>
-<path class="pipe" d="M705,104 V200" marker-end="url(#ah)"/>
-<rect class="blk blk-b" x="640" y="200" width="130" height="64" rx="8"/><text class="lbl" x="705" y="228">DM POLISHER</text><text class="lbl-num" x="705" y="244">Mixed bed</text><text class="val" x="705" y="258"><0.1 uS/cm</text>
-<path class="pipe" d="M640,232 H540" marker-end="url(#ah)"/>
-<rect class="blk blk-b" x="420" y="200" width="120" height="64" rx="8"/><text class="lbl" x="480" y="228">UV + 0.2um</text><text class="lbl-num" x="480" y="244">Sterile guard</text>
-<path class="pipe" d="M420,232 H340" marker-end="url(#ah)"/>
-<rect class="tank" x="200" y="190" width="140" height="84" rx="8"/><path d="M200,210 Q270,200 340,210" fill="none" stroke="var(--accent)" stroke-width="1" opacity="0.5"/><text class="lbl" x="270" y="240">STORAGE TANK</text><text class="lbl-num" x="270" y="256" id="sc-tank">3,000 L</text>
-<path class="pipe" d="M200,232 H120" marker-end="url(#ah)"/>
-<rect class="blk" x="20" y="200" width="100" height="64" rx="8" style="stroke:var(--green)"/><text class="lbl" x="70" y="228">RECIRC.</text><text class="lbl-num" x="70" y="244">LOOP</text><text class="val" x="70" y="258">1.5 m/s</text>
-<path class="pipe" d="M70,264 V320 H705 V264" marker-end="url(#ah)" opacity="0.55"/>
-<text class="title" x="400" y="336">Continuous recirculation to dialysis, CSSD, lab & ICU</text>
+<rect class="blk blk-d" x="20" y="40" width="120" height="64" rx="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/><text class="lbl" x="80" y="68" fill="#171717">RAW WATER</text><text class="lbl-num" x="80" y="84" id="sc-raw" fill="#525252">450 ppm</text><text class="val" x="80" y="98" id="sc-raw-q" fill="#451a03">2,400 L/h</text>
+<rect class="blk blk-c" x="180" y="40" width="120" height="64" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/><text class="lbl" x="240" y="68" fill="#171717">MMF + ACF</text><text class="lbl-num" x="240" y="84" fill="#525252">Pretreatment</text><text class="val" x="240" y="98" fill="#451a03">SDI&lt;3 / Cl&lt;0.1</text>
+<rect class="blk blk-c" x="340" y="40" width="120" height="64" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/><text class="lbl" x="400" y="68" fill="#171717">SOFTENER</text><text class="lbl-num" x="400" y="84" fill="#525252">Na+ exchange</text><text class="val" x="400" y="98" fill="#451a03">0 hardness</text>
+<rect class="blk blk-c" x="500" y="40" width="100" height="64" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/><text class="lbl" x="550" y="68" fill="#171717">5um CART</text><text class="lbl-num" x="550" y="84" fill="#525252">Guard filter</text>
+<rect class="blk blk-a" x="640" y="40" width="130" height="64" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/><text class="lbl" x="705" y="68" fill="#171717">RO MEMBRANE</text><text class="lbl-num" x="705" y="84" fill="#525252">2:1 array</text><text class="val" x="705" y="98" id="sc-perm" fill="#451a03">9 ppm</text>
+<path class="pipe" fill="none" stroke="#171717" stroke-width="1.5" d="M140,72 H180" marker-end="url(#ah)"/><path class="pipe" fill="none" stroke="#171717" stroke-width="1.5" d="M300,72 H340" marker-end="url(#ah)"/><path class="pipe" fill="none" stroke="#171717" stroke-width="1.5" d="M460,72 H500" marker-end="url(#ah)"/><path class="pipe" fill="none" stroke="#171717" stroke-width="1.5" d="M600,72 H640" marker-end="url(#ah)"/>
+<path class="pipe-rej" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3" d="M705,104 V130 H830 V40 H860"/><text class="lbl-num" x="765" y="124" fill="#dc2626" id="sc-rej-text">reject 600 L/h</text><rect class="tank" x="860" y="20" width="100" height="44" rx="6" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/><text class="lbl-num" x="910" y="46" fill="#dc2626">DRAIN / REUSE</text>
+<path class="pipe" fill="none" stroke="#171717" stroke-width="1.5" d="M705,104 V200" marker-end="url(#ah)"/>
+<rect class="blk blk-b" x="640" y="200" width="130" height="64" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/><text class="lbl" x="705" y="228" fill="#171717">DM POLISHER</text><text class="lbl-num" x="705" y="244" fill="#525252">Mixed bed</text><text class="val" x="705" y="258" fill="#451a03">&lt;0.1 uS/cm</text>
+<path class="pipe" fill="none" stroke="#171717" stroke-width="1.5" d="M640,232 H540" marker-end="url(#ah)"/>
+<rect class="blk blk-b" x="420" y="200" width="120" height="64" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/><text class="lbl" x="480" y="228" fill="#171717">UV + 0.2um</text><text class="lbl-num" x="480" y="244" fill="#525252">Sterile guard</text>
+<path class="pipe" fill="none" stroke="#171717" stroke-width="1.5" d="M420,232 H340" marker-end="url(#ah)"/>
+<rect class="tank" x="200" y="190" width="140" height="84" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/><path d="M200,210 Q270,200 340,210" fill="none" stroke="#451a03" stroke-width="1" opacity="0.5"/><text class="lbl" x="270" y="240" fill="#171717">STORAGE TANK</text><text class="lbl-num" x="270" y="256" id="sc-tank" fill="#525252">3,000 L</text>
+<path class="pipe" fill="none" stroke="#171717" stroke-width="1.5" d="M200,232 H120" marker-end="url(#ah)"/>
+<rect class="blk blk-recirc" x="20" y="200" width="100" height="64" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/><text class="lbl" x="70" y="228" fill="#171717">RECIRC.</text><text class="lbl-num" x="70" y="244" fill="#525252">LOOP</text><text class="val" x="70" y="258" fill="#451a03">1.5 m/s</text>
+<path class="pipe" fill="none" stroke="#171717" stroke-width="1.5" d="M70,264 V320 H705 V264" marker-end="url(#ah)" opacity="0.55"/>
+<text class="title" x="400" y="336" fill="#737373">Continuous recirculation to dialysis, CSSD, lab &amp; ICU</text>
 </svg>
   </div>
 </section>
