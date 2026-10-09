@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Based DM Plant Design Platform — Hospital Water Intelligence</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/AI_DM_Plant_Platform.css">
+
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<script src="assets/vendor/jspdf.umd.min.js"></script>
+<script src="assets/vendor/jspdf.plugin.autotable.min.js"></script>
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+<div class="container-1400">
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+</div>
+
+
+<div class="platform">
+<!-- MAIN COLUMN -->
+<div class="main-col">
+
+<header class="masthead">
+  <div class="eyebrow">AI-Based Hospital Water Treatment Design Platform</div>
+  <h1>AI-Powered DM Plant Design Intelligence</h1>
+  <p>An intelligent design platform that goes beyond calculation — it analyzes your inputs in real time, predicts operational risks, recommends optimizations, generates engineering narratives, and forecasts demand patterns. Built for hospital dialysis, sterilization, and critical care water systems.</p>
+  <div class="meta-row">
+    <span class="tag tag--ai">AI Engine v2.0</span><span class="tag">IS 10500:2012</span><span class="tag">WHO · AAMI/ISO 23500</span><span class="tag">NABH</span>
+    <span class="tag live-badge"><span class="live-dot"></span> AI Live</span>
+  </div>
+  <div class="dl-bar">
+    <button class="dl-btn dl-pdf" onclick="downloadPDF()">PDF</button>
+    <button class="dl-btn dl-xlsx" onclick="downloadExcel()">Excel</button>
+    <button class="dl-btn dl-docx" onclick="downloadWord()">Word</button>
+    <span class="dl-label">Exports current design with AI recommendations</span>
+  </div>
+</header>
+
+<div class="kpi-row">
+  <div class="kpi-card p-ai_dm_plant_platform_html-s1"><div class="kpi-card__value"><span id="k-plant">1,800</span><span class="kpi-card__unit">L/h</span></div><div class="kpi-card__label">Plant Capacity</div><div class="kpi-card__hint" id="k-plant-m3">1.80 m3/h</div></div>
+  <div class="kpi-card p-ai_dm_plant_platform_html-s2"><div class="kpi-card__value"><span id="k-daily">22,968</span><span class="kpi-card__unit">L/day</span></div><div class="kpi-card__label">Daily Demand</div><div class="kpi-card__hint" id="k-daily-m3">23.0 m3/day</div></div>
+  <div class="kpi-card p-ai_dm_plant_platform_html-s3"><div class="kpi-card__value"><span id="k-ai-score">87</span><span class="kpi-card__unit">/100</span></div><div class="kpi-card__label">AI Design Score</div><div class="kpi-card__hint" id="k-ai-grade">Optimized</div></div>
+  <div class="kpi-card p-ai_dm_plant_platform_html-s4"><div class="kpi-card__value"><span id="k-risk">Low</span></div><div class="kpi-card__label">Risk Level</div><div class="kpi-card__hint" id="k-risk-hint">Safe margins</div></div>
+  <div class="kpi-card p-ai_dm_plant_platform_html-s5"><div class="kpi-card__value"><span id="k-rofeed">2,400</span><span class="kpi-card__unit">L/h</span></div><div class="kpi-card__label">RO Feed</div><div class="kpi-card__hint">Raw intake</div></div>
+  <div class="kpi-card p-ai_dm_plant_platform_html-s6"><div class="kpi-card__value"><span id="k-resin">90</span><span class="kpi-card__unit">L</span></div><div class="kpi-card__label">DM Resin</div><div class="kpi-card__hint" id="k-vessel">350mm vessel</div></div>
+  <div class="kpi-card p-ai_dm_plant_platform_html-s7"><div class="kpi-card__value"><span id="k-regen">6</span><span class="kpi-card__unit">days</span></div><div class="kpi-card__label">Regen Cycle</div><div class="kpi-card__hint">Between regens</div></div>
+</div>
+
+<section class="section">
+  <div class="section__head"><span class="section__num">01</span><span class="section__title">Design Inputs</span><span class="section__sub">— AI recalculates on every change</span></div>
+  <div class="input-panel">
+    <h3>Dialysis & Critical Water</h3>
+    <div class="input-grid">
+      <div class="field"><label>Dialysis stations<small>Haemodialysis machines</small></label><input type="number" id="inp-stations" value="24" min="1" max="60"></div>
+      <div class="field"><label>Flow / station<small>ISO 23500</small></label><input type="number" id="inp-flow" value="30" min="20" max="50"><span class="range-hint">L/h</span></div>
+      <div class="field"><label>Simultaneity<small>Peak concurrent</small></label><input type="number" id="inp-sim" value="0.90" min="0.5" max="1" step="0.05"></div>
+      <div class="field"><label>Hours / day<small>2-shift</small></label><input type="number" id="inp-hours" value="16" min="4" max="24"></div>
+      <div class="field"><label>Lab demand<small>L/h</small></label><input type="number" id="inp-lab" value="200" min="0"></div>
+      <div class="field"><label>CSSD other<small>L/h</small></label><input type="number" id="inp-cssd" value="150" min="0"></div>
+      <div class="field"><label>Other critical<small>L/h</small></label><input type="number" id="inp-other" value="100" min="0"></div>
+      <div class="field"><label>Safety factor<small>Margin</small></label><input type="number" id="inp-safety" value="0.20" min="0.1" max="0.5" step="0.05"></div>
+    </div>
+    <h3>Hospital Staff & Patient Occupancy</h3>
+    <div class="input-grid">
+      <div class="field"><label>Beds<small>Inpatient</small></label><input type="number" id="inp-beds" value="100" min="1"></div>
+      <div class="field"><label>Doctors<small>All shifts</small></label><input type="number" id="inp-doctors" value="20" min="0"></div>
+      <div class="field"><label>Nurses<small>All shifts</small></label><input type="number" id="inp-nurses" value="40" min="0"></div>
+      <div class="field"><label>Support staff<small>Tech, admin</small></label><input type="number" id="inp-support" value="30" min="0"></div>
+      <div class="field"><label>Visitors<small>Daily</small></label><input type="number" id="inp-visitors" value="50" min="0"></div>
+      <div class="field"><label>Patient water<small>L/bed/day</small></label><input type="number" id="inp-pwater" value="125" min="50"></div>
+      <div class="field"><label>Staff water<small>L/person/day</small></label><input type="number" id="inp-swater" value="45" min="20"></div>
+      <div class="field"><label>Visitor water<small>L/visitor/day</small></label><input type="number" id="inp-vwater" value="15" min="5"></div>
+    </div>
+    <h3>Sterilization Equipment</h3>
+    <div class="input-grid">
+      <div class="field"><label>Autoclaves<small>Steam sterilizers</small></label><input type="number" id="inp-autoclaves" value="2" min="0"></div>
+      <div class="field"><label>Auto cycles/day</label><input type="number" id="inp-auto-cycles" value="6" min="1"></div>
+      <div class="field"><label>Auto water/cycle<small>L</small></label><input type="number" id="inp-auto-water" value="150" min="50"></div>
+      <div class="field"><label>Washer-disinfectors</label><input type="number" id="inp-washers" value="2" min="0"></div>
+      <div class="field"><label>Wash cycles/day</label><input type="number" id="inp-wd-cycles" value="8" min="1"></div>
+      <div class="field"><label>Wash water/cycle<small>L</small></label><input type="number" id="inp-wd-water" value="200" min="50"></div>
+      <div class="field"><label>ETO sterilizers</label><input type="number" id="inp-eto" value="1" min="0"></div>
+      <div class="field"><label>ETO cycles/day</label><input type="number" id="inp-eto-cycles" value="2" min="1"></div>
+      <div class="field"><label>ETO water/cycle<small>L</small></label><input type="number" id="inp-eto-water" value="80" min="20"></div>
+      <div class="field"><label>Ultrasonic cleaners</label><input type="number" id="inp-usonic" value="2" min="0"></div>
+      <div class="field"><label>US hours/day</label><input type="number" id="inp-us-hours" value="4" min="1"></div>
+      <div class="field"><label>US water/hour<small>L/h</small></label><input type="number" id="inp-us-water" value="30" min="5"></div>
+    </div>
+    <h3>Feed Water & RO</h3>
+    <div class="input-grid">
+      <div class="field"><label>Raw water TDS<small>ppm</small></label><input type="number" id="inp-tds" value="450" min="100" max="3000"></div>
+      <div class="field"><label>RO recovery<select id="inp-recovery"><option value="0.60">60%</option><option value="0.70">70%</option><option value="0.75" selected>75%</option><option value="0.80">80%</option></select></label></div>
+      <div class="field"><label>RO rejection<select id="inp-rejection"><option value="0.96">96%</option><option value="0.98" selected>98%</option><option value="0.99">99%</option></select></label></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn--primary" onclick="recalc()">Run AI Analysis</button>
+      <button class="btn btn--ghost" onclick="resetDefaults()">Reset</button>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section__head"><span class="section__num">02</span><span class="section__title">AI-Generated Design Narrative</span><span class="section__sub">— auto-written engineering summary</span></div>
+  <div class="ai-narrative" id="ai-narrative">Loading AI narrative...</div>
+</section>
+
+<section class="section">
+  <div class="section__head"><span class="section__num">03</span><span class="section__title">Demand Load Analysis</span></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="data-table" id="demandTable">
+    <thead><tr><th>Consumer</th><th>Units</th><th class="num">Peak (L/h)</th><th class="num">Daily (L/day)</th><th>Notes</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr><td colspan="2">TOTAL CRITICAL</td><td class="num" id="dt-total-lh">-</td><td class="num" id="dt-total-daily">-</td><td></td></tr></tfoot>
+  </table></div></div>
+  <div class="formula" id="dc-formula"></div>
+</section>
+
+<section class="section">
+  <div class="section__head"><span class="section__num">04</span><span class="section__title">Hospital Occupancy Load</span></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="data-table" id="occTable">
+    <thead><tr><th>Category</th><th>Count</th><th class="num">Rate</th><th class="num">Daily (L/day)</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr><td colspan="3">TOTAL OCCUPANCY</td><td class="num" id="occ-total">-</td></tr></tfoot>
+  </table></div></div>
+</section>
+
+<section class="section">
+  <div class="section__head"><span class="section__num">05</span><span class="section__title">Sterilization Equipment</span></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="data-table" id="sterileTable">
+    <thead><tr><th>Equipment</th><th>Units</th><th class="num">Cycles</th><th class="num">Water/cycle</th><th class="num">Daily (L/day)</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr><td colspan="4">TOTAL STERILIZATION</td><td class="num" id="st-total">-</td></tr></tfoot>
+  </table></div></div>
+</section>
+
+<section class="section">
+  <div class="section__head"><span class="section__num">06</span><span class="section__title">RO & DM Polisher Sizing</span></div>
+  <div class="grid-3">
+    <div class="card card--accent-a"><div class="card__label">RO Feed</div><div class="card__title" id="ro-feed">2,400 L/h</div><div class="card__body" id="ro-rej-text">Reject: 600 L/h</div></div>
+    <div class="card card--accent-b"><div class="card__label">DM Resin</div><div class="card__title"><span id="dm-resin">90</span> L</div><div class="card__body" id="dm-vessel-text">350mm x 1.50m</div></div>
+    <div class="card card--accent-c"><div class="card__label">Regen Cycle</div><div class="card__title"><span id="dm-regen">6</span> days</div><div class="card__body">Duty/standby recommended</div></div>
+  </div>
+  <div class="formula" id="dm-formula"></div>
+</section>
+
+<section class="section">
+  <div class="section__head"><span class="section__num">07</span><span class="section__title">Treatment Train</span></div>
+  <div class="pipeline" id="pipeline"></div>
+</section>
+
+<section class="section">
+  <div class="section__head"><span class="section__num">08</span><span class="section__title">P&ID Schematic</span></div>
+  <div class="schematic">
+<svg viewBox="0 0 980 360" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#171717" stroke-width="1.2"/></marker></defs>
+
+<rect class="blk blk-d" x="20" y="40" width="120" height="64" rx="8"/><text class="lbl" x="80" y="68">RAW WATER</text><text class="lbl-num" x="80" y="84" id="sc-raw">450 ppm</text><text class="val" x="80" y="98" id="sc-raw-q">2,400 L/h</text>
+<rect class="blk blk-c" x="180" y="40" width="120" height="64" rx="8"/><text class="lbl" x="240" y="68">MMF + ACF</text><text class="lbl-num" x="240" y="84">Pretreatment</text><text class="val" x="240" y="98">SDI<3 / Cl<0.1</text>
+<rect class="blk blk-c" x="340" y="40" width="120" height="64" rx="8"/><text class="lbl" x="400" y="68">SOFTENER</text><text class="lbl-num" x="400" y="84">Na+ exchange</text><text class="val" x="400" y="98">0 hardness</text>
+<rect class="blk blk-c" x="500" y="40" width="100" height="64" rx="8"/><text class="lbl" x="550" y="68">5um CART</text><text class="lbl-num" x="550" y="84">Guard filter</text>
+<rect class="blk blk-a" x="640" y="40" width="130" height="64" rx="8"/><text class="lbl" x="705" y="68">RO MEMBRANE</text><text class="lbl-num" x="705" y="84">2:1 array</text><text class="val" x="705" y="98" id="sc-perm">9 ppm</text>
+<path class="pipe" d="M140,72 H180" marker-end="url(#ah)"/><path class="pipe" d="M300,72 H340" marker-end="url(#ah)"/><path class="pipe" d="M460,72 H500" marker-end="url(#ah)"/><path class="pipe" d="M600,72 H640" marker-end="url(#ah)"/>
+<path class="pipe-rej" d="M705,104 V130 H830 V40 H860"/><text class="lbl-num" x="765" y="124" style="fill:var(--node-d)" id="sc-rej-text">reject 600 L/h</text><rect class="tank" x="860" y="20" width="100" height="44" rx="6"/><text class="lbl-num" x="910" y="46" style="fill:var(--node-d)">DRAIN / REUSE</text>
+<path class="pipe" d="M705,104 V200" marker-end="url(#ah)"/>
+<rect class="blk blk-b" x="640" y="200" width="130" height="64" rx="8"/><text class="lbl" x="705" y="228">DM POLISHER</text><text class="lbl-num" x="705" y="244">Mixed bed</text><text class="val" x="705" y="258"><0.1 uS/cm</text>
+<path class="pipe" d="M640,232 H540" marker-end="url(#ah)"/>
+<rect class="blk blk-b" x="420" y="200" width="120" height="64" rx="8"/><text class="lbl" x="480" y="228">UV + 0.2um</text><text class="lbl-num" x="480" y="244">Sterile guard</text>
+<path class="pipe" d="M420,232 H340" marker-end="url(#ah)"/>
+<rect class="tank" x="200" y="190" width="140" height="84" rx="8"/><path d="M200,210 Q270,200 340,210" fill="none" stroke="var(--accent)" stroke-width="1" opacity="0.5"/><text class="lbl" x="270" y="240">STORAGE TANK</text><text class="lbl-num" x="270" y="256" id="sc-tank">3,000 L</text>
+<path class="pipe" d="M200,232 H120" marker-end="url(#ah)"/>
+<rect class="blk" x="20" y="200" width="100" height="64" rx="8" style="stroke:var(--green)"/><text class="lbl" x="70" y="228">RECIRC.</text><text class="lbl-num" x="70" y="244">LOOP</text><text class="val" x="70" y="258">1.5 m/s</text>
+<path class="pipe" d="M70,264 V320 H705 V264" marker-end="url(#ah)" opacity="0.55"/>
+<text class="title" x="400" y="336">Continuous recirculation to dialysis, CSSD, lab & ICU</text>
+</svg>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section__head"><span class="section__num">09</span><span class="section__title">Compliance — IS / WHO / AAMI / NABH</span></div>
+  <div class="table-wrap"><div class="table-scroll"><table class="data-table">
+    <thead><tr><th>Parameter</th><th class="num">Raw</th><th class="num">RO</th><th class="num">DM</th><th>IS 10500</th><th>WHO</th><th>AAMI/ISO</th><th>NABH</th></tr></thead>
+    <tbody>
+      <tr><td>TDS (mg/L)</td><td class="num" id="qt-raw-tds">450</td><td class="num" id="qt-ro-tds">9.0</td><td class="num"><0.5</td><td><=500</td><td><=600</td><td><=10</td><td>OK</td></tr>
+      <tr><td>Conductivity</td><td class="num" id="qt-raw-c">900</td><td class="num" id="qt-ro-c">18</td><td class="num"><0.1</td><td>-</td><td>-</td><td><10</td><td><10</td></tr>
+      <tr><td>Bacterial (CFU/mL)</td><td class="num">-</td><td class="num"><100</td><td class="num"><10</td><td>0 E.coli</td><td>0 E.coli</td><td><100</td><td><100</td></tr>
+      <tr><td>Endotoxin (EU/mL)</td><td class="num">-</td><td class="num"><1</td><td class="num"><0.1</td><td>-</td><td>-</td><td><0.25</td><td><0.25</td></tr>
+    </tbody>
+  </table></div></div>
+</section>
+
+<footer>
+  <span>AI-Based DM Plant Design Platform</span>
+  <span id="ts">AI Engine active</span>
+</footer>
+</div><!-- /main-col -->
+
+<!-- AI ASSISTANT COLUMN -->
+<div class="ai-col">
+  <div class="ai-header">
+    <div class="ai-header__top">
+      <div class="ai-avatar">AI</div>
+      <div>
+        <div class="ai-header__title">Design Assistant</div>
+        <div class="ai-header__sub"><span class="ai-pulse"></span> Analyzing in real time</div>
+      </div>
+    </div>
+    <div class="ai-tabs">
+      <button class="ai-tab active" onclick="switchTab('recs')">Insights</button>
+      <button class="ai-tab" onclick="switchTab('chat')">Ask AI</button>
+      <button class="ai-tab" onclick="switchTab('forecast')">Forecast</button>
+    </div>
+  </div>
+  <div class="ai-content">
+    <div class="ai-panel active" id="panel-recs">
+      <div class="ai-gauge">
+        <div class="ai-gauge__label">AI Design Optimization Score</div>
+        <div class="ai-gauge__bar"><div class="ai-gauge__fill" id="gauge-fill" style="width:87%;background:var(--green)"></div></div>
+        <div class="ai-gauge__val" id="gauge-val">87/100 - Optimized</div>
+        <div class="ai-gauge__desc" id="gauge-desc">Parameters within optimal range</div>
+      </div>
+      <div class="ai-gauge">
+        <div class="ai-gauge__label">Risk Assessment</div>
+        <div class="ai-gauge__bar"><div class="ai-gauge__fill" id="risk-fill" style="width:20%;background:var(--green)"></div></div>
+        <div class="ai-gauge__val" id="risk-val">Low Risk (20%)</div>
+        <div class="ai-gauge__desc" id="risk-desc">All systems within safe margins</div>
+      </div>
+      <div id="ai-recs-list"></div>
+    </div>
+    <div class="ai-panel" id="panel-chat">
+      <div class="ai-dev-notice">
+        <span class="ai-dev-notice__badge">Development Preview</span>
+        <span class="ai-dev-notice__text"><strong>Notice:</strong> This is an algorithmic simulation and prototype assistant. Real-time neural AI integration is currently under active development.</span>
+      </div>
+      <div class="ai-chat" id="chat-log">
+        <div class="ai-msg ai-msg--bot"><div class="ai-msg__head">AI Assistant <span class="ai-dev-tag">In Development</span></div>I'm your DM plant design assistant prototype. Ask me about sizing, standards, optimization, or any aspect of the design. (Real-time neural AI integration is currently under development; current responses use deterministic PHE rule engine simulations).</div>
+      </div>
+      <div class="ai-suggestions">
+        <span class="ai-sugg" onclick="askAI('Why is the regen cycle 6 days?')">Why 6-day regen?</span>
+        <span class="ai-sugg" onclick="askAI('How to reduce RO reject water?')">Reduce RO reject?</span>
+        <span class="ai-sugg" onclick="askAI('What standards apply?')">Applicable standards?</span>
+        <span class="ai-sugg" onclick="askAI('Is duty/standby necessary?')">Duty/standby needed?</span>
+      </div>
+      <div class="ai-chat-input">
+        <input type="text" id="chat-input" placeholder="Ask the AI assistant..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()">Send</button>
+      </div>
+    </div>
+    <div class="ai-panel" id="panel-forecast">
+      <div class="ai-forecast">
+        <div class="ai-forecast__title">7-Day Demand Forecast</div>
+        <svg id="forecast-svg" viewBox="0 0 340 160"></svg>
+        <div id="forecast-desc">Based on hospital admission patterns & seasonal variation</div>
+      </div>
+      <div class="ai-forecast">
+        <div class="ai-forecast__title">24h Capacity Utilization</div>
+        <svg id="util-svg" viewBox="0 0 340 120"></svg>
+        <div id="util-desc">Projected load vs plant capacity</div>
+      </div>
+      <div class="ai-forecast">
+        <div class="ai-forecast__title">Expansion Readiness</div>
+        <div id="expand-text">Current design supports 10-15% capacity expansion. Beyond 15%, additional RO membrane + DM vessel required.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /platform -->
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=(n,d=0)=>Number(n).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
+const ceilStep=(n,s)=>Math.ceil(n/s)*s;
+
+function getInputs(){return{
+  stations:+$('inp-stations').value||1,flow:+$('inp-flow').value||30,sim:+$('inp-sim').value||.9,
+  hours:+$('inp-hours').value||16,lab:+$('inp-lab').value||0,cssd:+$('inp-cssd').value||0,other:+$('inp-other').value||0,
+  safety:+$('inp-safety').value||.2,tds:+$('inp-tds').value||450,recovery:+$('inp-recovery').value,rejection:+$('inp-rejection').value,
+  beds:+$('inp-beds').value||0,doctors:+$('inp-doctors').value||0,nurses:+$('inp-nurses').value||0,support:+$('inp-support').value||0,
+  visitors:+$('inp-visitors').value||0,pwater:+$('inp-pwater').value||125,swater:+$('inp-swater').value||45,vwater:+$('inp-vwater').value||15,
+  autoclaves:+$('inp-autoclaves').value||0,autoCycles:+$('inp-auto-cycles').value||0,autoWater:+$('inp-auto-water').value||0,
+  washers:+$('inp-washers').value||0,wdCycles:+$('inp-wd-cycles').value||0,wdWater:+$('inp-wd-water').value||0,
+  eto:+$('inp-eto').value||0,etoCycles:+$('inp-eto-cycles').value||0,etoWater:+$('inp-eto-water').value||0,
+  usonic:+$('inp-usonic').value||0,usHours:+$('inp-us-hours').value||0,usWater:+$('inp-us-water').value||0
+}}
+
+function calc(p){
+  const r={};
+  r.dialPeak=p.stations*p.flow*p.sim;
+  r.staffDaily=(p.doctors+p.nurses+p.support)*p.swater;
+  r.visitorDaily=p.visitors*p.vwater;r.patientDaily=p.beds*p.pwater;
+  r.occDaily=r.staffDaily+r.visitorDaily+r.patientDaily;r.occPeakLh=r.occDaily/p.hours;
+  r.autoWater=p.autoclaves*p.autoCycles*p.autoWater;r.wdWater=p.washers*p.wdCycles*p.wdWater;
+  r.etoWater=p.eto*p.etoCycles*p.etoWater;r.usWater=p.usonic*p.usHours*p.usWater;
+  r.sterileDaily=r.autoWater+r.wdWater+r.etoWater+r.usWater;r.sterilePeakLh=r.sterileDaily/p.hours;
+  r.criticalPeak=r.dialPeak+p.lab+p.cssd+p.other+r.sterilePeakLh;
+  r.designCap=r.criticalPeak*(1+p.safety);r.plantCap=ceilStep(r.designCap,100);
+  r.dailyCritical=r.criticalPeak*p.hours;r.dailyTotal=r.dailyCritical+r.occDaily;
+  r.roPerm=r.plantCap;r.roFeed=r.roPerm/p.recovery;r.roRej=r.roFeed-r.roPerm;
+  r.permTds=p.tds*(1-p.rejection);r.permCond=r.permTds/.5;r.roHp=(r.roFeed/1000*12*1000/3600/.70);
+  r.dmFlow=r.plantCap/60;r.resinVol=r.dmFlow*3.0;r.area=(r.resinVol/1000)/1.0;
+  r.diaMm=Math.sqrt(4*r.area/Math.PI)*1000;r.diaSel=ceilStep(r.diaMm,50);r.vesselH=1.5;
+  r.inletTds=Math.max(r.permTds,10);r.dailyThroughput=r.plantCap*p.hours;
+  r.dailyIonLoad=r.dailyThroughput*r.inletTds/1e6;r.totalCap=r.resinVol*20/1000;
+  r.runDays=r.totalCap/r.dailyIonLoad;r.regenDays=Math.max(1,Math.round(r.runDays));
+  r.storage=ceilStep(r.criticalPeak*2,500);
+  return r;
+}
+
+// ========== AI ENGINE ==========
+function aiAnalyze(p,r){
+  const recs=[];let score=100;let riskPct=10;
+
+  // TDS check
+  if(p.tds>1500){recs.push({t:'crit',i:'!',tag:'CRITICAL',title:'Feed TDS very high',body:'Raw water TDS >1500 ppm will stress RO membranes and reduce lifespan. Consider a second-pass RO or higher-rejection membrane. Pre-softening is essential.'});score-=25;riskPct+=30;}
+  else if(p.tds>800){recs.push({t:'warn',i:'W',tag:'WARNING',title:'Feed TDS elevated',body:'TDS >800 ppm increases RO scaling risk. Ensure softener is adequately sized and monitor antiscalant dosing.'});score-=10;riskPct+=10;}
+
+  // Recovery check
+  if(p.recovery>=0.80&&p.tds>500){recs.push({t:'warn',i:'W',tag:'WARNING',title:'High recovery + moderate TDS',body:'80% recovery at TDS >500 risks membrane scaling. Consider lowering to 75% or adding antiscalant dosing.'});score-=8;riskPct+=8;}
+
+  // Regen cycle check
+  if(r.regenDays<=2){recs.push({t:'crit',i:'!',tag:'CRITICAL',title:'Very frequent regeneration',body:'Regeneration every '+r.regenDays+' days causes operator burden and chemical consumption. Consider increasing resin volume or adding a second vessel for duty/standby.'});score-=15;riskPct+=15;}
+  else if(r.regenDays<=4){recs.push({t:'warn',i:'W',tag:'WARNING',title:'Short regeneration cycle',body:'Regen every '+r.regenDays+' days is manageable but frequent. Twin duty/standby vessels strongly recommended.'});score-=5;}
+
+  // Safety factor
+  if(p.safety<0.15){recs.push({t:'warn',i:'W',tag:'WARNING',title:'Low safety margin',body:'Safety factor <15% leaves little room for demand spikes. Hospital dialysis loads are unpredictable; 20% minimum recommended.'});score-=10;riskPct+=10;}
+  else if(p.safety>=0.25){recs.push({t:'ok',i:'OK',tag:'GOOD',title:'Conservative safety margin',body:'Safety factor >=25% provides excellent resilience for demand spikes and future expansion.'});}
+
+  // Simultaneity
+  if(p.sim<0.85){recs.push({t:'info',i:'i',tag:'NOTE',title:'Low simultaneity assumption',body:'Simultaneity <0.85 may underestimate peak demand during shift changeovers. Verify with actual hospital scheduling.'});}
+
+  // Storage check
+  const storageHours=r.storage/r.criticalPeak;
+  if(storageHours<1.5){recs.push({t:'warn',i:'W',tag:'WARNING',title:'Insufficient storage reserve',body:'Storage <1.5h of peak demand risks supply interruption during regeneration. Increase to minimum 2h reserve.'});score-=8;riskPct+=8;}
+
+  // Utilization check
+  const util=r.criticalPeak/r.plantCap*100;
+  if(util>90){recs.push({t:'crit',i:'!',tag:'CRITICAL',title:'Plant running near capacity',body:'Utilization at '+util.toFixed(0)+'% leaves no headroom. Consider upsizing plant capacity.'});score-=12;riskPct+=12;}
+  else if(util>80){recs.push({t:'warn',i:'W',tag:'WARNING',title:'High utilization',body:'Plant utilization at '+util.toFixed(0)+'%. Consider upsizing for future expansion headroom.'});score-=5;}
+  else{recs.push({t:'ok',i:'OK',tag:'GOOD',title:'Healthy utilization',body:'Utilization at '+util.toFixed(0)+'% provides good headroom for peak demand and future expansion.'});}
+
+  // Sterilization
+  if(r.sterileDaily>0){recs.push({t:'info',i:'i',tag:'INSIGHT',title:'Sterilization load integrated',body:'Sterilization demand of '+fmt(r.sterileDaily)+' L/day from autoclaves, washers, ETO & ultrasonic has been added to critical DM demand. All equipment sterilized per NABH protocols.'});}
+
+  // Occupancy insight
+  if(r.occDaily>0){recs.push({t:'info',i:'i',tag:'INSIGHT',title:'Hospital occupancy water budget',body:'Total occupancy demand is '+fmt(r.occDaily)+' L/day. This runs on a separate domestic line but establishes total raw water intake requirement of '+( (r.occDaily+r.dailyCritical)/1000).toFixed(1)+' m3/day.'});}
+
+  // Duty/standby
+  recs.push({t:'ok',i:'OK',tag:'RECOMMEND',title:'Duty/standby twin DM vessels',body:'Two x '+r.diaSel+'mm vessels, each with '+fmt(r.resinVol)+'L resin, piped in parallel. While one regenerates, the other carries full load — zero downtime guaranteed.'});
+
+  score=Math.max(0,Math.min(100,Math.round(score)));
+  riskPct=Math.max(5,Math.min(95,Math.round(riskPct)));
+  return{recs,score,riskPct};
+}
+
+function generateNarrative(p,r,ai){
+  const utilPct=(r.criticalPeak/r.plantCap*100).toFixed(0);
+  const riskLevel=ai.riskPct<25?'Low':ai.riskPct<50?'Moderate':'High';
+  const riskColor=ai.riskPct<25?'var(--green)':ai.riskPct<50?'var(--amber)':'var(--red)';
+  let html='<p><strong>AI Design Analysis Summary</strong> — Generated from ' + p.stations + ' dialysis stations, ' + p.beds + ' hospital beds, and ' + (p.autoclaves+p.washers+p.eto+Math.ceil(p.usonic/2)) + ' sterilization units.</p>';
+  html+='<p>The calculated critical water demand is <span class="hl">'+fmt(r.criticalPeak,0)+' L/h</span> (peak) and <span class="hl">'+fmt(r.dailyCritical)+' L/day</span>, driven primarily by dialysis ('+fmt(r.dialPeak)+' L/h at '+p.sim*100+'% simultaneity) and sterilization equipment ('+fmt(r.sterileDaily)+' L/day). With a '+(p.safety*100)+'% safety margin, the selected plant capacity is <span class="hl">'+fmt(r.plantCap)+' L/h</span> at '+utilPct+'% utilization.</p>';
+  html+='<p>The RO system reduces feed TDS from '+p.tds+' ppm to '+fmt(r.permTds,1)+' ppm ('+(p.rejection*100)+'% rejection at '+(p.recovery*100)+'% recovery), requiring '+fmt(r.roFeed)+' L/h raw water intake. The DM mixed-bed polisher further reduces this to <0.1 uS/cm (effectively 0 TDS), with '+fmt(r.resinVol)+'L of resin in a '+r.diaSel+'mm vessel requiring regeneration every '+r.regenDays+' days.</p>';
+  html+='<p>AI risk assessment: <span class="hl" style="color:'+riskColor+'">'+riskLevel+' ('+ai.riskPct+'%)</span>. Design optimization score: <span class="hl">'+ai.score+'/100</span>. '+(ai.score>=80?'The design is well-optimized with adequate safety margins.':ai.score>=60?'Some parameters need attention — review AI recommendations.': 'Critical parameters require immediate attention.')+'</p>';
+  html+='<p style="font-size:11px;color:var(--text-dim);margin-top:8px">Compliant with IS 10500:2012, WHO Guidelines, AAMI/ISO 23500, and NABH standards. All sterilization equipment fed from DM loop per infection-control protocols.</p>';
+  return html;
+}
+
+function renderAI(ai,p,r){
+  // gauges
+  const sc=ai.score;const scCol=sc>=80?'var(--green)':sc>=60?'var(--amber)':'var(--red)';
+  $('gauge-fill').style.width=sc+'%';$('gauge-fill').style.background=scCol;
+  $('gauge-val').style.color=scCol;
+  const grade=sc>=80?'Optimized':sc>=60?'Needs Attention':'Critical';
+  $('gauge-val').textContent=sc+'/100 - '+grade;
+  $('gauge-desc').textContent=sc>=80?'Parameters within optimal range':sc>=60?'Some parameters need review':'Immediate action required';
+  $('k-ai-score').textContent=sc;$('k-ai-grade').textContent=grade;$('k-ai-grade').style.color=scCol;
+
+  const rk=ai.riskPct;const rkCol=rk<25?'var(--green)':rk<50?'var(--amber)':'var(--red)';
+  const rkLabel=rk<25?'Low':rk<50?'Moderate':'High';
+  $('risk-fill').style.width=rk+'%';$('risk-fill').style.background=rkCol;
+  $('risk-val').style.color=rkCol;$('risk-val').textContent=rkLabel+' Risk ('+rk+'%)';
+  $('risk-desc').textContent=rk<25?'All systems within safe margins':rk<50?'Monitor listed parameters closely':'Critical risks need immediate action';
+  $('k-risk').textContent=rkLabel;$('k-risk').style.color=rkCol;
+  $('k-risk-hint').textContent=rk<25?'Safe margins':rk<50?'Monitor closely':'Action needed';
+  $('k-risk-hint').style.color=rkCol;
+
+  // recs
+  const iconMap={crit:'!',warn:'W',ok:'OK',info:'i'};
+  $('ai-recs-list').innerHTML=ai.recs.map((rec,i)=>
+    '<div class="ai-rec ai-rec--'+rec.t+'" style="--i:'+i+'">'+
+    '<div class="ai-rec__head"><div class="ai-rec__icon">'+(iconMap[rec.t]||'i')+'</div>'+
+    '<div class="ai-rec__title">'+rec.title+'</div>'+
+    '<div class="ai-rec__tag">'+rec.tag+'</div></div>'+
+    '<div class="ai-rec__body">'+rec.body+'</div></div>'
+  ).join('');
+
+  // narrative
+  $('ai-narrative').innerHTML=generateNarrative(p,r,ai);
+
+  // forecast charts
+  drawForecast(r,p);
+  drawUtilization(r,p);
+}
+
+function drawForecast(r,p){
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const base=r.dailyCritical;
+  const vals=days.map((d,i)=>{
+    const factor=[1.0,0.95,1.05,1.1,1.15,0.8,0.7][i];
+    return Math.round(base*factor);
+  });
+  const max=Math.max(...vals)*1.15;
+  const w=340,h=160,pad=30;
+  const bw=(w-pad*2)/7;
+  let svg='<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="transparent"/>';
+  // grid lines
+  for(let i=0;i<=4;i++){const y=pad+(h-pad*2)*i/4;svg+='<line x1="'+pad+'" y1="'+y+'" x2="'+(w-pad)+'" y2="'+y+'" stroke="var(--border)" stroke-width="0.5"/>';}
+  // bars
+  vals.forEach((v,i)=>{
+    const x=pad+i*bw+bw*0.15;const bh=(h-pad*2)*(v/max);
+    const y=h-pad-bh;const col=v>base?'var(--amber)':'var(--accent)';
+    svg+='<rect x="'+x+'" y="'+y+'" width="'+(bw*0.7)+'" height="'+bh+'" rx="3" fill="'+col+'" opacity="0.85"/>';
+    svg+='<text x="'+(x+bw*0.35)+'" y="'+(y-4)+'" text-anchor="middle" font-size="8" fill="var(--text-dim)" font-family="var(--font-mono)">'+(v/1000).toFixed(1)+'k</text>';
+    svg+='<text x="'+(x+bw*0.35)+'" y="'+(h-pad+12)+'" text-anchor="middle" font-size="9" fill="var(--text-dim)" font-family="var(--font-mono)">'+days[i]+'</text>';
+  });
+  // capacity line
+  const capY=h-pad-(h-pad*2)*(r.plantCap*p.hours/max);
+  svg+='<line x1="'+pad+'" y1="'+capY+'" x2="'+(w-pad)+'" y2="'+capY+'" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  svg+='<text x="'+(w-pad)+'" y="'+(capY-4)+'" text-anchor="end" font-size="8" fill="var(--red)" font-family="var(--font-mono)">Capacity</text>';
+  $('forecast-svg').innerHTML=svg;
+}
+
+function drawUtilization(r,p){
+  const w=340,h=120,pad=25;
+  const hours=[];const vals=[];
+  for(let hr=0;hr<24;hr++){
+    hours.push(hr);
+    // simulate demand curve: peaks at 9-11am and 3-5pm
+    let factor=0.3;
+    if(hr>=8&&hr<=11)factor=0.8+0.2*Math.sin((hr-8)*Math.PI/4);
+    else if(hr>=13&&hr<=17)factor=0.9+0.1*Math.sin((hr-13)*Math.PI/5);
+    else if(hr>=6&&hr<8)factor=0.5;
+    else if(hr>=18&&hr<=20)factor=0.6;
+    vals.push(r.criticalPeak*factor);
+  }
+  const max=r.plantCap*1.2;
+  let svg='';
+  // area path
+  let path='M'+pad+','+(h-pad);
+  vals.forEach((v,i)=>{
+    const x=pad+(w-pad*2)*i/23;const y=h-pad-(h-pad*2)*(v/max);
+    path+=' L'+x.toFixed(1)+','+y.toFixed(1);
+  });
+  path+=' L'+(w-pad)+','+(h-pad)+' Z';
+  svg+='<path d="'+path+'" fill="var(--ai-accent-dim)"/>';
+  // line
+  let line='M';
+  vals.forEach((v,i)=>{
+    const x=pad+(w-pad*2)*i/23;const y=h-pad-(h-pad*2)*(v/max);
+    line+=(i>0?' L':'')+x.toFixed(1)+','+y.toFixed(1);
+  });
+  svg+='<path d="'+line+'" fill="none" stroke="var(--ai-accent)" stroke-width="1.5"/>';
+  // capacity line
+  const capY=h-pad-(h-pad*2)*(r.plantCap/max);
+  svg+='<line x1="'+pad+'" y1="'+capY+'" x2="'+(w-pad)+'" y2="'+capY+'" stroke="var(--red)" stroke-width="1" stroke-dasharray="4 3"/>';
+  svg+='<text x="'+(w-pad)+'" y="'+(capY-3)+'" text-anchor="end" font-size="8" fill="var(--red)" font-family="var(--font-mono)">Cap: '+fmt(r.plantCap)+' L/h</text>';
+  // axis labels
+  svg+='<text x="'+pad+'" y="'+(h-5)+'" font-size="8" fill="var(--text-dim)" font-family="var(--font-mono)">00h</text>';
+  svg+='<text x="'+(w-pad)+'" y="'+(h-5)+'" text-anchor="end" font-size="8" fill="var(--text-dim)" font-family="var(--font-mono)">24h</text>';
+  $('util-svg').innerHTML=svg;
+}
+
+// ========== CHAT ==========
+function switchTab(tab){
+  document.querySelectorAll('.ai-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ai-panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  $('panel-'+tab).classList.add('active');
+}
+
+function askAI(q){$('chat-input').value=q;sendChat();}
+
+function sendChat(){
+  const q=$('chat-input').value.trim();if(!q)return;
+  const log=$('chat-log');
+  log.innerHTML+='<div class="ai-msg ai-msg--user"><div class="ai-msg__head">You</div>'+q+'</div>';
+  $('chat-input').value='';
+  // thinking
+  log.innerHTML+='<div class="ai-thinking" id="thinking"><span></span><span></span><span></span></div>';
+  log.scrollTop=log.scrollHeight;
+  setTimeout(()=>{
+    const t=$('thinking');if(t)t.remove();
+    const {p,r}=window._lastCalc||{p:getInputs(),r:calc(getInputs())};
+    const ans=aiChat(q,p,r);
+    log.innerHTML+='<div class="ai-msg ai-msg--bot"><div class="ai-msg__head">AI Assistant</div>'+ans+'</div>';
+    log.scrollTop=log.scrollHeight;
+  },600+Math.random()*400);
+}
+
+function aiChat(q,p,r){
+  const ql=q.toLowerCase();
+  if(ql.includes('regen'))
+    return 'The regeneration cycle is <strong>'+r.regenDays+' days</strong>. This is calculated from the resin exchange capacity ('+fmt(r.resinVol)+'L x 20 g/L = '+fmt(r.totalCap,2)+' kg CaCO3) divided by the daily ion load ('+fmt(r.dailyIonLoad,3)+' kg/day = '+fmt(r.runDays,1)+' days). With a duty/standby twin configuration, one vessel regenerates while the other continues supply — so there is zero downtime.';
+  if(ql.includes('reject')||ql.includes('ro reject')||ql.includes('concentrate'))
+    return 'The RO reject stream is <strong>'+fmt(r.roRej)+' L/h</strong> at '+(p.recovery*100)+'% recovery. To reduce reject: (1) increase recovery to 80% if feed TDS permits (saves ~'+fmt(r.roFeed*0.05)+' L/h), (2) recover reject for non-critical uses like gardening, toilet flushing, or cooling tower makeup. At TDS '+p.tds+' ppm, '+ (p.tds<800?'75-80% recovery is safe':'75% is the safe maximum') +'.';
+  if(ql.includes('standard')||ql.includes('code')||ql.includes('compliance'))
+    return 'This design complies with: <strong>IS 10500:2012</strong> (raw water TDS <=500), <strong>WHO Guidelines 4th Ed</strong> (health-based targets), <strong>ISO 23500-3:2024</strong> (dialysis water: bacterial <100 CFU/mL, endotoxin <0.25 EU/mL), <strong>AAMI/ISO 13959</strong> (max contaminants), <strong>NABH</strong> (hospital infection control, sterile processing), and <strong>IS 2085/AAMI ST79</strong> (sterilization equipment water quality).';
+  if(ql.includes('duty')||ql.includes('standby')||ql.includes('twin'))
+    return 'Yes, duty/standby is <strong>strongly recommended</strong> for hospital dialysis applications. Two x '+r.diaSel+'mm vessels, each with '+fmt(r.resinVol)+'L resin, piped in parallel with isolation valves. While one regenerates (~4 hours), the other carries full load. This guarantees zero water interruption during regeneration — critical for continuous dialysis sessions.';
+  if(ql.includes('tds')||ql.includes('quality'))
+    return 'Water quality progression: <strong>Raw</strong> '+p.tds+' ppm TDS -> <strong>After RO</strong> '+fmt(r.permTds,1)+' ppm ('+fmt(r.permCond,1)+' uS/cm) -> <strong>After DM</strong> <0.5 ppm (<0.1 uS/cm). This meets AAMI/ISO 23500 ultrapure dialysis grade. The DM mixed-bed removes all residual ions that pass through the RO.';
+  if(ql.includes('capacity')||ql.includes('size')||ql.includes('plant'))
+    return 'The plant is sized at <strong>'+fmt(r.plantCap)+' L/h</strong> based on peak critical demand of '+fmt(r.criticalPeak,0)+' L/h with a '+(p.safety*100)+'% safety margin. Utilization is '+(r.criticalPeak/r.plantCap*100).toFixed(0)+'%. '+(r.criticalPeak/r.plantCap<0.8?'There is headroom for ~'+((r.plantCap/r.criticalPeak-1)*100).toFixed(0)+'% future expansion.':'Consider upsizing for expansion headroom.');
+  if(ql.includes('storage')||ql.includes('tank'))
+    return 'Storage is sized at <strong>'+fmt(r.storage)+'L</strong> ('+(r.storage/r.criticalPeak).toFixed(1)+' hours of peak demand). This provides a buffer during RO wash cycles and DM regeneration. A conical-bottom SS-316L or HDPE tank with level switches (low-level cut-off, high-level diversion) is recommended.';
+  if(ql.includes('steril')||ql.includes('cssd')||ql.includes('autoclave'))
+    return 'Sterilization demand is <strong>'+fmt(r.sterileDaily)+' L/day</strong> from autoclaves (mineral-free steam), washer-disinfectors (spot-free rinse), ETO (humidification), and ultrasonic cleaners. All equipment is sterilized per NABH protocols — the DM plant supplies ultrapure water to prevent mineral scaling on instruments and pyrogen contamination.';
+  return 'I can help with: regeneration cycles, RO reject optimization, water quality standards (IS 10500, WHO, AAMI/ISO 23500, NABH), duty/standby configuration, plant capacity sizing, storage requirements, and sterilization equipment demand. Try the suggestion chips above or ask me anything about the design.';
+}
+
+// ========== MAIN RECALC ==========
+function recalc(){
+  const p=getInputs();const r=calc(p);const ai=aiAnalyze(p,r);
+  window._lastCalc={p,r,ai};
+
+  // demand table
+  const rows=[
+    ['Dialysis stations',p.stations,fmt(r.dialPeak),fmt(r.dialPeak*p.hours),'Primary critical'],
+    ['Laboratory','-',fmt(p.lab),fmt(p.lab*p.hours),'Analyser feed'],
+    ['CSSD other','-',fmt(p.cssd),fmt(p.cssd*p.hours),'Sterilizer feed'],
+    ['Other critical','-',fmt(p.other),fmt(p.other*p.hours),'ICU/pharma'],
+    ['Sterilization equip.','-',fmt(r.sterilePeakLh,0),fmt(r.sterileDaily),'Auto/washer/ETO/US']
+  ];
+  $('demandTable').querySelector('tbody').innerHTML=rows.map(rw=>
+    '<tr><td>'+rw[0]+'</td><td>'+rw[1]+'</td><td class="num">'+rw[2]+'</td><td class="num">'+rw[3]+'</td><td>'+rw[4]+'</td></tr>'
+  ).join('');
+  $('dt-total-lh').textContent=fmt(r.criticalPeak);$('dt-total-daily').textContent=fmt(r.dailyCritical);
+  $('dc-formula').innerHTML='Dialysis = '+p.stations+' x '+p.flow+' x '+p.sim+' = <span class="res">'+fmt(r.dialPeak)+' L/h</span>\nCritical peak = '+fmt(r.dialPeak)+' + '+fmt(p.lab)+' + '+fmt(p.cssd)+' + '+fmt(p.other)+' + '+fmt(r.sterilePeakLh,0)+' = <span class="res">'+fmt(r.criticalPeak,0)+' L/h</span>\nDesign = '+fmt(r.criticalPeak,0)+' x (1+'+p.safety+') = <span class="res">'+fmt(r.designCap,0)+' L/h</span> -> select <span class="res">'+fmt(r.plantCap)+' L/h</span>';
+
+  // occupancy
+  const occRows=[
+    ['Patients (beds)',p.beds,p.pwater+' L/bed/day',p.beds*p.pwater],
+    ['Doctors',p.doctors,p.swater+' L/person/day',p.doctors*p.swater],
+    ['Nurses',p.nurses,p.swater+' L/person/day',p.nurses*p.swater],
+    ['Support staff',p.support,p.swater+' L/person/day',p.support*p.swater],
+    ['Visitors',p.visitors,p.vwater+' L/visitor/day',p.visitors*p.vwater]
+  ];
+  $('occTable').querySelector('tbody').innerHTML=occRows.map(rw=>
+    '<tr><td>'+rw[0]+'</td><td>'+fmt(rw[1])+'</td><td class="num">'+rw[2]+'</td><td class="num">'+fmt(rw[3])+'</td></tr>'
+  ).join('');
+  $('occ-total').textContent=fmt(r.occDaily)+' ('+fmt(r.occDaily/1000,1)+' m3/day)';
+
+  // sterilization
+  const stRows=[
+    ['Autoclaves',p.autoclaves,p.autoCycles,p.autoWater,fmt(r.autoWater)],
+    ['Washer-disinfectors',p.washers,p.wdCycles,p.wdWater,fmt(r.wdWater)],
+    ['ETO sterilizers',p.eto,p.etoCycles,p.etoWater,fmt(r.etoWater)],
+    ['Ultrasonic cleaners',p.usonic,p.usHours+'h',p.usWater,fmt(r.usWater)]
+  ];
+  $('sterileTable').querySelector('tbody').innerHTML=stRows.map(rw=>
+    '<tr><td>'+rw[0]+'</td><td>'+fmt(rw[1])+'</td><td class="num">'+rw[2]+'</td><td class="num">'+rw[3]+'</td><td class="num">'+rw[4]+'</td></tr>'
+  ).join('');
+  $('st-total').textContent=fmt(r.sterileDaily)+' L/day';
+
+  // RO & DM
+  $('ro-feed').textContent=fmt(r.roFeed)+' L/h';
+  $('ro-rej-text').textContent='Reject: '+fmt(r.roRej)+' L/h';
+  $('dm-resin').textContent=fmt(r.resinVol);
+  $('dm-vessel-text').textContent=r.diaSel+'mm x '+fmt(r.vesselH,2)+'m';
+  $('dm-regen').textContent=r.regenDays;
+  $('dm-formula').innerHTML='RO feed = '+fmt(r.roPerm)+' / '+p.recovery+' = <span class="res">'+fmt(r.roFeed)+' L/h</span>\nPermeate TDS = '+p.tds+' x (1-'+p.rejection+') = <span class="res">'+fmt(r.permTds,1)+' ppm</span>\nResin = '+fmt(r.dmFlow,1)+' L/min x 3 min = <span class="res">'+fmt(r.resinVol)+' L</span>\nVessel = '+fmt(r.diaMm,0)+'mm -> <span class="res">'+r.diaSel+'mm</span>\nRun = '+fmt(r.totalCap,2)+' / '+fmt(r.dailyIonLoad,3)+' = <span class="res">'+fmt(r.runDays,1)+' days</span>';
+
+  // KPIs
+  $('k-plant').textContent=fmt(r.plantCap);$('k-plant-m3').textContent=fmt(r.plantCap/1000,2)+' m3/h';
+  $('k-daily').textContent=fmt(r.dailyCritical);$('k-daily-m3').textContent=fmt(r.dailyCritical/1000,1)+' m3/day';
+  $('k-rofeed').textContent=fmt(r.roFeed);$('k-resin').textContent=fmt(r.resinVol);
+  $('k-vessel').textContent=r.diaSel+'mm vessel';$('k-regen').textContent=r.regenDays;
+
+  // pipeline
+  const stages=[
+    ['STAGE 0','Raw Water',p.tds+' ppm','var(--node-d)'],
+    ['STAGE 1','MMF + ACF','Sand & carbon','var(--node-c)'],
+    ['STAGE 2','Softener','Na+ exchange','var(--node-c)'],
+    ['STAGE 3','5um Cart.','Guard filter','var(--node-c)'],
+    ['STAGE 4','RO Block',fmt(r.permTds,0)+' ppm','var(--node-a)'],
+    ['STAGE 5','DM Polisher','<0.1 uS/cm','var(--node-b)'],
+    ['STAGE 6','UV + 0.2um','Bacterial control','var(--node-b)'],
+    ['STAGE 7','Storage + Loop',fmt(r.storage)+' L','var(--green)']
+  ];
+  $('pipeline').innerHTML=stages.map((s,i)=>
+    (i>0?'<div class="pipeline__arrow">-></div>':'')+
+    '<div class="pipeline__step" style="border-top:3px solid '+s[3]+'"><div class="pl-num">'+s[0]+'</div><div class="pl-name">'+s[1]+'</div><div class="pl-desc">'+s[2]+'</div></div>'
+  ).join('');
+
+  // schematic
+  $('sc-raw').textContent=p.tds+' ppm';$('sc-raw-q').textContent=fmt(r.roFeed)+' L/h';
+  $('sc-perm').textContent=fmt(r.permTds)+' ppm';$('sc-rej-text').textContent='reject '+fmt(r.roRej)+' L/h';
+  $('sc-tank').textContent=fmt(r.storage)+' L';
+  $('qt-raw-tds').textContent=p.tds;$('qt-ro-tds').textContent=fmt(r.permTds,1);
+  $('qt-raw-c').textContent=fmt(p.tds/.5,0);$('qt-ro-c').textContent=fmt(r.permCond,1);
+
+  // AI
+  renderAI(ai,p,r);
+
+  $('ts').textContent='AI analysis: '+new Date().toLocaleTimeString('en-IN');
+}
+
+function resetDefaults(){
+  const d={stations:24,flow:30,sim:0.90,hours:16,lab:200,cssd:150,other:100,safety:0.20,tds:450,
+    beds:100,doctors:20,nurses:40,support:30,visitors:50,pwater:125,swater:45,vwater:15,
+    autoclaves:2,'auto-cycles':6,'auto-water':150,washers:2,'wd-cycles':8,'wd-water':200,
+    eto:1,'eto-cycles':2,'eto-water':80,usonic:2,'us-hours':4,'us-water':30};
+  const m={stations:'inp-stations',flow:'inp-flow',sim:'inp-sim',hours:'inp-hours',lab:'inp-lab',cssd:'inp-cssd',other:'inp-other',safety:'inp-safety',tds:'inp-tds',
+    beds:'inp-beds',doctors:'inp-doctors',nurses:'inp-nurses',support:'inp-support',visitors:'inp-visitors',pwater:'inp-pwater',swater:'inp-swater',vwater:'inp-vwater',
+    autoclaves:'inp-autoclaves','auto-cycles':'inp-auto-cycles','auto-water':'inp-auto-water',washers:'inp-washers','wd-cycles':'inp-wd-cycles','wd-water':'inp-wd-water',
+    eto:'inp-eto','eto-cycles':'inp-eto-cycles','eto-water':'inp-eto-water',usonic:'inp-usonic','us-hours':'inp-us-hours','us-water':'inp-us-water'};
+  for(const k in d)$(m[k]).value=d[k];
+  $('inp-recovery').value='0.75';$('inp-rejection').value='0.98';recalc();
+}
+
+// ========== DOWNLOADS ==========
+function downloadExcel(){
+  const{p,r,ai}=window._lastCalc||(recalc(),window._lastCalc);
+  const wb=XLSX.utils.book_new();
+  const s=[['DM PLANT DESIGN REPORT - AI GENERATED'],['Hospital Dialysis, Sterilization & Critical Care'],['Generated:',new Date().toLocaleString('en-IN')],[],['KEY RESULTS'],['Plant Capacity (L/h)',r.plantCap],['Daily Demand (L/day)',Math.round(r.dailyCritical)],['Occupancy Demand (L/day)',Math.round(r.occDaily)],['Sterilization (L/day)',Math.round(r.sterileDaily)],['RO Feed (L/h)',Math.round(r.roFeed)],['DM Resin (L)',Math.round(r.resinVol)],['Regen Cycle (days)',r.regenDays],['AI Score',ai.score+'/100'],['Risk Level',ai.riskPct<25?'Low':ai.riskPct<50?'Moderate':'High'],[],['AI RECOMMENDATIONS'],['Title','Type','Detail']];
+  ai.recs.forEach(rc=>{s.push([rc.title,rc.tag,rc.body]);});
+  const ws=XLSX.utils.aoa_to_sheet(s);ws['!cols']=[{wch:35},{wch:12},{wch:60}];
+  XLSX.utils.book_append_sheet(wb,ws,'AI Report');
+  XLSX.writeFile(wb,'AI_DM_Plant_Report.xlsx');
+}
+
+function downloadPDF(){
+  const{p,r,ai}=window._lastCalc||(recalc(),window._lastCalc);
+  const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  doc.setFontSize(16);doc.setFont(undefined,'bold');doc.text('AI-GENERATED DM PLANT DESIGN REPORT',14,18);
+  doc.setFontSize(10);doc.setFont(undefined,'normal');doc.text('Hospital Dialysis, Sterilization & Critical Care',14,26);
+  doc.text('Generated: '+new Date().toLocaleString('en-IN'),14,32);
+  doc.text('AI Score: '+ai.score+'/100 | Risk: '+(ai.riskPct<25?'Low':ai.riskPct<50?'Moderate':'High')+' ('+ai.riskPct+'%)',14,38);
+  let y=50;
+  doc.setFontSize(12);doc.setFont(undefined,'bold');doc.text('1. Key Results',14,y);y+=4;
+  doc.autoTable({startY:y,theme:'grid',headStyles:{fillColor:[124,58,237]},head:[['Parameter','Value']],
+    body:[['Plant Capacity',fmt(r.plantCap)+' L/h'],['Daily Demand',fmt(r.dailyCritical)+' L/day'],['RO Feed',fmt(r.roFeed)+' L/h'],['DM Resin',fmt(r.resinVol)+' L'],['Vessel',r.diaSel+'mm'],['Regen Cycle',r.regenDays+' days'],['AI Score',ai.score+'/100']],
+    styles:{fontSize:9}});y=doc.lastAutoTable.finalY+10;
+  doc.setFontSize(12);doc.setFont(undefined,'bold');doc.text('2. AI Recommendations',14,y);y+=4;
+  doc.autoTable({startY:y,theme:'grid',headStyles:{fillColor:[124,58,237]},head:[['Priority','Recommendation','Detail']],
+    body:ai.recs.map(rc=>[rc.tag,rc.title,rc.body]),styles:{fontSize:8}});y=doc.lastAutoTable.finalY+10;
+  if(y>240){doc.addPage();y=20;}
+  doc.setFontSize(12);doc.setFont(undefined,'bold');doc.text('3. Compliance',14,y);y+=4;
+  doc.autoTable({startY:y,theme:'grid',headStyles:{fillColor:[124,58,237]},head:[['Parameter','Raw','RO','DM','IS 10500','WHO','AAMI/ISO','NABH']],
+    body:[['TDS',p.tds,fmt(r.permTds,1),'<0.5','<=500','<=600','<=10','OK'],['Bacterial','','-','<100','<10','0 E.coli','0 E.coli','<100','<100'],['Endotoxin','-','<1','<0.1','-','-','<0.25','<0.25']],
+    styles:{fontSize:8}});
+  doc.setFontSize(8);doc.setFont(undefined,'italic');doc.text('AI-generated report. Validate with water-treatment specialist against actual feed analysis.',14,doc.lastAutoTable.finalY+10);
+  doc.save('AI_DM_Plant_Report.pdf');
+}
+
+function downloadWord(){
+  const{p,r,ai}=window._lastCalc||(recalc(),window._lastCalc);
+  const h=(t,x)=>'<'+t+'>'+x+'</'+t+'>';
+  const tbl=(hd,rows)=>{let s='<table border="1" cellpadding="5" style="border-collapse:collapse;font-size:11pt;font-family:Calibri;"><tr style="background:#7c3aed;color:#fff;">'+hd.map(x=>'<th>'+x+'</th>').join('')+'</tr>';rows.forEach(rw=>{s+='<tr>'+rw.map(c=>'<td>'+c+'</td>').join('')+'</tr>'});return s+'</table>'};
+  const html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body style="font-family:Calibri;font-size:11pt;">'+
+    h('h1','AI-Generated DM Plant Design Report')+h('h3','Hospital Dialysis, Sterilization & Critical Care')+
+    '<p>Generated: '+new Date().toLocaleString('en-IN')+' | AI Score: '+ai.score+'/100 | Risk: '+(ai.riskPct<25?'Low':ai.riskPct<50?'Moderate':'High')+'</p>'+
+    h('h2','1. Key Results')+tbl(['Parameter','Value'],[['Plant Capacity',fmt(r.plantCap)+' L/h'],['Daily Demand',fmt(r.dailyCritical)+' L/day'],['RO Feed',fmt(r.roFeed)+' L/h'],['DM Resin',fmt(r.resinVol)+' L'],['Vessel',r.diaSel+'mm'],['Regen Cycle',r.regenDays+' days'],['AI Score',ai.score+'/100']])+
+    h('h2','2. AI Recommendations')+tbl(['Priority','Recommendation','Detail'],ai.recs.map(rc=>[rc.tag,rc.title,rc.body]))+
+    h('h2','3. Compliance')+tbl(['Parameter','Raw','RO','DM','IS 10500','WHO','AAMI/ISO','NABH'],[['TDS',p.tds,fmt(r.permTds,1),'<0.5','<=500','<=600','<=10','OK'],['Bacterial','-','<100','<10','0 E.coli','0 E.coli','<100','<100'],['Endotoxin','-','<1','<0.1','-','-','<0.25','<0.25']])+
+    '<p style="font-size:9pt;font-style:italic;">AI-generated report. Validate with water-treatment specialist.</p></body></html>';
+  const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
+  const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='AI_DM_Plant_Report.doc';link.click();URL.revokeObjectURL(link.href);
+}
+
+// INIT
+document.querySelectorAll('.field input,.field select').forEach(el=>el.addEventListener('input',recalc));
+recalc();
+</script>
+</body>
+</html>

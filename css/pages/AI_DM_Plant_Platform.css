@@ -1,0 +1,837 @@
+/**
+ * Atomep Enteam — AI DM Plant Platform Stylesheet
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. Platform Layout & Masthead
+   ========================================================================== */
+.platform {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 0;
+  min-height: 100vh;
+  min-width: 0;
+}
+
+.main-col {
+  padding: var(--spacing-32, 32px) var(--spacing-24, 24px) 80px;
+  max-width: 900px;
+  width: 100%;
+  min-width: 0;
+}
+
+.ai-col {
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border-left: 1px solid var(--color-soft-fog, #f0f0f0);
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  padding: 0;
+}
+
+@media (max-width: 1100px) {
+  .platform { grid-template-columns: 1fr; }
+  .ai-col { position: relative; height: auto; border-left: none; border-top: 1px solid var(--color-soft-fog, #f0f0f0); top: 0; }
+}
+
+.masthead {
+  margin-bottom: var(--spacing-28, 28px);
+}
+
+.eyebrow {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-sienna-brand, #451a03);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--spacing-12, 12px);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-sienna-brand, #451a03);
+}
+
+.masthead h1 {
+  font-family: var(--font-inter);
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  color: var(--color-ink, #171717);
+  margin-bottom: var(--spacing-8, 8px);
+}
+
+.masthead p {
+  font-size: var(--text-body, 15px);
+  color: var(--color-graphite, #525252);
+  line-height: var(--leading-body, 1.56);
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: var(--spacing-12, 12px);
+}
+
+.tag {
+  font-family: var(--font-inter);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium, 500);
+  padding: 3px 10px;
+  border-radius: var(--radius-tags, 9999px);
+  background-color: var(--color-ash-mist, #f5f5f5);
+  color: var(--color-graphite, #525252);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.tag--ai {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  color: var(--color-sienna-brand, #451a03);
+}
+
+.dl-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: var(--spacing-16, 16px);
+  align-items: center;
+}
+
+.dl-btn {
+  font-family: var(--font-inter);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium, 500);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-buttons, 9999px);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-ink, #171717);
+}
+
+.dl-btn:hover {
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+.dl-pdf:hover  { color: #dc2626; border-color: #dc2626; }
+.dl-xlsx:hover { color: #16a34a; border-color: #16a34a; }
+.dl-docx:hover { color: #2563eb; border-color: #2563eb; }
+
+.dl-label {
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+  margin-left: 6px;
+}
+
+/* ==========================================================================
+   2. KPIs & Sections
+   ========================================================================== */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: var(--spacing-12, 12px);
+  margin: var(--spacing-20, 20px) 0 var(--spacing-32, 32px);
+}
+
+.kpi-card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi-card__value {
+  font-size: var(--text-subheading, 22px);
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink, #171717);
+}
+
+.kpi-card__unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-steel, #737373);
+  margin-left: 3px;
+}
+
+.kpi-card__label {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  margin-top: var(--spacing-4, 4px);
+}
+
+.kpi-card__hint {
+  font-size: 11px;
+  color: var(--color-sienna-brand, #451a03);
+  margin-top: 2px;
+}
+
+.section {
+  margin: var(--spacing-32, 32px) 0;
+}
+
+.section__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-12, 12px);
+  margin-bottom: var(--spacing-16, 16px);
+  flex-wrap: wrap;
+}
+
+.section__num {
+  font-family: var(--font-inter);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  background-color: var(--color-ash-mist, #f5f5f5);
+  border-radius: var(--radius-tags, 9999px);
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+.section__title {
+  font-size: var(--text-body-lg, 18px);
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: -0.3px;
+  color: var(--color-ink, #171717);
+}
+
+.section__sub {
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+}
+
+/* ==========================================================================
+   3. Form Input Panels & Grids
+   ========================================================================== */
+.input-panel {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-20, 20px);
+  box-shadow: var(--shadow-sm);
+}
+
+.input-panel h3 {
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-sienna-brand, #451a03);
+  margin-bottom: var(--spacing-12, 12px);
+  margin-top: var(--spacing-16, 16px);
+}
+
+.input-panel h3:first-child { margin-top: 0; }
+
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-14, 14px);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-graphite, #525252);
+}
+
+.field label small {
+  display: block;
+  font-weight: 400;
+  color: var(--color-steel, #737373);
+  font-size: 11px;
+}
+
+.field input, .field select {
+  font-family: var(--font-inter);
+  font-size: 14px;
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-ink, #171717);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 8px 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+
+.field input:focus, .field select:focus {
+  outline: none;
+  border-color: var(--color-ink, #171717);
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.08);
+}
+
+.field .range-hint {
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: var(--spacing-16, 16px);
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-buttons, 9999px);
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn--primary {
+  background-color: var(--color-ink, #171717);
+  color: #fff;
+  border-color: var(--color-ink, #171717);
+}
+
+.btn--primary:hover {
+  background-color: var(--color-charcoal, #262626);
+}
+
+.btn--ghost {
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-graphite, #525252);
+}
+
+.btn--ghost:hover {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  color: var(--color-ink, #171717);
+}
+
+.card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  box-shadow: var(--shadow-sm);
+}
+
+.card--accent-a { border-left: 3px solid var(--color-sienna-brand, #451a03); }
+.card--accent-b { border-left: 3px solid #0d9488; }
+.card--accent-c { border-left: 3px solid #d97706; }
+.card--accent-d { border-left: 3px solid #dc2626; }
+
+.card__label {
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  margin-bottom: var(--spacing-6, 6px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card__label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; }
+.card__title { font-size: 15px; font-weight: var(--font-weight-semibold, 600); color: var(--color-ink, #171717); margin-bottom: 4px; }
+.card__body { font-size: 13px; color: var(--color-graphite, #525252); line-height: 1.5; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--spacing-14, 14px); }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--spacing-14, 14px); }
+
+.table-wrap {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.data-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-graphite, #525252);
+}
+
+.data-table td.num, .data-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table tbody tr:nth-child(even) { background-color: var(--color-warm-canvas, #fffdf9); }
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  padding: 2px 8px;
+  border-radius: var(--radius-tags, 9999px);
+}
+
+.status--ok   { background-color: #ecfdf5; color: #065f46; }
+.status--warn { background-color: #fff7ed; color: #9a3412; }
+.status--crit { background-color: #fef2f2; color: #991b1b; }
+.status--info { background-color: var(--color-highlight-wash, #fdf8f0); color: var(--color-sienna-brand, #451a03); }
+.status--ai   { background-color: #f5f3ff; color: #5b21b6; }
+
+/* ==========================================================================
+   4. Pipeline Steps & Process Schematics
+   ========================================================================== */
+.pipeline {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow-x: auto;
+  padding: 6px 0 12px;
+}
+
+.pipeline__step {
+  min-width: 130px;
+  flex: 1;
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.pipeline__step .pl-num {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-sienna-brand, #451a03);
+}
+
+.pipeline__step .pl-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink, #171717);
+  margin: 3px 0;
+}
+
+.pipeline__step .pl-desc {
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+  line-height: 1.35;
+}
+
+.pipeline__arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 3px;
+  color: var(--color-steel, #737373);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.callout {
+  padding: var(--spacing-12, 12px) var(--spacing-16, 16px);
+  border-radius: 0 var(--radius-inputs, 8px) var(--radius-inputs, 8px) 0;
+  border-left: 3px solid;
+  margin: var(--spacing-12, 12px) 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.callout--info { background-color: var(--color-highlight-wash, #fdf8f0); border-color: var(--color-sienna-brand, #451a03); color: var(--color-graphite, #525252); }
+.callout--warn { background-color: #fff7ed; border-color: #f97316; color: #9a3412; }
+.callout--crit { background-color: #fef2f2; border-color: #ef4444; color: #991b1b; }
+.callout--ok   { background-color: #ecfdf5; border-color: #16a34a; color: #065f46; }
+.callout--ai   { background-color: #f5f3ff; border-color: #7c3aed; color: #5b21b6; }
+
+/* Token mappings for schematic nodes & pipeline indicators */
+.platform {
+  --node-a: #2563eb;
+  --node-b: #7c3aed;
+  --node-c: #059669;
+  --node-d: #d97706;
+  --green: #16a34a;
+  --accent: #451a03;
+  --text: #171717;
+  --text-dim: #525252;
+  --surface-2: #ffffff;
+  --border-bright: #e5e5e5;
+}
+
+.schematic {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-20, 20px);
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.schematic svg {
+  width: 100%;
+  min-width: 700px;
+  height: auto;
+  display: block;
+}
+
+.schematic .blk {
+  fill: #ffffff;
+  stroke: var(--color-soft-fog, #e5e5e5);
+  stroke-width: 1.5;
+}
+
+.schematic .blk-a { stroke: #2563eb; fill: #eff6ff; }
+.schematic .blk-b { stroke: #7c3aed; fill: #f5f3ff; }
+.schematic .blk-c { stroke: #059669; fill: #ecfdf5; }
+.schematic .blk-d { stroke: #d97706; fill: #fffbeb; }
+
+.schematic .lbl {
+  font-family: var(--font-inter, sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--color-ink, #171717);
+  text-anchor: middle;
+  letter-spacing: 0.3px;
+}
+
+.schematic .lbl-num {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  fill: var(--color-graphite, #525252);
+  text-anchor: middle;
+}
+
+.schematic .val {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  fill: var(--color-sienna-brand, #451a03);
+  text-anchor: middle;
+  font-weight: 600;
+}
+
+.schematic .pipe {
+  fill: none;
+  stroke: var(--color-ink, #171717);
+  stroke-width: 1.5;
+}
+
+.schematic .pipe-rej {
+  fill: none;
+  stroke: #dc2626;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+.schematic .tank {
+  fill: #f8fafc;
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+
+.schematic .title {
+  font-family: var(--font-inter, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  fill: var(--color-steel, #737373);
+}
+
+.ai-dev-notice {
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-inputs, 8px);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-dev-notice__badge {
+  font-family: var(--font-inter, sans-serif);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #b45309;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-dev-notice__badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #f59e0b;
+}
+
+.ai-dev-notice__text {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #92400e;
+}
+
+.ai-dev-tag {
+  font-size: 9px;
+  font-weight: 600;
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   5. AI Chat & Sidebar Panel
+   ========================================================================== */
+.ai-header {
+  padding: var(--spacing-16, 16px) var(--spacing-16, 16px) var(--spacing-12, 12px);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-pure-white, #ffffff);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.ai-header__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.ai-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-lg, 8px);
+  background-color: var(--color-sienna-brand, #451a03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.ai-header__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink, #171717);
+}
+
+.ai-header__sub {
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #16a34a;
+}
+
+.ai-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.ai-tab {
+  font-size: 11px;
+  font-weight: var(--font-weight-medium, 500);
+  padding: 4px 10px;
+  border-radius: var(--radius-buttons, 9999px);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-graphite, #525252);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-tab:hover { color: var(--color-ink, #171717); background-color: var(--color-ash-mist, #f5f5f5); }
+.ai-tab.active {
+  background-color: var(--color-ink, #171717);
+  color: #ffffff;
+  border-color: var(--color-ink, #171717);
+}
+
+.ai-content {
+  padding: var(--spacing-16, 16px);
+}
+
+.ai-panel { display: none; }
+.ai-panel.active { display: block; animation: fadeIn 0.2s ease; }
+
+.ai-rec {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 12px;
+  margin-bottom: 8px;
+  border-left: 3px solid var(--color-sienna-brand, #451a03);
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-rec--crit { border-left-color: #ef4444; }
+.ai-rec--warn { border-left-color: #f97316; }
+.ai-rec--ok   { border-left-color: #16a34a; }
+.ai-rec--info { border-left-color: var(--color-sienna-brand, #451a03); }
+
+.ai-rec__head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ai-rec__title { font-size: 13px; font-weight: 600; color: var(--color-ink, #171717); flex: 1; }
+.ai-rec__body { font-size: 12px; color: var(--color-graphite, #525252); line-height: 1.5; }
+
+.ai-chat { display: flex; flex-direction: column; gap: 8px; }
+
+.ai-msg {
+  padding: 10px 12px;
+  border-radius: var(--radius-inputs, 8px);
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+.ai-msg--bot {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-left: 3px solid var(--color-sienna-brand, #451a03);
+  color: var(--color-ink, #171717);
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-msg--user {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-ink, #171717);
+  margin-left: 20px;
+  text-align: right;
+}
+
+.ai-chat-input { display: flex; gap: 6px; margin-top: 10px; }
+.ai-chat-input input {
+  flex: 1;
+  font-size: 13px;
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-ink, #171717);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 8px 10px;
+}
+
+.ai-chat-input button {
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--color-ink, #171717);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-inputs, 8px);
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.ai-suggestions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.ai-sugg {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: var(--radius-tags, 9999px);
+  background-color: var(--color-ash-mist, #f5f5f5);
+  color: var(--color-graphite, #525252);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  cursor: pointer;
+}
+
+.ai-narrative {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-graphite, #525252);
+  padding: 14px;
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  border-left: 3px solid var(--color-sienna-brand, #451a03);
+}
+
+.ai-gauge {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.ai-gauge__label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-steel, #737373); margin-bottom: 6px; }
+.ai-gauge__bar { height: 6px; border-radius: var(--radius-full, 9999px); background-color: var(--color-soft-fog, #f0f0f0); overflow: hidden; margin-bottom: 6px; }
+.ai-gauge__fill { height: 100%; border-radius: var(--radius-full, 9999px); }
+
+.ai-forecast {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-soft-fog, #f0f0f0);
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media print {
+  .ai-col, .dl-bar, .btn-row, .pipeline__arrow { display: none; }
+  body { background: #fff; }
+  .section { page-break-inside: avoid; }
+}
+
+/* Migrated Page-Specific Inline Styles */
+.p-ai_dm_plant_platform_html-s1 { --i: 0; }
+.p-ai_dm_plant_platform_html-s2 { --i: 1; }
+.p-ai_dm_plant_platform_html-s3 { --i: 2; }
+#k-ai-grade { color: #16a34a; }

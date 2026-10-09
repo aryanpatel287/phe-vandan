@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBCS 2026 — Water Supply Pipe Size Calculator</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/NBCS_2026_Pipe_Size_Calculator.css">
+
+<script src="assets/vendor/jspdf.umd.min.js"></script>
+<script src="assets/vendor/jspdf.plugin.autotable.min.js"></script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+<header>
+<h1>NBCS 2026 — Water Supply Pipe Size Calculator</h1>
+<p>National Building Construction Standards 2026 · Clauses 4.7.3.1, 4.7.3.2 & 4.7.4 · Hunter's Method + Hazen-Williams Equation</p>
+</header>
+<div class="container">
+
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+
+
+<!-- ===== SECTION 1: FIXTURE TABLE ===== -->
+<div class="card">
+<h2><span class="num">1</span> Fixture Unit Table — Enter Quantities (NBCS 2026 Table 2, Clause 4.7.3.1)</h2>
+<div class="grid-2">
+<div>
+<label>Application Type</label>
+<div class="toggle-group p-nbcs_2026_pipe_size_calculator_html-s1">
+<label><input type="radio" name="appType" value="private" checked> Private</label>
+<label><input type="radio" name="appType" value="public"> Public</label>
+</div>
+</div>
+<div>
+<label>Enhanced Public Demand (parentheses values in Table 2)</label>
+<div class="chk-row p-nbcs_2026_pipe_size_calculator_html-s2">
+<input type="checkbox" id="enhancedPublic">
+<label for="enhancedPublic">Use enhanced values (high-demand public buildings)</label>
+</div>
+</div>
+</div>
+<div class="grid-2 mt-12">
+<div class="chk-row">
+<input type="checkbox" id="excludeServiceSink" checked>
+<label for="excludeServiceSink">Exclude service sinks from total (NBCS Note a)</label>
+</div>
+<div class="chk-row">
+<input type="checkbox" id="hotColdSplit">
+<label for="hotColdSplit">Apply ¾ factor for hot+cold branches (Note 9)</label>
+</div>
+</div>
+<div class="p-nbcs_2026_pipe_size_calculator_html-s3">Enter the quantity for each fixture. WSFU auto-fills based on Private/Public selection. The table updates live as you type.</div>
+<div class="fix-table-wrap">
+<table class="fix-table" id="fixtureTable">
+<thead><tr>
+<th>#</th><th>Fixture Type</th><th>Private<br>WSFU</th><th>Public<br>WSFU</th><th>Enh.<br>WSFU</th><th>Min Pipe<br>(mm)</th><th>Qty</th><th>Active<br>WSFU</th><th>Subtotal<br>WSFU</th><th>Incl?</th>
+</tr></thead>
+<tbody id="fixtureTableBody"></tbody>
+</table>
+</div>
+<div class="summary-bar">
+<div class="row">
+<div class="item"><div class="big" id="totalWsfu">0</div><div class="lbl">Total WSFU</div></div>
+<div class="item"><div class="big" id="totalFixtures">0</div><div class="lbl">Total Fixtures</div></div>
+</div>
+</div>
+<div class="notes-box">
+<h4>NBCS 2026 Notes (Clause 4.7.3.2 & Table 2)</h4>
+<ul>
+<li><b>Note (a):</b> Service sinks are ignored in calculating total fixture demand (auto-excluded above).</li>
+<li><b>Note (b):</b> Continuous-flow outlets (hose, AC) added to probable flow in Section 2, not to WSFU.</li>
+<li><b>Note (c):</b> Fixtures with both hot & cold exert reduced demand on main hot/cold branches — use ¾ factor.</li>
+<li><b>Note 4:</b> For FU > 1000, flush valve and flush tank demands are the same.</li>
+<li><b>Note 9:</b> Separate cold/hot fixture unit = ¾ of listed value.</li>
+<li><b>Note 11:</b> Parentheses values are for enhanced-demand public buildings.</li>
+<li><b>Table 3 Note:</b> For any water line other than flushing line, refer to the flush tank column.</li>
+</ul>
+</div>
+</div>
+
+<!-- ===== SECTION 2: SYSTEM PARAMETERS ===== -->
+<div class="card">
+<h2><span class="num">2</span> System Parameters & Flow Rate (Clause 4.7.3.2 — Table 3)</h2>
+<div class="grid-2">
+<div>
+<label>System Type (Hunter's Curve — Table 3)</label>
+<select id="systemType">
+<option value="tank">Flush Tank System (Table 3 Col. 3)</option>
+<option value="valve">Flush Valve System (Table 3 Col. 4)</option>
+</select>
+</div>
+<div>
+<label>Continuous Flow Addition — LPM (hose, AC — Note b)</label>
+<input type="number" id="continuousFlow" value="0" min="0" step="0.1">
+</div>
+</div>
+<div class="grid-3 mt-12">
+<div><label>Source Pressure (bar)</label><input type="number" id="sourcePressure" value="2.0" min="0" step="0.1"></div>
+<div><label>Residual Pressure Required at Fixture (bar)</label><input type="number" id="residualPressure" value="0.5" min="0" step="0.1"></div>
+<div><label>Elevation Difference — Source to Fixture (m)</label><input type="number" id="elevationDiff" value="10" step="0.5"></div>
+</div>
+<div class="grid-3 mt-12">
+<div><label>Pipe Length — Longest Run (m)</label><input type="number" id="pipeLength" value="30" min="0" step="0.5"></div>
+<div><label>Fitting Allowance (%)</label><input type="number" id="fittingAllowance" value="30" min="0" max="200"></div>
+<div><label>Design Velocity Limit (m/s)</label><input type="number" id="velocityLimit" value="3.0" min="0.5" max="5" step="0.1"></div>
+</div>
+<div class="grid-2 mt-12">
+<div>
+<label>Pipe Material (Hazen-Williams C — Clause 4.7.4)</label>
+<select id="pipeMaterial">
+<option value="120">GI — Galvanized Iron (C = 120)</option>
+<option value="130">Copper (C = 130)</option>
+<option value="150">CPVC (C = 150)</option>
+<option value="150">PVC (C = 150)</option>
+<option value="140">HDPE (C = 140)</option>
+<option value="150">PEX (C = 150)</option>
+<option value="140">Stainless Steel (C = 140)</option>
+<option value="100">Cast Iron (C = 100)</option>
+<option value="custom">Custom C Value</option>
+</select>
+</div>
+<div id="customCBox" class="hidden"><label>Custom Hazen-Williams C</label><input type="number" id="customC" value="120" min="50" max="160"></div>
+</div>
+<div class="summary-bar mt-16">
+<div class="row">
+<div class="item"><div class="big" id="dispWsfu">0</div><div class="lbl">Adjusted WSFU</div></div>
+<div class="item"><div class="big" id="dispLpm">0</div><div class="lbl">Probable Demand (LPM)</div></div>
+<div class="item"><div class="big" id="dispAvailHead">0</div><div class="lbl">Available Head (m)</div></div>
+</div>
+</div>
+</div>
+
+<!-- ===== CALCULATE BUTTON ===== -->
+<div class="p-nbcs_2026_pipe_size_calculator_html-s4">
+<button class="btn btn-calc" onclick="calculate()">⚡ Calculate Pipe Size & Losses</button>
+</div>
+
+<!-- ===== RESULTS ===== -->
+<div id="resultsSection" class="hidden">
+<div class="card">
+<h2><span class="num">3</span> Recommended Pipe Size</h2>
+<div class="result-banner rec">
+<div class="ps" id="recPipeSize">—</div>
+<div class="lbl" id="recPipeLabel">Nominal Pipe Diameter (DN)</div>
+</div>
+<div class="result-grid">
+<div class="result-item"><div class="val" id="resWsfu">—</div><div class="desc">Total Adjusted WSFU</div></div>
+<div class="result-item"><div class="val" id="resLpm">—</div><div class="desc">Probable Demand (LPM)</div></div>
+<div class="result-item" id="riVel"><div class="val" id="resVel">—</div><div class="desc">Flow Velocity (m/s)</div></div>
+<div class="result-item" id="riHf"><div class="val" id="resHf">—</div><div class="desc">Friction Head Loss (m)</div></div>
+<div class="result-item"><div class="val" id="resPloss">—</div><div class="desc">Pressure Loss (bar)</div></div>
+<div class="result-item"><div class="val" id="resUnitLoss">—</div><div class="desc">Friction Loss / 100m (m)</div></div>
+<div class="result-item"><div class="val" id="resAvailHead">—</div><div class="desc">Available Head for Friction (m)</div></div>
+<div class="result-item" id="riRes"><div class="val" id="resResidual">—</div><div class="desc">Residual Pressure at Fixture (bar)</div></div>
+</div>
+<div class="compliance"><h3>Compliance Check</h3><div id="complianceList"></div></div>
+</div>
+
+<div class="card">
+<h2><span class="num">4</span> Pipe Size Comparison Table</h2>
+<div class="comp-wrap">
+<table class="comp-table" id="compTable">
+<thead><tr><th>DN (mm)</th><th>ID (mm)</th><th>Velocity (m/s)</th><th>Head Loss (m)</th><th>Pressure Loss (bar)</th><th>Loss/100m (m)</th><th>Vel OK?</th><th>Head OK?</th><th>Status</th></tr></thead>
+<tbody id="compBody"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h2><span class="num">5</span> NBCS 2026 Methodology & Formulas</h2>
+<div class="method">
+<h4>Step 1: Assign WSFU (Table 2, Clause 4.7.3.1)</h4>
+<p class="p-nbcs_2026_pipe_size_calculator_html-s5">Each fixture assigned a WSFU value based on water consumption rate, duration of use, and frequency of use. Private vs Public values differ. Parentheses = enhanced public demand.</p>
+<h4>Step 2: Calculate Total WSFU (Clause 4.7.3.2)</h4>
+<p class="p-nbcs_2026_pipe_size_calculator_html-s6">Sum all fixture WSFU. Service sinks excluded (Note a). Hot+cold branches use ¾ factor (Note 9). Continuous flow added to probable demand, not WSFU (Note b).</p>
+<h4>Step 3: Convert WSFU → LPM via Table 3 (Probable Simultaneous Demand)</h4>
+<p class="p-nbcs_2026_pipe_size_calculator_html-s7">Use Hunter's probability curve (Table 3 / Fig. 2). Flush tank column for tank systems, flush valve column for valve systems. Log-log interpolation between table entries. For FU > 1000, both columns converge (Note 4).</p>
+<div class="formula">LPM = interpolated value from NBCS 2026 Table 3 (exact data points, log-log interpolation)</div>
+<h4>Step 4: Available Head for Friction</h4>
+<div class="formula">H_avail = (P_source − P_residual) × 10.197 − H_elevation  [m of water]</div>
+<p class="p-nbcs_2026_pipe_size_calculator_html-s8">1 bar = 10.197 m H₂O. NBCS 4.7.5: Max pressure = 0.42 N/mm² (4.2 bar); pressure reducing valves required above this.</p>
+<h4>Step 5: Friction Head Loss — Hazen-Williams (Clause 4.7.4)</h4>
+<div class="formula">hf = 10.67 × L_eq × Q^1.852 / (C^1.852 × d^4.87)</div>
+<p class="p-nbcs_2026_pipe_size_calculator_html-s9">L_eq = L × (1 + fitting %). Q in m³/s, d in m, C = Hazen-Williams coefficient. Nomogram in Annex C.</p>
+<h4>Step 6: Velocity</h4>
+<div class="formula">V = Q / (π × d² / 4)</div>
+<p class="p-nbcs_2026_pipe_size_calculator_html-s10">Acceptable range: 0.6–3.0 m/s (per NBCS 4.7.5 adequate pressure requirements).</p>
+<h4>Step 7: Select Pipe Size</h4>
+<p class="p-nbcs_2026_pipe_size_calculator_html-s11">Choose smallest DN satisfying: (a) velocity ≤ limit, AND (b) friction head loss ≤ available head. Verify residual pressure ≥ minimum required.</p>
+<h4>Pressure Conversions</h4>
+<div class="formula">ΔP (bar) = hf × 0.0981  |  ΔP (kPa) = hf × 9.81  |  1 N/mm² = 1 MPa = 10 bar</div>
+</div>
+</div>
+
+<div class="card">
+<h2><span class="num">6</span> Export Report</h2>
+<div class="p-nbcs_2026_pipe_size_calculator_html-s12">
+<button class="btn btn-primary btn-export" onclick="exportPDF()">📄 Download PDF</button>
+<button class="btn btn-primary btn-export" onclick="exportWord()">📝 Download Word</button>
+<button class="btn btn-primary btn-export" onclick="exportExcel()">📊 Download Excel</button>
+</div>
+</div>
+</div>
+
+</div>
+<div class="footer">NBCS 2026 Pipe Size Calculator · Based on National Building Construction Standards 2026, Clauses 4.7.3.1, 4.7.3.2, 4.7.3.3, 4.7.4 & 4.7.5 · Hunter's Method + Hazen-Williams Equation<br>This tool is for design assistance. Verify all results against the full NBCS 2026 standard and local authority requirements.</div>
+
+<script>
+// ==================== NBCS 2026 TABLE 2: WSFU DATA (Clause 4.7.3.1) ====================
+const wsfuData=[
+{name:"Bath tub",pv:4,pu:null,pe:null,minPipe:15},
+{name:"Ablution faucet / Bidet",pv:1,pu:1,pe:null,minPipe:15},
+{name:"Clothes washer",pv:4,pu:4,pe:null,minPipe:15},
+{name:"Dishwasher",pv:1.5,pu:1.5,pe:null,minPipe:15},
+{name:"Drinking fountain",pv:null,pu:0.5,pe:0.75,minPipe:15},
+{name:"Hose bib",pv:2.5,pu:2.5,pe:null,minPipe:15},
+{name:"Wash basin (metered faucet)",pv:1,pu:1,pe:null,minPipe:15},
+{name:"Wash basin (standard faucet)",pv:1.5,pu:1.5,pe:2,minPipe:15},
+{name:"Service sink",pv:null,pu:3,pe:null,minPipe:15,isServiceSink:true},
+{name:"Kitchen sink",pv:2,pu:4,pe:null,minPipe:15},
+{name:"Surgical sink",pv:null,pu:2,pe:null,minPipe:15},
+{name:"Scrub station (per outlet)",pv:null,pu:3,pe:null,minPipe:15},
+{name:"Shower",pv:2,pu:3,pe:null,minPipe:15},
+{name:"Bathroom group (flush tank)",pv:5,pu:6,pe:null,minPipe:20},
+{name:"Bathroom group (flush valve)",pv:8,pu:10,pe:null,minPipe:25},
+{name:"Urinal (flush valve)",pv:3,pu:5,pe:6,minPipe:20},
+{name:"Urinal (flush tank)",pv:2,pu:2,pe:3,minPipe:15},
+{name:"Urinal (sensor operated)",pv:2,pu:2,pe:3,minPipe:15},
+{name:"Water closet (flush valve)",pv:5,pu:5,pe:8,minPipe:25},
+{name:"Water closet (flush tank)",pv:2,pu:3,pe:5,minPipe:15},
+{name:"Combination fixture (faucet)",pv:3,pu:null,pe:null,minPipe:15},
+{name:"Laundry trays (faucet)",pv:3,pu:null,pe:null,minPipe:15}
+];
+
+// ==================== NBCS 2026 TABLE 3: PROBABLE SIMULTANEOUS DEMAND (Clause 4.7.3.2) ====================
+// Exact data from NBCS 2026 Table 3 — [WSFU, FlushTank_LPM, FlushValve_LPM]
+const table3=[
+[1,0,null],[2,3.8,null],[3,11.4,null],[4,15.1,null],[5,22.7,null],[6,25.5,null],[8,28.1,null],
+[10,30.3,102.20],[20,53.0,132.48],[30,75.7,155.19],[40,94.6,177.90],[50,109.8,196.82],
+[60,121.1,208.18],[70,132.5,223.32],[80,143.8,234.67],[90,155.2,246.03],[100,166.5,257.38],
+[140,200.6,295.23],[180,230.9,329.30],[200,246.0,348.22],[250,283.9,382.29],[300,321.7,416.35],
+[400,397.4,476.91],[500,473.1,537.47],[750,643.5,673.73],[1000,787.3,787.28],
+[1250,908.4,908.40],[1500,1010.6,1010.60],[1750,1112.8,1112.79],[2000,1215.0,1214.99],
+[2500,1419.4,1419.38],[3000,1635.1,1635.12],[3500,1811.1,1811.12],[4000,1987.1,1987.13],
+[4500,2115.8,2115.82],[5000,2244.5,2244.51],[5500,2312.6,2312.64],[6000,2380.8,2380.77],
+[6500,2411.0,2411.05],[7000,2479.2,2479.18],[7500,2547.3,2547.31],[8000,2615.4,2615.44],
+[8500,2683.6,2683.57],[9000,2751.7,2751.70],[9500,2831.2,2831.18],[10000,2910.7,2910.67]
+];
+
+// ==================== PIPE SIZES (Nominal DN vs Internal Diameter mm) ====================
+const pipeSizes=[
+{dn:15,id:15.8},{dn:20,id:21.6},{dn:25,id:27.2},{dn:32,id:35.9},{dn:40,id:41.0},
+{dn:50,id:52.5},{dn:65,id:62.7},{dn:80,id:77.9},{dn:100,id:102.3},{dn:125,id:127.0},{dn:150,id:154.0}
+];
+
+// ==================== STATE ====================
+let lastResult=null;
+
+// ==================== INIT ====================
+function init(){
+  renderFixtureTable();
+  document.getElementById('pipeMaterial').addEventListener('change',function(){
+    document.getElementById('customCBox').classList.toggle('hidden',this.value!=='custom');
+  });
+  document.querySelectorAll('input[name=appType]').forEach(r=>{
+    r.addEventListener('change',updateFixtureTable);
+  });
+  document.getElementById('enhancedPublic').addEventListener('change',updateFixtureTable);
+  document.getElementById('excludeServiceSink').addEventListener('change',recalcTotal);
+  document.getElementById('hotColdSplit').addEventListener('change',recalcTotal);
+}
+
+function getActiveWsfu(f){
+  const app=document.querySelector('input[name=appType]:checked').value;
+  const enh=document.getElementById('enhancedPublic').checked;
+  if(app==='private'){
+    return f.pv;
+  }else{
+    if(enh&&f.pe!==null) return f.pe;
+    return f.pu;
+  }
+}
+
+function renderFixtureTable(){
+  const tbody=document.getElementById('fixtureTableBody');
+  tbody.innerHTML='';
+  wsfuData.forEach((f,i)=>{
+    const tr=document.createElement('tr');
+    const active=getActiveWsfu(f);
+    const pvStr=f.pv===null?'<span class="na">—</span>':f.pv;
+    const puStr=f.pu===null?'<span class="na">—</span>':f.pu;
+    const peStr=f.pe===null?'<span class="na">—</span>':f.pe;
+    const activeStr=active===null?'<span class="na">N/A</span>':'<span class="wsfu-val">'+active+'</span>';
+    const qtyInput='<input type="number" id="qty_'+i+'" value="0" min="0" onchange="recalcTotal()" oninput="recalcTotal()">';
+    const includeChk=f.isServiceSink?'<input type="checkbox" id="inc_'+i+'" checked onchange="recalcTotal()">':
+      '<input type="checkbox" id="inc_'+i+'" checked onchange="recalcTotal()">';
+    tr.innerHTML='<td>'+(i+1)+'</td><td style="white-space:nowrap">'+f.name+'</td><td>'+pvStr+'</td><td>'+puStr+'</td><td>'+peStr+'</td><td>'+f.minPipe+'</td><td>'+qtyInput+'</td><td>'+activeStr+'</td><td class="subtotal" id="sub_'+i+'">0</td><td style="text-align:center">'+includeChk+'</td>';
+    tbody.appendChild(tr);
+  });
+  recalcTotal();
+}
+
+function updateFixtureTable(){
+  wsfuData.forEach((f,i)=>{
+    const active=getActiveWsfu(f);
+    const cell=document.getElementById('sub_'+i);
+    // Update active WSFU display
+    const rows=document.getElementById('fixtureTableBody').children;
+    const activeCell=rows[i].children[7];
+    if(active===null){
+      activeCell.innerHTML='<span class="na">N/A</span>';
+    }else{
+      activeCell.innerHTML='<span class="wsfu-val">'+active+'</span>';
+    }
+  });
+  recalcTotal();
+}
+
+function recalcTotal(){
+  const excludeSS=document.getElementById('excludeServiceSink').checked;
+  const hcSplit=document.getElementById('hotColdSplit').checked;
+  let total=0,totalFix=0;
+  wsfuData.forEach((f,i)=>{
+    const qty=parseInt(document.getElementById('qty_'+i).value)||0;
+    const inc=document.getElementById('inc_'+i).checked;
+    const active=getActiveWsfu(f);
+    let sub=0;
+    if(active!==null&&qty>0&&inc){
+      if(!(excludeSS&&f.isServiceSink)){
+        sub=active*qty;
+        if(hcSplit) sub=sub*0.75;
+        totalFix+=qty;
+      }
+    }
+    const cell=document.getElementById('sub_'+i);
+    if(cell) cell.textContent=sub>0?sub.toFixed(sub%1===0?0:2):'0';
+    total+=sub;
+  });
+  document.getElementById('totalWsfu').textContent=total.toFixed(2);
+  document.getElementById('totalFixtures').textContent=totalFix;
+  return total;
+}
+
+// ==================== TABLE 3 INTERPOLATION (EXACT NBCS DATA) ====================
+function wsfuToLPM(wsfu,systemType){
+  if(wsfu<=0) return 0;
+  // Select column: flush tank (col 1) or flush valve (col 2)
+  const col=systemType==='valve'?2:1;
+
+  // For FU >= 1000, both columns are the same (Note 4)
+  // But flush valve column has null for FU < 10, use flush tank in that case
+  let useCol=col;
+  if(col===2){
+    // Check if any point below 10 has flush valve data — it doesn't (null)
+    // So for FU < 10, use flush tank column
+    if(wsfu<10) useCol=1;
+  }
+
+  // Find bracketing points
+  let i=0;
+  while(i<table3.length-1 && table3[i+1][0]<wsfu) i++;
+
+  // If wsfu is beyond last point, extrapolate using last two points
+  if(i>=table3.length-1){
+    const x1=table3[table3.length-2][0],y1=table3[table3.length-2][useCol];
+    const x2=table3[table3.length-1][0],y2=table3[table3.length-1][useCol];
+    if(y1<=0||y2<=0||x1<=0) return y2;
+    const slope=(Math.log(y2)-Math.log(y1))/(Math.log(x2)-Math.log(x1));
+    return Math.exp(Math.log(y2)+slope*(Math.log(wsfu)-Math.log(x2)));
+  }
+
+  const x1=table3[i][0],y1=table3[i][useCol];
+  const x2=table3[i+1][0],y2=table3[i+1][useCol];
+
+  // Handle null values in flush valve column
+  if(y1===null||y2===null){
+    // Fall back to flush tank column
+    const yt1=table3[i][1],yt2=table3[i+1][1];
+    if(yt1===null||yt2===null) return 0;
+    if(x1===x2) return yt1;
+    if(wsfu<=x1) return yt1;
+    if(wsfu>=x2) return yt2;
+    return yt1+(wsfu-x1)*(yt2-yt1)/(x2-x1); // linear fallback
+  }
+
+  if(x1===x2) return y1;
+  if(wsfu<=x1) return y1;
+  if(wsfu>=x2) return y2;
+
+  // Log-log interpolation for smooth curve
+  if(y1>0&&y2>0&&x1>0){
+    const t=(Math.log(wsfu)-Math.log(x1))/(Math.log(x2)-Math.log(x1));
+    return Math.exp(Math.log(y1)+t*(Math.log(y2)-Math.log(y1)));
+  }
+  // Linear fallback
+  return y1+(wsfu-x1)*(y2-y1)/(x2-x1);
+}
+
+// ==================== HAZEN-WILLIAMS ====================
+function calcHeadLoss(Q_lpm,d_mm,C,L_m){
+  const Q=Q_lpm/60000; // m³/s
+  const d=d_mm/1000;   // m
+  if(d<=0||Q<=0) return 0;
+  return 10.67*Math.pow(Q,1.852)*L_m/(Math.pow(C,1.852)*Math.pow(d,4.87));
+}
+function calcVelocity(Q_lpm,d_mm){
+  const Q=Q_lpm/60000;
+  const d=d_mm/1000;
+  if(d<=0) return 0;
+  return Q/(Math.PI*d*d/4);
+}
+
+// ==================== MAIN CALCULATION ====================
+function calculate(){
+  const totalWsfu=recalcTotal();
+  const systemType=document.getElementById('systemType').value;
+  const continuousFlow=parseFloat(document.getElementById('continuousFlow').value)||0;
+  const sourceP=parseFloat(document.getElementById('sourcePressure').value)||0;
+  const residualP=parseFloat(document.getElementById('residualPressure').value)||0;
+  const elevDiff=parseFloat(document.getElementById('elevationDiff').value)||0;
+  const pipeLen=parseFloat(document.getElementById('pipeLength').value)||0;
+  const fittingAllow=parseFloat(document.getElementById('fittingAllowance').value)||0;
+  const velLimit=parseFloat(document.getElementById('velocityLimit').value)||3.0;
+
+  let matVal=document.getElementById('pipeMaterial').value;
+  let C=matVal==='custom'?(parseFloat(document.getElementById('customC').value)||120):parseInt(matVal);
+
+  // Table 3 interpolation
+  let lpm=wsfuToLPM(totalWsfu,systemType);
+  lpm+=continuousFlow;
+
+  // Equivalent length
+  const equivLen=pipeLen*(1+fittingAllow/100);
+
+  // Available head for friction
+  const availHead=(sourceP-residualP)*10.197-elevDiff;
+
+  // Display
+  document.getElementById('dispWsfu').textContent=totalWsfu.toFixed(2);
+  document.getElementById('dispLpm').textContent=lpm.toFixed(1);
+  document.getElementById('dispAvailHead').textContent=availHead.toFixed(2);
+
+  // Evaluate all pipe sizes
+  const results=pipeSizes.map(ps=>{
+    const vel=calcVelocity(lpm,ps.id);
+    const hf=calcHeadLoss(lpm,ps.id,C,equivLen);
+    const ploss=hf*0.0981;
+    const unitLoss=equivLen>0?(hf/equivLen*100):0;
+    const velOk=vel<=velLimit;
+    const headOk=hf<=availHead;
+    const bothOk=velOk&&headOk;
+    return{...ps,vel,hf,ploss,unitLoss,velOk,headOk,bothOk};
+  });
+
+  let recommended=results.find(r=>r.bothOk);
+  if(!recommended) recommended=results[results.length-1];
+
+  lastResult={totalWsfu,lpm,continuousFlow,systemType,sourceP,residualP,elevDiff,pipeLen,fittingAllow,equivLen,velLimit,C,availHead,recommended,results};
+
+  // Show results
+  document.getElementById('resultsSection').classList.remove('hidden');
+  document.getElementById('recPipeSize').textContent='DN '+recommended.dn;
+  document.getElementById('recPipeLabel').textContent='Nominal Pipe Diameter (DN '+recommended.dn+'mm, ID '+recommended.id+'mm)';
+
+  document.getElementById('resWsfu').textContent=totalWsfu.toFixed(2);
+  document.getElementById('resLpm').textContent=lpm.toFixed(1);
+  document.getElementById('resVel').textContent=recommended.vel.toFixed(2);
+  document.getElementById('resHf').textContent=recommended.hf.toFixed(2);
+  document.getElementById('resPloss').textContent=recommended.ploss.toFixed(4);
+  document.getElementById('resUnitLoss').textContent=recommended.unitLoss.toFixed(2);
+  document.getElementById('resAvailHead').textContent=availHead.toFixed(2);
+
+  const residualAtFixture=sourceP-(recommended.hf*0.0981)-(elevDiff/10.197);
+  document.getElementById('resResidual').textContent=residualAtFixture.toFixed(3);
+
+  // Color code
+  const riVel=document.getElementById('riVel');
+  riVel.className='result-item '+(recommended.vel<=velLimit?'ok':'fail');
+  document.getElementById('resVel').className='val '+(recommended.vel<=velLimit?'ok':'fail');
+  const riHf=document.getElementById('riHf');
+  riHf.className='result-item '+(recommended.hf<=availHead?'ok':'fail');
+  document.getElementById('resHf').className='val '+(recommended.hf<=availHead?'ok':'fail');
+  const riRes=document.getElementById('riRes');
+  riRes.className='result-item '+(residualAtFixture>=residualP?'ok':'fail');
+  document.getElementById('resResidual').className='val '+(residualAtFixture>=residualP?'ok':'fail');
+
+  // Compliance
+  const cl=document.getElementById('complianceList');
+  cl.innerHTML='';
+  const checks=[
+    {label:'Velocity '+recommended.vel.toFixed(2)+' m/s ≤ '+velLimit+' m/s',pass:recommended.vel<=velLimit},
+    {label:'Friction head loss '+recommended.hf.toFixed(2)+' m ≤ available head '+availHead.toFixed(2)+' m',pass:recommended.hf<=availHead},
+    {label:'Residual pressure '+residualAtFixture.toFixed(3)+' bar ≥ required '+residualP+' bar',pass:residualAtFixture>=residualP},
+    {label:'Velocity ≥ 0.6 m/s (minimum sediment-flush velocity)',pass:recommended.vel>=0.6},
+    {label:'Source pressure ≤ 4.2 bar (NBCS 4.7.5 max pressure 0.42 N/mm²)',pass:sourceP<=4.2}
+  ];
+  checks.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='ci '+(c.pass?'pass':'fail');
+    d.innerHTML='<span>'+(c.pass?'✅':'⚠️')+'</span> '+c.label;
+    cl.appendChild(d);
+  });
+
+  // Comparison table
+  const cb=document.getElementById('compBody');
+  cb.innerHTML='';
+  results.forEach(r=>{
+    const tr=document.createElement('tr');
+    if(r.dn===recommended.dn&&recommended.bothOk) tr.className='hl';
+    tr.innerHTML='<td>DN '+r.dn+'</td><td>'+r.id+'</td><td>'+r.vel.toFixed(2)+'</td><td>'+r.hf.toFixed(2)+'</td><td>'+r.ploss.toFixed(4)+'</td><td>'+r.unitLoss.toFixed(2)+'</td><td class="'+(r.velOk?'ok':'no')+'">'+(r.velOk?'✓':'✗')+'</td><td class="'+(r.headOk?'ok':'no')+'">'+(r.headOk?'✓':'✗')+'</td><td class="'+(r.bothOk?'ok':'no')+'">'+(r.bothOk?'✓ OK':'✗ No')+'</td>';
+    cb.appendChild(tr);
+  });
+
+  document.getElementById('resultsSection').scrollIntoView({behavior:'smooth'});
+}
+
+// ==================== GET FIXTURE DATA FOR EXPORT ====================
+function getFixtureData(){
+  const app=document.querySelector('input[name=appType]:checked').value;
+  const enh=document.getElementById('enhancedPublic').checked;
+  const data=[];
+  wsfuData.forEach((f,i)=>{
+    const qty=parseInt(document.getElementById('qty_'+i).value)||0;
+    if(qty>0){
+      const active=getActiveWsfu(f);
+      const inc=document.getElementById('inc_'+i).checked;
+      data.push({name:f.name,app:app==='private'?'Private':(enh?'Public (Enhanced)':'Public'),qty:qty,wsfuEach:active!==null?active:'N/A',subtotal:active!==null?active*qty:0,included:inc});
+    }
+  });
+  return data;
+}
+
+// ==================== EXPORT PDF ====================
+function exportPDF(){
+  if(!lastResult){alert('Please calculate first.');return;}
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  const r=lastResult;
+  const fd=getFixtureData();
+
+  doc.setFontSize(16);doc.setTextColor(13,71,161);
+  doc.text('NBCS 2026 — Pipe Size Calculation Report',14,18);
+  doc.setFontSize(9);doc.setTextColor(100);
+  doc.text('National Building Construction Standards 2026 · Clauses 4.7.3.1, 4.7.3.2 & 4.7.4',14,24);
+  doc.text('Generated: '+new Date().toLocaleString(),14,29);
+
+  // Fixture table
+  doc.autoTable({startY:35,head:[['#','Fixture','App','Qty','WSFU/each','Subtotal']],body:fd.map((f,i)=>[i+1,f.name,f.app,f.qty,typeof f.wsfuEach==='number'?f.wsfuEach:'N/A',f.subtotal.toFixed(2)]),headStyles:{fillColor:[13,71,161]},styles:{fontSize:8}});
+
+  // Input parameters
+  let y=doc.lastAutoTable.finalY+8;
+  doc.autoTable({startY:y,head:[['Parameter','Value','Unit']],body:[
+    ['Total Adjusted WSFU',r.totalWsfu.toFixed(2),'WSFU'],
+    ['System Type',r.systemType==='tank'?'Flush Tank':'Flush Valve',''],
+    ['Probable Demand (Table 3)',r.lpm.toFixed(1),'LPM'],
+    ['Continuous Flow Added',r.continuousFlow.toFixed(1),'LPM'],
+    ['Source Pressure',r.sourceP.toFixed(2),'bar'],
+    ['Residual Pressure Required',r.residualP.toFixed(2),'bar'],
+    ['Elevation Difference',r.elevDiff.toFixed(1),'m'],
+    ['Pipe Length',r.pipeLen.toFixed(1),'m'],
+    ['Fitting Allowance',r.fittingAllow.toFixed(0)+'%',''],
+    ['Equivalent Length',r.equivLen.toFixed(1),'m'],
+    ['Hazen-Williams C',r.C,''],
+    ['Velocity Limit',r.velLimit.toFixed(1),'m/s'],
+    ['Available Head for Friction',r.availHead.toFixed(2),'m'],
+  ],headStyles:{fillColor:[13,71,161]},styles:{fontSize:9}});
+
+  // Recommended
+  y=doc.lastAutoTable.finalY+8;
+  doc.setFontSize(12);doc.setTextColor(46,125,50);
+  doc.text('RECOMMENDED PIPE SIZE: DN '+r.recommended.dn+'mm (ID '+r.recommended.id+'mm)',14,y);
+
+  const residualAtFixture=r.sourceP-(r.recommended.hf*0.0981)-(r.elevDiff/10.197);
+  doc.autoTable({startY:y+4,head:[['Result','Value','Unit']],body:[
+    ['Nominal Pipe Size','DN '+r.recommended.dn,'mm'],
+    ['Internal Diameter',r.recommended.id.toFixed(1),'mm'],
+    ['Flow Velocity',r.recommended.vel.toFixed(3),'m/s'],
+    ['Friction Head Loss',r.recommended.hf.toFixed(3),'m'],
+    ['Pressure Loss',r.recommended.ploss.toFixed(4),'bar'],
+    ['Friction Loss per 100m',r.recommended.unitLoss.toFixed(3),'m/100m'],
+    ['Residual Pressure at Fixture',residualAtFixture.toFixed(3),'bar'],
+  ],headStyles:{fillColor:[46,125,50]},styles:{fontSize:9}});
+
+  // Comparison
+  y=doc.lastAutoTable.finalY+8;
+  doc.autoTable({startY:y,head:[['DN','ID','Vel','Head Loss','P Loss','Loss/100m','OK?']],body:r.results.map(p=>['DN '+p.dn,p.id.toFixed(1),p.vel.toFixed(2),p.hf.toFixed(2),p.ploss.toFixed(4),p.unitLoss.toFixed(2),p.bothOk?'✓':'✗']),headStyles:{fillColor:[13,71,161]},styles:{fontSize:8},didParseCell:function(data){if(data.section==='body'&&r.results[data.row.index].dn===r.recommended.dn){data.cell.styles.fontStyle='bold';data.cell.styles.fillColor=[232,245,233];}}});
+
+  y=doc.lastAutoTable.finalY+8;
+  doc.setFontSize(8);doc.setTextColor(100);
+  doc.text(doc.splitTextToSize('Method: NBCS 2026 Hunter\'s Method (Table 2 WSFU → Table 3 probable simultaneous demand) + Hazen-Williams equation (Clause 4.7.4) for friction head loss. For design assistance only.',180),14,y);
+
+  doc.save('NBCS_2026_Pipe_Size_Report.pdf');
+}
+
+// ==================== EXPORT WORD ====================
+function exportWord(){
+  if(!lastResult){alert('Please calculate first.');return;}
+  const r=lastResult;const fd=getFixtureData();
+  const residualAtFixture=r.sourceP-(r.recommended.hf*0.0981)-(r.elevDiff/10.197);
+  let fixRows=fd.map((f,i)=>'<tr><td>'+(i+1)+'</td><td>'+f.name+'</td><td>'+f.app+'</td><td>'+f.qty+'</td><td>'+(typeof f.wsfuEach==='number'?f.wsfuEach:'N/A')+'</td><td>'+f.subtotal.toFixed(2)+'</td></tr>').join('');
+  let compRows=r.results.map(p=>'<tr '+(p.dn===r.recommended.dn?'style="background:#e8f5e9;font-weight:bold"':'')+'><td>DN '+p.dn+'</td><td>'+p.id.toFixed(1)+'</td><td>'+p.vel.toFixed(2)+'</td><td>'+p.hf.toFixed(2)+'</td><td>'+p.ploss.toFixed(4)+'</td><td>'+p.unitLoss.toFixed(2)+'</td><td>'+(p.bothOk?'✓ OK':'✗')+'</td></tr>').join('');
+
+  let html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>NBCS 2026 Report</title>
+  <style>body{font-family:Calibri,sans-serif;font-size:11pt}h1{color:#0d47a1;font-size:16pt}h2{color:#0d47a1;font-size:13pt;border-bottom:2px solid #0d47a1;padding-bottom:4px}table{border-collapse:collapse;width:100%;margin:8px 0;font-size:10pt}th{background:#0d47a1;color:#fff;padding:6px;border:1px solid #999}td{padding:5px 6px;border:1px solid #ccc}.rec{background:#e8f5e9;font-weight:bold;font-size:14pt;color:#2e7d32;padding:10px}</style>
+</head><body>
+  <h1>NBCS 2026 — Pipe Size Calculation Report</h1>
+  <p>National Building Construction Standards 2026 · Clauses 4.7.3.1, 4.7.3.2 & 4.7.4</p>
+  <p>Generated: ${new Date().toLocaleString()}</p>
+  <h2>1. Fixture Inventory (Table 2)</h2>
+  <table><tr><th>#</th><th>Fixture</th><th>Application</th><th>Qty</th><th>WSFU/each</th><th>Subtotal</th></tr>${fixRows}</table>
+  <h2>2. Input Parameters</h2>
+  <table>
+  <tr><th>Parameter</th><th>Value</th><th>Unit</th></tr>
+  <tr><td>Total Adjusted WSFU</td><td>${r.totalWsfu.toFixed(2)}</td><td>WSFU</td></tr>
+  <tr><td>System Type</td><td>${r.systemType==='tank'?'Flush Tank':'Flush Valve'}</td><td></td></tr>
+  <tr><td>Probable Demand (Table 3)</td><td>${r.lpm.toFixed(1)}</td><td>LPM</td></tr>
+  <tr><td>Continuous Flow Added</td><td>${r.continuousFlow.toFixed(1)}</td><td>LPM</td></tr>
+  <tr><td>Source Pressure</td><td>${r.sourceP.toFixed(2)}</td><td>bar</td></tr>
+  <tr><td>Residual Pressure Required</td><td>${r.residualP.toFixed(2)}</td><td>bar</td></tr>
+  <tr><td>Elevation Difference</td><td>${r.elevDiff.toFixed(1)}</td><td>m</td></tr>
+  <tr><td>Pipe Length</td><td>${r.pipeLen.toFixed(1)}</td><td>m</td></tr>
+  <tr><td>Equivalent Length</td><td>${r.equivLen.toFixed(1)}</td><td>m</td></tr>
+  <tr><td>Hazen-Williams C</td><td>${r.C}</td><td></td></tr>
+  <tr><td>Available Head</td><td>${r.availHead.toFixed(2)}</td><td>m</td></tr>
+  </table>
+  <h2>3. Recommended Pipe Size</h2>
+  <p class="rec">RECOMMENDED: DN ${r.recommended.dn}mm (ID ${r.recommended.id}mm)</p>
+  <table>
+  <tr><th>Result</th><th>Value</th><th>Unit</th></tr>
+  <tr><td>Flow Velocity</td><td>${r.recommended.vel.toFixed(3)}</td><td>m/s</td></tr>
+  <tr><td>Friction Head Loss</td><td>${r.recommended.hf.toFixed(3)}</td><td>m</td></tr>
+  <tr><td>Pressure Loss</td><td>${r.recommended.ploss.toFixed(4)}</td><td>bar</td></tr>
+  <tr><td>Friction Loss / 100m</td><td>${r.recommended.unitLoss.toFixed(3)}</td><td>m/100m</td></tr>
+  <tr><td>Residual Pressure at Fixture</td><td>${residualAtFixture.toFixed(3)}</td><td>bar</td></tr>
+  </table>
+  <h2>4. Pipe Size Comparison</h2>
+  <table><tr><th>DN</th><th>ID (mm)</th><th>Vel (m/s)</th><th>Head Loss (m)</th><th>P Loss (bar)</th><th>Loss/100m</th><th>Status</th></tr>${compRows}</table>
+  <h2>5. Methodology (NBCS 2026)</h2>
+  <p><b>Step 1:</b> Assign WSFU per Table 2 (Clause 4.7.3.1).</p>
+  <p><b>Step 2:</b> Sum WSFU with adjustments (service sinks excluded, ¾ factor for hot/cold).</p>
+  <p><b>Step 3:</b> Convert WSFU → LPM using Table 3 (Probable Simultaneous Demand, Clause 4.7.3.2).</p>
+  <p><b>Step 4:</b> Available head = (P_source − P_residual) × 10.197 − H_elevation.</p>
+  <p><b>Step 5:</b> Hazen-Williams: hf = 10.67 × L × Q^1.852 / (C^1.852 × d^4.87) (Clause 4.7.4).</p>
+  <p><b>Step 6:</b> Velocity: V = Q / (π × d²/4).</p>
+  <p><b>Step 7:</b> Select smallest DN where velocity ≤ limit AND head loss ≤ available head.</p>
+  <p style="font-size:9pt;color:#666;margin-top:12px">For design assistance only. Verify against full NBCS 2026 standard.</p>
+  </body></html>`;
+
+  const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download='NBCS_2026_Pipe_Size_Report.doc';
+  link.click();
+}
+
+// ==================== EXPORT EXCEL ====================
+function exportExcel(){
+  if(!lastResult){alert('Please calculate first.');return;}
+  const r=lastResult;const fd=getFixtureData();
+  const residualAtFixture=r.sourceP-(r.recommended.hf*0.0981)-(r.elevDiff/10.197);
+  const wb=XLSX.utils.book_new();
+
+  // Sheet 1: Fixture Inventory
+  const fixData=[['NBCS 2026 — Fixture Inventory (Table 2, Clause 4.7.3.1)'],[],['#','Fixture','Application','Qty','WSFU/each','Subtotal WSFU','Included']];
+  fd.forEach((f,i)=>fixData.push([i+1,f.name,f.app,f.qty,typeof f.wsfuEach==='number'?f.wsfuEach:'N/A',f.subtotal.toFixed(2),f.included?'Yes':'No']));
+  fixData.push([],['TOTAL WSFU:','','','',r.totalWsfu.toFixed(2)]);
+  const ws1=XLSX.utils.aoa_to_sheet(fixData);
+  ws1['!cols']=[{wch:5},{wch:35},{wch:18},{wch:8},{wch:12},{wch:14},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Fixture Inventory');
+
+  // Sheet 2: Input & Results
+  const inputData=[
+    ['NBCS 2026 — Pipe Size Calculation Report'],
+    ['Clauses 4.7.3.1, 4.7.3.2 & 4.7.4'],
+    ['Generated:',new Date().toLocaleString()],
+    [],
+    ['INPUT PARAMETERS','',''],
+    ['Parameter','Value','Unit'],
+    ['Total Adjusted WSFU',r.totalWsfu.toFixed(2),'WSFU'],
+    ['System Type',r.systemType==='tank'?'Flush Tank':'Flush Valve',''],
+    ['Probable Demand (Table 3)',r.lpm.toFixed(1),'LPM'],
+    ['Continuous Flow Added',r.continuousFlow.toFixed(1),'LPM'],
+    ['Source Pressure',r.sourceP.toFixed(2),'bar'],
+    ['Residual Pressure Required',r.residualP.toFixed(2),'bar'],
+    ['Elevation Difference',r.elevDiff.toFixed(1),'m'],
+    ['Pipe Length',r.pipeLen.toFixed(1),'m'],
+    ['Fitting Allowance',r.fittingAllow.toFixed(0),'%'],
+    ['Equivalent Length',r.equivLen.toFixed(1),'m'],
+    ['Hazen-Williams C',r.C,''],
+    ['Velocity Limit',r.velLimit.toFixed(1),'m/s'],
+    ['Available Head for Friction',r.availHead.toFixed(2),'m'],
+    [],
+    ['RECOMMENDED RESULT','',''],
+    ['Nominal Pipe Size','DN '+r.recommended.dn,'mm'],
+    ['Internal Diameter',r.recommended.id.toFixed(1),'mm'],
+    ['Flow Velocity',r.recommended.vel.toFixed(3),'m/s'],
+    ['Friction Head Loss',r.recommended.hf.toFixed(3),'m'],
+    ['Pressure Loss',r.recommended.ploss.toFixed(4),'bar'],
+    ['Friction Loss per 100m',r.recommended.unitLoss.toFixed(3),'m/100m'],
+    ['Residual Pressure at Fixture',residualAtFixture.toFixed(3),'bar'],
+  ];
+  const ws2=XLSX.utils.aoa_to_sheet(inputData);
+  ws2['!cols']=[{wch:32},{wch:22},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Input & Results');
+
+  // Sheet 3: Pipe Comparison
+  const compData=[['PIPE SIZE COMPARISON TABLE'],[],['DN (mm)','ID (mm)','Velocity (m/s)','Head Loss (m)','Pressure Loss (bar)','Loss/100m (m)','Velocity OK?','Head OK?','Status']];
+  r.results.forEach(p=>compData.push([p.dn,p.id.toFixed(1),p.vel.toFixed(3),p.hf.toFixed(3),p.ploss.toFixed(5),p.unitLoss.toFixed(3),p.velOk?'OK':'NOT OK',p.headOk?'OK':'NOT OK',p.bothOk?'OK':'Not OK']));
+  const ws3=XLSX.utils.aoa_to_sheet(compData);
+  ws3['!cols']=[{wch:10},{wch:10},{wch:16},{wch:16},{wch:20},{wch:16},{wch:12},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Pipe Comparison');
+
+  // Sheet 4: Table 3 Data
+  const t3Data=[['NBCS 2026 TABLE 3 — PROBABLE SIMULTANEOUS DEMAND (Clause 4.7.3.2)'],[],['WSFU','Flush Tank (LPM)','Flush Valve (LPM)']];
+  table3.forEach(p=>t3Data.push([p[0],p[1],p[2]===null?'—':p[2]]));
+  const ws4=XLSX.utils.aoa_to_sheet(t3Data);
+  ws4['!cols']=[{wch:12},{wch:20},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws4,'Table 3 Data');
+
+  // Sheet 5: Methodology
+  const mData=[
+    ['NBCS 2026 METHODOLOGY'],
+    [],
+    ['Step','Description'],
+    ['1','Assign WSFU to each fixture per Table 2 (Clause 4.7.3.1). Private/Public values; parentheses = enhanced public.'],
+    ['2','Sum total WSFU. Exclude service sinks (Note a). Apply ¾ factor for hot+cold (Note 9).'],
+    ['3','Convert WSFU → LPM using Table 3 (Probable Simultaneous Demand, Clause 4.7.3.2). Flush tank or flush valve column. Log-log interpolation.'],
+    ['4','For FU > 1000, flush valve & flush tank demands converge (Note 4).'],
+    ['5','For non-flushing water lines, use flush tank column (Table 3 Note).'],
+    ['6','Calculate available head: H = (P_source − P_residual) × 10.197 − H_elevation (m).'],
+    ['7','Calculate equivalent length: L_eq = L × (1 + fitting_allowance%).'],
+    ['8','Friction head loss (Hazen-Williams, Clause 4.7.4): hf = 10.67 × L × Q^1.852 / (C^1.852 × d^4.87).'],
+    ['9','Velocity: V = Q / (π × d²/4). Range: 0.6–3.0 m/s.'],
+    ['10','Select smallest DN where velocity ≤ limit AND friction loss ≤ available head.'],
+    ['11','Max pressure: 0.42 N/mm² (4.2 bar). PRV required above this (Clause 4.7.5).'],
+    [],
+    ['FORMULAS'],
+    ['Table 3 Interpolation','WSFU → LPM via log-log interpolation of exact NBCS data points'],
+    ['Hazen-Williams','hf = 10.67 × L × Q^1.852 / (C^1.852 × d^4.87)'],
+    ['Velocity','V = Q / (π × d² / 4)'],
+    ['Pressure Loss','ΔP (bar) = hf × 0.0981 | ΔP (kPa) = hf × 9.81'],
+    ['Available Head','H = (P_source − P_residual) × 10.197 − H_elevation'],
+  ];
+  const ws5=XLSX.utils.aoa_to_sheet(mData);
+  ws5['!cols']=[{wch:22},{wch:100}];
+  XLSX.utils.book_append_sheet(wb,ws5,'Methodology');
+
+  XLSX.writeFile(wb,'NBCS_2026_Pipe_Size_Report.xlsx');
+}
+
+// ==================== INIT ====================
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+/**
+ * Atomep Enteam — NBC 2026 Water Demand Calculator (v2) Stylesheet
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. Page Header & Layout
+   ========================================================================== */
+.header {
+  background-color: var(--color-pure-white, #ffffff);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  padding: var(--spacing-20, 20px) var(--spacing-24, 24px);
+  margin-bottom: var(--spacing-24, 24px);
+  box-shadow: var(--shadow-sm);
+}
+
+.header h1 {
+  font-family: var(--font-inter);
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  letter-spacing: -0.4px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8, 8px);
+  flex-wrap: wrap;
+}
+
+.header .subtitle {
+  font-size: var(--text-body, 15px);
+  color: var(--color-graphite, #525252);
+  margin-top: var(--spacing-4, 4px);
+}
+
+.header .badge {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  color: var(--color-graphite, #525252);
+  padding: 3px 10px;
+  border-radius: var(--radius-tags, 9999px);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: 0.3px;
+}
+
+.container {
+  max-width: var(--page-max-width, 1200px);
+  margin: 0 auto;
+  padding: 0 var(--spacing-16, 16px) var(--spacing-48, 48px);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-20, 20px);
+  margin-bottom: var(--spacing-20, 20px);
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   2. Water Drop Icon & Domain Visual Elements
+   ========================================================================== */
+.water-drop {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  background-color: var(--color-pine-accent, #16a34a);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   3. Tabs & Category Headers
+   ========================================================================== */
+.tab-bar {
+  display: flex;
+  gap: var(--spacing-8, 8px);
+  margin-bottom: var(--spacing-16, 16px);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.tab {
+  padding: 8px 18px;
+  cursor: pointer;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-steel, #737373);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab.active {
+  color: var(--color-ink, #171717);
+  border-bottom-color: var(--color-ink, #171717);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.tab:hover {
+  color: var(--color-ink, #171717);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.cat-header {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: var(--radius-tags, 9999px);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-semibold, 600);
+  margin-bottom: var(--spacing-12, 12px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cat-residential   { background: #ecfdf5; color: #065f46; }
+.cat-commercial    { background: #f5f3ff; color: #5b21b6; }
+.cat-institutional { background: #eff6ff; color: #1e40af; }
+.cat-industrial    { background: #fff7ed; color: #9a3412; }
+.cat-transport      { background: #fef2f2; color: #991b1b; }
+
+/* ==========================================================================
+   4. Form Specifics & Radio Groups
+   ========================================================================== */
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8, 8px);
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-pure-white, #ffffff);
+  border-radius: var(--radius-inputs, 8px);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-graphite, #525252);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.radio-group label:hover {
+  border-color: var(--color-steel, #737373);
+}
+
+.radio-group input {
+  display: none;
+}
+
+.radio-group input:checked + span {
+  color: var(--color-ink, #171717);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.radio-group label:has(input:checked) {
+  border-color: var(--color-ink, #171717);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+}
+
+.field label .lpcd-tag {
+  display: inline-block;
+  background: var(--color-highlight-wash, #fdf8f0);
+  color: var(--color-sienna-brand, #451a03);
+  padding: 1px 8px;
+  border-radius: var(--radius-tags, 9999px);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  margin-left: 6px;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.lpcd-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8, 8px);
+  margin-top: var(--spacing-8, 8px);
+  padding: 10px 14px;
+  background: var(--color-highlight-wash, #fdf8f0);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+}
+
+.lpcd-display .val {
+  font-size: var(--text-subheading, 22px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+}
+
+.lpcd-display .unit {
+  font-size: 13px;
+  color: var(--color-steel, #737373);
+}
+
+.lpcd-display .split {
+  font-size: 13px;
+  color: var(--color-graphite, #525252);
+  margin-left: var(--spacing-8, 8px);
+  padding-left: var(--spacing-8, 8px);
+  border-left: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+/* ==========================================================================
+   5. Storage Options Cards
+   ========================================================================== */
+.storage-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--spacing-12, 12px);
+  margin: var(--spacing-12, 12px) 0;
+}
+
+@media (max-width: 600px) {
+  .storage-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.storage-card {
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-pure-white, #ffffff);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.storage-card:hover {
+  border-color: var(--color-steel, #737373);
+}
+
+.storage-card.active {
+  border-color: var(--color-ink, #171717);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+}
+
+.storage-card .title {
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 14px;
+  color: var(--color-ink, #171717);
+  margin-bottom: var(--spacing-4, 4px);
+}
+
+.storage-card .desc {
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+}
+
+/* ==========================================================================
+   6. Multi-Block & Callout Notes
+   ========================================================================== */
+.multi-block {
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  margin-bottom: var(--spacing-12, 12px);
+}
+
+.multi-block .mb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-8, 8px);
+}
+
+.multi-block .mb-title {
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 14px;
+  color: var(--color-ink, #171717);
+}
+
+.multi-block select {
+  margin-bottom: var(--spacing-8, 8px);
+}
+
+.info-note {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  border-left: 3px solid var(--color-sienna-brand, #451a03);
+  padding: var(--spacing-12, 12px) var(--spacing-16, 16px);
+  border-radius: 0 var(--radius-inputs, 8px) var(--radius-inputs, 8px) 0;
+  font-size: 13px;
+  color: var(--color-graphite, #525252);
+  margin: var(--spacing-12, 12px) 0;
+}
+
+.info-note.blue   { background-color: #eff6ff; border-left-color: #2563eb; }
+.info-note.purple { background-color: #f5f3ff; border-left-color: #7c3aed; }
+
+/* ==========================================================================
+   7. Breakdown Lists & Tags
+   ========================================================================== */
+.breakdown-list {
+  list-style: none;
+  margin-top: var(--spacing-12, 12px);
+  padding: 0;
+}
+
+.breakdown-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--color-soft-fog, #f0f0f0);
+  font-size: 14px;
+  color: var(--color-graphite, #525252);
+}
+
+.breakdown-list li:last-child {
+  border-bottom: none;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  padding: 10px 12px;
+  border-radius: var(--radius-inputs, 8px);
+  margin-top: var(--spacing-8, 8px);
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-tags, 9999px);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.tag-domestic   { background: #eff6ff; color: #1e40af; }
+.tag-flush      { background: #fff7ed; color: #9a3412; }
+.tag-total      { background: #ecfdf5; color: #065f46; }
+.tag-commercial { background: #f5f3ff; color: #5b21b6; }
+
+/* ==========================================================================
+   8. Migrated Page-Specific Inline Styles & JS Target IDs
+   ========================================================================== */
+#dwellingUnits { margin-top: 8px; }
+#perCapitaInfo { font-size: 13px; color: var(--color-steel, #737373); }
+#commInfo { font-size: 13px; color: var(--color-steel, #737373); }
+
+.p-nbc2026_water_demand_calculator_v2_html-s1 { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+.p-nbc2026_water_demand_calculator_v2_html-s2 { font-size:13px; color:var(--color-steel, #737373); margin-bottom:16px; }
+.p-nbc2026_water_demand_calculator_v2_html-s3 { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+.p-nbc2026_water_demand_calculator_v2_html-s4 { font-weight:600; background:var(--color-ash-mist, #f5f5f5); }
+.p-nbc2026_water_demand_calculator_v2_html-s5 { background:var(--color-highlight-wash, #fdf8f0); }
+.p-nbc2026_water_demand_calculator_v2_html-s6 { font-weight:600; background:#ecfdf5; color:#065f46; }
+.p-nbc2026_water_demand_calculator_v2_html-s7 { font-size:13px; color:var(--color-steel, #737373); margin-bottom:14px; }
+.p-nbc2026_water_demand_calculator_v2_html-s8 { font-weight:600; background:var(--color-ash-mist, #f5f5f5); }
+.p-nbc2026_water_demand_calculator_v2_html-s9 { font-size:13px; padding-left:20px; line-height:2; color:var(--color-graphite, #525252); }
+.p-nbc2026_water_demand_calculator_v2_html-s10 { margin-top:4px; }

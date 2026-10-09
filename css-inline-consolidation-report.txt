@@ -1,0 +1,99 @@
+======================================================
+Atomep Enteam — CSS Inline & Shared Consolidation Report
+======================================================
+
+Timestamp: 2026-09-30T15:48:59.076Z
+Mode: APPLIED
+Target HTML files: 13
+Shared CSS created: css/app.css (3.43 KB)
+
+Overall Statistics:
+  - Total static inline styles migrated: 201
+  - Dynamic runtime styles safely preserved: 15
+  - App shell navigation & back bar consolidated into css/app.css
+
+------------------------------------------------------
+Page-by-Page Summary
+------------------------------------------------------
+
+[index.html]
+  - Static inline styles extracted to CSS: 17
+  - Dynamic styles preserved inline: 1
+  - Page stylesheet size: 1.19 KB (css/pages/index.css)
+  - Linked in <head>: css/app.css -> css/pages/index.css
+
+[AI_DM_Plant_Platform.html]
+  - Static inline styles extracted to CSS: 17
+  - Dynamic styles preserved inline: 5
+  - Page stylesheet size: 19.43 KB (css/pages/AI_DM_Plant_Platform.css)
+  - Linked in <head>: css/app.css -> css/pages/AI_DM_Plant_Platform.css
+
+[NBC2026_Water_Demand_Calculator_v2.html]
+  - Static inline styles extracted to CSS: 14
+  - Dynamic styles preserved inline: 1
+  - Page stylesheet size: 8.25 KB (css/pages/NBC2026_Water_Demand_Calculator_v2.css)
+  - Linked in <head>: css/app.css -> css/pages/NBC2026_Water_Demand_Calculator_v2.css
+
+[NBCS_2026_Drainage_Calculator.html]
+  - Static inline styles extracted to CSS: 45
+  - Dynamic styles preserved inline: 4
+  - Page stylesheet size: 9.27 KB (css/pages/NBCS_2026_Drainage_Calculator.css)
+  - Linked in <head>: css/app.css -> css/pages/NBCS_2026_Drainage_Calculator.css
+
+[NBCS_2026_Pipe_Size_Calculator.html]
+  - Static inline styles extracted to CSS: 21
+  - Dynamic styles preserved inline: 0
+  - Page stylesheet size: 7.05 KB (css/pages/NBCS_2026_Pipe_Size_Calculator.css)
+  - Linked in <head>: css/app.css -> css/pages/NBCS_2026_Pipe_Size_Calculator.css
+
+[RO_Plant_Sizing_Calculator.html]
+  - Static inline styles extracted to CSS: 16
+  - Dynamic styles preserved inline: 0
+  - Page stylesheet size: 13.42 KB (css/pages/RO_Plant_Sizing_Calculator.css)
+  - Linked in <head>: css/app.css -> css/pages/RO_Plant_Sizing_Calculator.css
+
+[STP_Design_Calculator.html]
+  - Static inline styles extracted to CSS: 3
+  - Dynamic styles preserved inline: 2
+  - Page stylesheet size: 17.63 KB (css/pages/STP_Design_Calculator.css)
+  - Linked in <head>: css/app.css -> css/pages/STP_Design_Calculator.css
+
+[Storm_Sump_Design_Tool.html]
+  - Static inline styles extracted to CSS: 20
+  - Dynamic styles preserved inline: 0
+  - Page stylesheet size: 9.25 KB (css/pages/Storm_Sump_Design_Tool.css)
+  - Linked in <head>: css/app.css -> css/pages/Storm_Sump_Design_Tool.css
+
+[Water_Softener_Plant_Designer.html]
+  - Static inline styles extracted to CSS: 12
+  - Dynamic styles preserved inline: 1
+  - Page stylesheet size: 9.87 KB (css/pages/Water_Softener_Plant_Designer.css)
+  - Linked in <head>: css/app.css -> css/pages/Water_Softener_Plant_Designer.css
+
+[Water_Treatment_Plant_Designer.html]
+  - Static inline styles extracted to CSS: 0
+  - Dynamic styles preserved inline: 0
+  - Page stylesheet size: 4.52 KB (css/pages/Water_Treatment_Plant_Designer.css)
+  - Linked in <head>: css/app.css -> css/pages/Water_Treatment_Plant_Designer.css
+
+[firefighting_calculator.html]
+  - Static inline styles extracted to CSS: 12
+  - Dynamic styles preserved inline: 1
+  - Page stylesheet size: 10.65 KB (css/pages/firefighting_calculator.css)
+  - Linked in <head>: css/app.css -> css/pages/firefighting_calculator.css
+
+[heat_pump_sizing_tool.html]
+  - Static inline styles extracted to CSS: 3
+  - Dynamic styles preserved inline: 0
+  - Page stylesheet size: 4.94 KB (css/pages/heat_pump_sizing_tool.css)
+  - Linked in <head>: css/app.css -> css/pages/heat_pump_sizing_tool.css
+
+[pump-head-calculator.html]
+  - Static inline styles extracted to CSS: 21
+  - Dynamic styles preserved inline: 0
+  - Page stylesheet size: 16.78 KB (css/pages/pump-head-calculator.css)
+  - Linked in <head>: css/app.css -> css/pages/pump-head-calculator.css
+
+======================================================
+Verification Status: Ready for Playwright 13/13 run
+======================================================

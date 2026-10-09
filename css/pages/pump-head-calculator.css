@@ -1,0 +1,595 @@
+/**
+ * Atomep Enteam — Pump Head Calculator Stylesheet
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. App Header & Layout
+   ========================================================================== */
+.container {
+  max-width: var(--page-max-width, 1200px);
+  margin: 0 auto;
+  padding: 0 var(--spacing-16, 16px) var(--spacing-48, 48px);
+}
+
+header.app-header {
+  background-color: var(--color-pure-white, #ffffff);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  padding: var(--spacing-24, 24px) var(--spacing-24, 24px);
+  margin-bottom: var(--spacing-28, 28px);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-cards, 12px);
+}
+
+.app-header__eyebrow {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-sienna-brand, #451a03);
+  margin-bottom: var(--spacing-8, 8px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-header__eyebrow::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.app-header__title {
+  font-family: var(--font-inter);
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: -0.5px;
+  color: var(--color-ink, #171717);
+  margin: 0 0 var(--spacing-6, 6px);
+  line-height: 1.2;
+}
+
+.app-header__subtitle {
+  font-size: var(--text-body, 15px);
+  color: var(--color-graphite, #525252);
+  max-width: 680px;
+  margin: 0;
+}
+
+/* ==========================================================================
+   2. Sections & Cards
+   ========================================================================== */
+.section {
+  margin-bottom: var(--spacing-32, 32px);
+}
+
+.section__head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12, 12px);
+  margin-bottom: var(--spacing-16, 16px);
+}
+
+.section__num {
+  font-family: var(--font-inter);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-pure-white, #ffffff);
+  background-color: var(--color-ink, #171717);
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full, 9999px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section__title {
+  font-size: var(--text-body-lg, 18px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  margin: 0;
+}
+
+.section__hint {
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+  margin-left: auto;
+}
+
+.card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-20, 20px);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-16, 16px);
+}
+
+.card--elevated {
+  background-color: var(--color-pure-white, #ffffff);
+  box-shadow: var(--shadow-subtle-2);
+}
+
+.card--hero {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  border-color: var(--color-soft-fog, #f0f0f0);
+}
+
+.card--recessed {
+  background-color: var(--color-warm-canvas, #fffdf9);
+}
+
+/* ==========================================================================
+   3. Grids & Form Controls
+   ========================================================================== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-16, 16px); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-16, 16px); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-16, 16px); }
+.grid-split { display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--spacing-20, 20px); align-items: start; }
+
+@media (max-width: 820px) {
+  .grid-2, .grid-3, .grid-4, .grid-split { grid-template-columns: 1fr; }
+}
+
+.field {
+  margin-bottom: var(--spacing-16, 16px);
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.field__label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-8, 8px);
+  margin-bottom: var(--spacing-4, 4px);
+}
+
+.field__label-text {
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-ink, #171717);
+}
+
+.field__unit {
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+  font-variant-numeric: tabular-nums;
+}
+
+.field__hint {
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+  margin-top: var(--spacing-4, 4px);
+  line-height: 1.4;
+}
+
+.input, .select {
+  width: 100%;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  color: var(--color-ink, #171717);
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 8px 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.input:focus, .select:focus {
+  border-color: var(--color-ink, #171717);
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.08);
+}
+
+.input::placeholder {
+  color: var(--color-steel, #737373);
+  opacity: 0.7;
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8, 8px);
+}
+
+.chip {
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  padding: 6px 14px;
+  border-radius: var(--radius-buttons, 9999px);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-graphite, #525252);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--color-steel, #737373);
+  color: var(--color-ink, #171717);
+}
+
+.chip.active {
+  background-color: var(--color-ink, #171717);
+  border-color: var(--color-ink, #171717);
+  color: var(--color-pure-white, #ffffff);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* ==========================================================================
+   4. Results, KPIs & Banners
+   ========================================================================== */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-12, 12px);
+}
+
+.kpi {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi--accent { border-left: 3px solid var(--color-sienna-brand, #451a03); }
+.kpi--teal   { border-left: 3px solid #0d9488; }
+.kpi--amber  { border-left: 3px solid #d97706; }
+.kpi--green  { border-left: 3px solid #16a34a; }
+.kpi--red    { border-left: 3px solid #dc2626; }
+
+.kpi__value {
+  font-family: var(--font-inter);
+  font-size: var(--text-subheading, 22px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.kpi__value .unit {
+  font-size: 13px;
+  color: var(--color-steel, #737373);
+  font-weight: 400;
+  margin-left: 3px;
+}
+
+.kpi__label {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  margin-top: var(--spacing-4, 4px);
+}
+
+.result-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16, 16px);
+  padding: var(--spacing-16, 16px) var(--spacing-20, 20px);
+  border-radius: var(--radius-cards, 12px);
+  margin-bottom: var(--spacing-16, 16px);
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  box-shadow: var(--shadow-sm);
+}
+
+.result-banner--ok   { background-color: #ecfdf5; border-left: 4px solid #16a34a; }
+.result-banner--warn { background-color: #fff7ed; border-left: 4px solid #f97316; }
+.result-banner--fail { background-color: #fef2f2; border-left: 4px solid #ef4444; }
+
+.result-banner__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.result-banner--ok .result-banner__icon   { background-color: #16a34a; color: #fff; }
+.result-banner--warn .result-banner__icon { background-color: #f97316; color: #fff; }
+.result-banner--fail .result-banner__icon { background-color: #ef4444; color: #fff; }
+
+.result-banner__text {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-graphite, #525252);
+}
+
+.result-banner__text strong {
+  color: var(--color-ink, #171717);
+}
+
+/* ==========================================================================
+   5. Download Bar & Export Action Controls
+   ========================================================================== */
+.download-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8, 8px);
+  flex-wrap: wrap;
+  padding: var(--spacing-12, 12px) var(--spacing-16, 16px);
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  margin-bottom: var(--spacing-24, 24px);
+  position: sticky;
+  top: 68px;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+
+.download-bar__label {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  margin-right: 4px;
+}
+
+.dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  padding: 6px 14px;
+  border-radius: var(--radius-buttons, 9999px);
+  cursor: pointer;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-ink, #171717);
+  transition: all 0.15s ease;
+}
+
+.dl-btn:hover {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  border-color: var(--color-steel, #737373);
+}
+
+.dl-btn svg { width: 14px; height: 14px; }
+.dl-btn--pdf:hover { color: #dc2626; border-color: #dc2626; }
+.dl-btn--word:hover { color: #2563eb; border-color: #2563eb; }
+.dl-btn--excel:hover { color: #16a34a; border-color: #16a34a; }
+
+/* ==========================================================================
+   6. Dynamic Chart.js Canvas Container (Preserved Dimensions)
+   ========================================================================== */
+.chart-wrap {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.chart-wrap canvas {
+  max-height: 380px;
+  width: 100% !important;
+}
+
+.chart-wrap__title {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  margin-bottom: var(--spacing-12, 12px);
+}
+
+/* ==========================================================================
+   7. Tables, Material Cards & Callouts
+   ========================================================================== */
+.breakdown {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.breakdown th {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+.breakdown th.num, .breakdown td.num { text-align: right; }
+.breakdown td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-graphite, #525252);
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdown tr.total td {
+  font-weight: var(--font-weight-semibold, 600);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  color: var(--color-ink, #171717);
+}
+
+.breakdown tr.subtotal td {
+  font-weight: var(--font-weight-medium, 500);
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+.mat-card {
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  background-color: var(--color-pure-white, #ffffff);
+  box-shadow: var(--shadow-sm);
+}
+
+.mat-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-8, 8px);
+}
+
+.mat-card__name {
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 14px;
+  color: var(--color-ink, #171717);
+}
+
+.mat-card__rating {
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  padding: 2px 8px;
+  border-radius: var(--radius-tags, 9999px);
+}
+
+.mat-card__rating--rec     { background-color: #ecfdf5; color: #065f46; }
+.mat-card__rating--ok      { background-color: #f5f5f5; color: #525252; }
+.mat-card__rating--caution { background-color: #fff7ed; color: #9a3412; }
+
+.callout {
+  padding: var(--spacing-12, 12px) var(--spacing-16, 16px);
+  border-radius: 0 var(--radius-inputs, 8px) var(--radius-inputs, 8px) 0;
+  border-left: 3px solid var(--color-sienna-brand, #451a03);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: var(--spacing-16, 16px);
+  color: var(--color-graphite, #525252);
+}
+
+.callout strong { color: var(--color-ink, #171717); }
+.callout--warn   { border-left-color: #f97316; background-color: #fff7ed; color: #9a3412; }
+.callout--danger { border-left-color: #ef4444; background-color: #fef2f2; color: #991b1b; }
+
+/* ==========================================================================
+   8. Tabs & Tab Panels
+   ========================================================================== */
+.tabs {
+  display: flex;
+  gap: var(--spacing-8, 8px);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  margin-bottom: var(--spacing-16, 16px);
+}
+
+.tab {
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-steel, #737373);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover { color: var(--color-ink, #171717); }
+.tab.active {
+  color: var(--color-ink, #171717);
+  border-bottom-color: var(--color-ink, #171717);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.sched-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.sched-table th {
+  font-family: var(--font-inter);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-ash-mist, #f5f5f5);
+  white-space: nowrap;
+}
+
+.sched-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-graphite, #525252);
+}
+
+.sched-table tr.highlight td {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+}
+
+.sched-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-inputs, 8px);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+footer {
+  padding: 40px 0 60px;
+  text-align: center;
+  color: var(--color-steel, #737373);
+  font-size: 12px;
+}
+
+.report-only { display: none; }
+@media print {
+  .download-bar, .chart-wrap, .tabs, .tab-panel { display: none !important; }
+  body { background: #fff; color: #000; }
+}
+
+/* Migrated Page-Specific Inline Styles */
+#designFlow { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.p-pump_head_calculator_html-s1 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-steel, #737373); margin-bottom: 8px; }
+#flowResult { font-size: 36px; font-weight: 700; color: var(--color-ink, #171717); line-height: 1; font-variant-numeric: tabular-nums; }
+.p-pump_head_calculator_html-s2 { font-size: 13px; color: var(--color-steel, #737373); margin-top: 4px; }
+.p-pump_head_calculator_html-s3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-steel, #737373); margin-bottom: 12px; }
+.p-pump_head_calculator_html-s4 { margin-top: 14px; }
+.p-pump_head_calculator_html-s5 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-steel, #737373); margin-bottom: 12px; }
+.p-pump_head_calculator_html-s6 { margin-top: 14px; }
+.p-pump_head_calculator_html-s7 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-steel, #737373); margin-bottom: 8px; }
+#tdhResult { font-size: 36px; font-weight: 700; color: var(--color-ink, #171717); line-height: 1; font-variant-numeric: tabular-nums; }
+.p-pump_head_calculator_html-s8 { font-size: 13px; color: var(--color-steel, #737373); margin-top: 4px; }
+.p-pump_head_calculator_html-s9 { margin-top: 20px; }
+.p-pump_head_calculator_html-s10 { margin-top: 16px; }
+.p-pump_head_calculator_html-s11 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-steel, #737373); margin-bottom: 12px; }
+.p-pump_head_calculator_html-s12 { margin-top: 14px; }
+.p-pump_head_calculator_html-s13 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-steel, #737373); margin-bottom: 12px; }
+.p-pump_head_calculator_html-s14 { margin-top: 16px; }
+.p-pump_head_calculator_html-s15 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-steel, #737373); margin-bottom: 8px; }
+.p-pump_head_calculator_html-s16 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-steel, #737373); margin-bottom: 8px; }
+.p-pump_head_calculator_html-s17 { margin-top: 12px; }

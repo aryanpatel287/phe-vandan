@@ -1,0 +1,657 @@
+/**
+ * Atomep Enteam — STP Design Calculator Stylesheet
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. Header & Top Bar Layout
+   ========================================================================== */
+.topbar {
+  background-color: var(--color-pure-white, #ffffff);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  padding: var(--spacing-16, 16px) var(--spacing-24, 24px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.topbar h1 {
+  font-family: var(--font-inter);
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  letter-spacing: -0.4px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8, 8px);
+}
+
+.topbar .logo-icon {
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-sienna-brand, #451a03);
+  color: #ffffff;
+  border-radius: var(--radius-lg, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.topbar .logo-icon svg { width: 18px; height: 18px; fill: currentColor; }
+
+.topbar .subtitle {
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+  font-family: var(--font-inter);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.topbar .badge {
+  font-family: var(--font-inter);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: var(--radius-tags, 9999px);
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   2. Layout & Panels
+   ========================================================================== */
+.main-container {
+  max-width: var(--page-max-width, 1400px);
+  margin: 0 auto;
+  padding: var(--spacing-20, 20px) var(--spacing-16, 16px) var(--spacing-48, 48px);
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: var(--spacing-20, 20px);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .main-container { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-20, 20px);
+  box-shadow: var(--shadow-sm);
+}
+
+.panel-title {
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  font-family: var(--font-inter);
+  margin-bottom: var(--spacing-16, 16px);
+  padding-bottom: var(--spacing-12, 12px);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-sienna-brand, #451a03);
+}
+
+/* ==========================================================================
+   3. Form Elements & Grids
+   ========================================================================== */
+.form-group { margin-bottom: var(--spacing-16, 16px); }
+
+.form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-steel, #737373);
+  margin-bottom: var(--spacing-4, 4px);
+  font-family: var(--font-inter);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group .hint {
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+  margin-top: 4px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  color: var(--color-ink, #171717);
+  font-family: var(--font-inter);
+  font-size: 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-ink, #171717);
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.08);
+}
+
+select.form-control {
+  cursor: pointer;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-12, 12px);
+}
+
+/* ==========================================================================
+   4. Application Grid & Technology Tabs
+   ========================================================================== */
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.app-card {
+  padding: 10px 8px;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  background-color: var(--color-pure-white, #ffffff);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+  font-size: 12px;
+  font-weight: var(--font-weight-medium, 500);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-graphite, #525252);
+}
+
+.app-card:hover {
+  border-color: var(--color-steel, #737373);
+  color: var(--color-ink, #171717);
+}
+
+.app-card.active {
+  border-color: var(--color-ink, #171717);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  color: var(--color-ink, #171717);
+}
+
+.app-card svg { width: 22px; height: 22px; }
+
+.app-card .lpcd {
+  font-size: 10px;
+  color: var(--color-steel, #737373);
+  font-variant-numeric: tabular-nums;
+}
+
+.app-card.active .lpcd { color: var(--color-sienna-brand, #451a03); }
+
+.tech-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.tech-tab {
+  padding: 8px 6px;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  background-color: var(--color-pure-white, #ffffff);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-graphite, #525252);
+}
+
+.tech-tab:hover { border-color: var(--color-steel, #737373); }
+.tech-tab.active {
+  border-color: var(--color-ink, #171717);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  color: var(--color-ink, #171717);
+}
+
+.tech-tab .tech-desc {
+  font-size: 10px;
+  color: var(--color-steel, #737373);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   5. Buttons & Action Bars
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-buttons, 9999px);
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--color-ink, #171717);
+  color: #ffffff;
+  width: 100%;
+  box-shadow: var(--shadow-subtle-2);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-charcoal, #262626);
+  transform: translateY(-1px);
+}
+
+.btn-download {
+  padding: 6px 14px;
+  font-size: 13px;
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-ink, #171717);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-buttons, 9999px);
+}
+
+.btn-download:hover {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  border-color: var(--color-steel, #737373);
+}
+
+.btn-download svg { width: 14px; height: 14px; }
+
+/* ==========================================================================
+   6. Results Area, KPIs & Data Tables
+   ========================================================================== */
+.results-area { min-height: 600px; }
+
+.results-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--color-steel, #737373);
+  text-align: center;
+}
+
+.results-empty svg { width: 48px; height: 48px; opacity: 0.3; margin-bottom: 12px; }
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-12, 12px);
+  margin-bottom: var(--spacing-20, 20px);
+}
+
+@media (max-width: 768px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.kpi-card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  background-color: var(--color-sienna-brand, #451a03);
+}
+
+.kpi-card.accent-2::before { background-color: #ea580c; }
+.kpi-card.success::before  { background-color: #16a34a; }
+.kpi-card.warning::before  { background-color: #d97706; }
+
+.kpi-label {
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  margin-bottom: var(--spacing-4, 4px);
+}
+
+.kpi-value {
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+
+.kpi-unit {
+  font-size: 13px;
+  color: var(--color-steel, #737373);
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.data-table thead th {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.data-table tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-graphite, #525252);
+}
+
+.data-table tbody tr:nth-child(even) { background-color: var(--color-warm-canvas, #fffdf9); }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table .highlight-row td { background-color: var(--color-highlight-wash, #fdf8f0); font-weight: 600; color: var(--color-ink, #171717); }
+
+.section-heading {
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold, 600);
+  margin: var(--spacing-20, 20px) 0 var(--spacing-8, 8px);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-ink, #171717);
+}
+
+.section-heading .num-badge {
+  width: 22px;
+  height: 22px;
+  background-color: var(--color-ink, #171717);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   7. Process Diagrams & Treatment Units (Preserved SVG Dimensions)
+   ========================================================================== */
+.diagram-container {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-20, 20px);
+  margin: var(--spacing-12, 12px) 0;
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.diagram-title {
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-steel, #737373);
+  margin-bottom: var(--spacing-12, 12px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.diagram-title .tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: var(--radius-tags, 9999px);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  color: var(--color-sienna-brand, #451a03);
+}
+
+.info-box {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  border-left: 3px solid var(--color-sienna-brand, #451a03);
+  border-radius: 0 var(--radius-inputs, 8px) var(--radius-inputs, 8px) 0;
+  padding: var(--spacing-12, 12px) var(--spacing-16, 16px);
+  margin: var(--spacing-12, 12px) 0;
+  font-size: 13px;
+  color: var(--color-graphite, #525252);
+}
+
+.info-box.warning { border-left-color: #f97316; background-color: #fff7ed; color: #9a3412; }
+.info-box.success { border-left-color: #16a34a; background-color: #ecfdf5; color: #065f46; }
+.info-box.danger  { border-left-color: #ef4444; background-color: #fef2f2; color: #991b1b; }
+
+.is-code-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.is-code-item {
+  padding: 8px 12px;
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  font-size: 12px;
+}
+
+.is-code-item .code {
+  font-weight: 600;
+  color: var(--color-sienna-brand, #451a03);
+  margin-bottom: 2px;
+}
+
+.is-code-item .desc { color: var(--color-steel, #737373); }
+
+.water-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.water-type-card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  box-shadow: var(--shadow-sm);
+}
+
+.water-type-card.black-water { border-top: 3px solid #78350f; }
+.water-type-card.grey-water  { border-top: 3px solid #0284c7; }
+
+.water-type-card h4 {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold, 600);
+  margin-bottom: 8px;
+  color: var(--color-ink, #171717);
+}
+
+.water-type-card ul { list-style: none; padding: 0; }
+.water-type-card li {
+  font-size: 12px;
+  color: var(--color-graphite, #525252);
+  padding: 4px 0 4px 14px;
+  position: relative;
+}
+
+.water-type-card li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--color-sienna-brand, #451a03);
+  font-weight: 700;
+}
+
+.download-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+  padding: 12px 16px;
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.download-bar .label {
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-steel, #737373);
+  margin-right: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   8. Tabs & Calculation Steps
+   ========================================================================== */
+.results-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  margin-bottom: 16px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+
+.result-tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-steel, #737373);
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  font-family: var(--font-inter);
+}
+
+.result-tab:hover { color: var(--color-ink, #171717); }
+.result-tab.active {
+  color: var(--color-ink, #171717);
+  border-bottom-color: var(--color-ink, #171717);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.2s ease; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+.calc-step {
+  padding: 12px 16px;
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border-radius: var(--radius-inputs, 8px);
+  margin-bottom: 8px;
+  font-size: 13px;
+  border-left: 3px solid var(--color-sienna-brand, #451a03);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-left-width: 3px;
+}
+
+.calc-step .formula {
+  color: var(--color-sienna-brand, #451a03);
+  font-size: 12px;
+  margin: 4px 0;
+  font-weight: 500;
+}
+
+.calc-step .result {
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+}
+
+.loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(23, 23, 23, 0.4);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-overlay.active { display: flex; }
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media print {
+  .topbar, .download-bar, .results-tabs { display: none !important; }
+  .main-container { grid-template-columns: 1fr; padding: 0; }
+  .panel { border: none; box-shadow: none; padding: 8px; }
+  body { background: white; color: black; font-size: 12px; }
+  .tab-content { display: block !important; }
+}
+
+.footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+  border-top: 1px solid var(--color-soft-fog, #f0f0f0);
+  margin-top: 24px;
+}
+
+/* Migrated Page-Specific Inline Styles */
+.p-stp_design_calculator_html-s1 { margin-top: 8px; font-size: 13px; }

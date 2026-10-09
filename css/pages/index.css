@@ -1,0 +1,352 @@
+/**
+ * Atomep Enteam — Portal Stylesheet (index.css)
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. Hero Section
+   ========================================================================== */
+.hero {
+  padding: var(--spacing-48, 48px) var(--spacing-16, 16px) var(--spacing-32, 32px);
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.hero-logo {
+  max-width: 220px;
+  height: auto;
+  margin-bottom: var(--spacing-20, 20px);
+}
+
+.tagline {
+  font-family: var(--font-inter);
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  letter-spacing: -0.5px;
+  margin-bottom: var(--spacing-8, 8px);
+}
+
+.subtag {
+  font-family: var(--font-inter);
+  font-size: var(--text-body, 15px);
+  color: var(--color-graphite, #525252);
+  line-height: var(--leading-body, 1.56);
+  max-width: 680px;
+  margin: 0 auto var(--spacing-24, 24px);
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-16, 16px);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-16, 16px);
+}
+
+.hero-stat {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-12, 12px) var(--spacing-24, 24px);
+  min-width: 150px;
+  box-shadow: var(--shadow-sm);
+}
+
+.hero-stat .num {
+  font-family: var(--font-inter);
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-stat .lbl {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-steel, #737373);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: var(--spacing-4, 4px);
+}
+
+/* ==========================================================================
+   2. PWA Install Banner
+   ========================================================================== */
+#pwa-install-banner {
+  background-color: var(--color-highlight-wash, #fdf8f0) !important;
+  border: 1px solid var(--color-soft-fog, #f0f0f0) !important;
+  color: var(--color-ink, #171717) !important;
+  padding: var(--spacing-16, 16px) var(--spacing-24, 24px) !important;
+  border-radius: var(--radius-cards, 12px) !important;
+  margin: var(--spacing-24, 24px) auto !important;
+  max-width: var(--page-max-width, 1200px) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+#pwa-install-btn {
+  background-color: var(--color-ink, #171717);
+  color: var(--color-pure-white, #ffffff);
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  border: none;
+  padding: 8px 18px;
+  border-radius: var(--radius-buttons, 9999px);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--shadow-subtle-2);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+#pwa-install-btn:hover {
+  background-color: var(--color-charcoal, #262626);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   3. Sections & Tool Grid Items
+   ========================================================================== */
+.section {
+  max-width: var(--page-max-width, 1200px);
+  margin: 0 auto var(--spacing-48, 48px);
+  padding: 0 var(--spacing-16, 16px);
+}
+
+.section-head {
+  text-align: center;
+  margin-bottom: var(--spacing-24, 24px);
+}
+
+.section-head h2 {
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  letter-spacing: -0.4px;
+  margin-bottom: var(--spacing-4, 4px);
+}
+
+.section-head p {
+  font-size: var(--text-body, 15px);
+  color: var(--color-graphite, #525252);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tool-icon {
+  font-size: 28px;
+  margin-bottom: var(--spacing-12, 12px);
+  line-height: 1;
+}
+
+.tool-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tool-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: var(--spacing-12, 12px);
+  border-top: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.tool-tag {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  padding: 3px 10px;
+  border-radius: var(--radius-tags, 9999px);
+  background-color: var(--color-ash-mist, #f5f5f5);
+  color: var(--color-graphite, #525252);
+}
+
+.tool-go {
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  transition: transform 0.15s ease;
+}
+
+.tool-card:hover .tool-go {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   4. About Section
+   ========================================================================== */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--spacing-32, 32px);
+  align-items: start;
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-32, 32px);
+  box-shadow: var(--shadow-sm);
+}
+
+.about-text h2 {
+  font-size: var(--text-subheading, 22px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  margin-bottom: var(--spacing-12, 12px);
+}
+
+.about-text p {
+  font-size: var(--text-body, 15px);
+  color: var(--color-graphite, #525252);
+  line-height: var(--leading-body, 1.56);
+  margin-bottom: var(--spacing-12, 12px);
+}
+
+.about-features {
+  list-style: none;
+  margin-top: var(--spacing-16, 16px);
+  padding: 0;
+}
+
+.about-features li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8, 8px);
+  font-size: 14px;
+  color: var(--color-graphite, #525252);
+  margin-bottom: var(--spacing-8, 8px);
+}
+
+.about-features .check {
+  color: var(--color-pine-accent, #16a34a);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.about-visual {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12, 12px);
+}
+
+.about-visual-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12, 12px);
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: var(--spacing-12, 12px) var(--spacing-16, 16px);
+}
+
+.about-visual-item .v-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.about-visual-item .v-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-visual-item .v-text strong {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+}
+
+.about-visual-item .v-text small {
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+}
+
+/* ==========================================================================
+   5. Contact Section & Footer
+   ========================================================================== */
+.contact-card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-32, 32px);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.contact-card h2 {
+  font-size: var(--text-subheading, 22px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  margin-bottom: var(--spacing-6, 6px);
+}
+
+.contact-card p {
+  font-size: var(--text-body, 15px);
+  color: var(--color-graphite, #525252);
+  margin-bottom: var(--spacing-24, 24px);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-16, 16px);
+}
+
+.contact-item {
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: var(--spacing-16, 16px);
+}
+
+.contact-item .c-icon {
+  font-size: 24px;
+  margin-bottom: var(--spacing-6, 6px);
+}
+
+.contact-item .c-label {
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-steel, #737373);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.contact-item .c-value {
+  font-size: var(--text-body, 15px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  margin-top: var(--spacing-4, 4px);
+}
+
+.footer {
+  text-align: center;
+  padding: var(--spacing-32, 32px) var(--spacing-16, 16px);
+  font-size: 13px;
+  color: var(--color-steel, #737373);
+  border-top: 1px solid var(--color-soft-fog, #f0f0f0);
+  margin-top: var(--spacing-48, 48px);
+}
+
+@media (max-width: 768px) {
+  .about-grid, .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Migrated Page-Specific Inline Style Classes */
+.p-index_html-s1 { display:flex; align-items:center; gap:12px; }
+.p-index_html-s2 { font-size:1.8rem; }
+.p-index_html-s3 { display:block; font-size:1rem; }
+.p-index_html-s4 { opacity:0.9; }
+.p-index_html-s5, .p-index_html-s6, .p-index_html-s7, .p-index_html-s8,
+.p-index_html-s9, .p-index_html-s10, .p-index_html-s11, .p-index_html-s12,
+.p-index_html-s13, .p-index_html-s14, .p-index_html-s15, .p-index_html-s16 {
+  /* Retained class hooks for DOM stability */
+}

@@ -1,0 +1,415 @@
+/**
+ * Atomep Enteam — NBCS 2026 Pipe Size Calculator Stylesheet
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. Page Header & Container
+   ========================================================================== */
+header {
+  background-color: var(--color-pure-white, #ffffff);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  padding: var(--spacing-20, 20px) var(--spacing-24, 24px);
+  margin-bottom: var(--spacing-24, 24px);
+  box-shadow: var(--shadow-sm);
+}
+
+header h1 {
+  font-family: var(--font-inter);
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  letter-spacing: -0.4px;
+  margin-bottom: var(--spacing-4, 4px);
+}
+
+header p {
+  font-size: var(--text-body, 15px);
+  color: var(--color-graphite, #525252);
+}
+
+.container {
+  max-width: var(--page-max-width, 1200px);
+  margin: 0 auto;
+  padding: 0 var(--spacing-16, 16px) var(--spacing-48, 48px);
+}
+
+/* ==========================================================================
+   2. Numbered Section Badges (.num)
+   ========================================================================== */
+.card h2 .num {
+  background-color: var(--color-ink, #171717);
+  color: #ffffff;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full, 9999px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold, 600);
+  margin-right: var(--spacing-8, 8px);
+}
+
+/* ==========================================================================
+   3. Tab Buttons (.tab-btns, .tab-btn)
+   ========================================================================== */
+.tab-btns {
+  display: flex;
+  gap: var(--spacing-8, 8px);
+  margin-bottom: var(--spacing-16, 16px);
+}
+
+.tab-btn {
+  padding: 6px 16px;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-buttons, 9999px);
+  background: var(--color-pure-white, #ffffff);
+  color: var(--color-graphite, #525252);
+  cursor: pointer;
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: var(--color-ink, #171717);
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+.tab-btn.active {
+  background: var(--color-ink, #171717);
+  color: var(--color-pure-white, #ffffff);
+  border-color: var(--color-ink, #171717);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* ==========================================================================
+   4. Fixture Table & Sizing Tables
+   ========================================================================== */
+.fix-table-wrap {
+  max-height: 440px;
+  overflow-y: auto;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+}
+
+.fix-table input[type=number] {
+  width: 64px;
+  padding: 4px 6px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.fix-table input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-ink, #171717);
+}
+
+.fix-table .wsfu-val {
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+}
+
+.fix-table .subtotal {
+  text-align: right;
+  font-weight: var(--font-weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+}
+
+.fix-table .na {
+  color: #ef4444;
+  font-size: 12px;
+}
+
+/* ==========================================================================
+   5. Calculation Action Buttons
+   ========================================================================== */
+.btn-calc {
+  background-color: var(--color-ink, #171717);
+  color: #ffffff;
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold, 600);
+  border-radius: var(--radius-buttons, 9999px);
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-subtle-2);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.btn-calc:hover {
+  background-color: var(--color-charcoal, #262626);
+  transform: translateY(-1px);
+}
+
+.btn-export {
+  padding: 8px 20px;
+  font-size: 14px;
+  border-radius: var(--radius-buttons, 9999px);
+}
+
+/* ==========================================================================
+   6. Summary Bar & Result Banners
+   ========================================================================== */
+.summary-bar {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px) var(--spacing-20, 20px);
+  margin-top: var(--spacing-12, 12px);
+}
+
+.summary-bar .row {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: var(--spacing-16, 16px);
+}
+
+.summary-bar .item {
+  text-align: center;
+}
+
+.summary-bar .big {
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-bar .lbl {
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-steel, #737373);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: var(--spacing-4, 4px);
+}
+
+.result-banner {
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-20, 20px);
+  text-align: center;
+  margin: var(--spacing-16, 16px) 0;
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  box-shadow: var(--shadow-sm);
+}
+
+.result-banner.rec {
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+
+.result-banner .ps {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-semibold, 600);
+  color: #065f46;
+  font-variant-numeric: tabular-nums;
+}
+
+.result-banner .lbl {
+  font-size: 14px;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-graphite, #525252);
+  margin-top: var(--spacing-4, 4px);
+}
+
+.result-item {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  box-shadow: var(--shadow-sm);
+}
+
+.result-item .val {
+  font-size: var(--text-subheading, 22px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+}
+
+.result-item .desc {
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+  margin-top: var(--spacing-4, 4px);
+}
+
+.result-item.ok {
+  border-left: 3px solid #16a34a;
+}
+
+.result-item.fail {
+  border-left: 3px solid #ef4444;
+}
+
+.result-item .val.ok {
+  color: #16a34a;
+}
+
+.result-item .val.fail {
+  color: #ef4444;
+}
+
+/* ==========================================================================
+   7. Sizing Comparison Table & Method Explanation
+   ========================================================================== */
+.comp-wrap {
+  overflow-x: auto;
+  margin-top: var(--spacing-12, 12px);
+}
+
+.comp-table {
+  font-size: 13px;
+}
+
+.comp-table .hl {
+  background-color: #ecfdf5;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.comp-table .ok {
+  color: #16a34a;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.comp-table .no {
+  color: #ef4444;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.method {
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  margin-top: var(--spacing-16, 16px);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.method h4 {
+  color: var(--color-ink, #171717);
+  margin-bottom: var(--spacing-8, 8px);
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.method ol {
+  padding-left: 20px;
+}
+
+.method li {
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--color-graphite, #525252);
+}
+
+.method .formula {
+  background: var(--color-pure-white, #ffffff);
+  padding: 8px 12px;
+  border-radius: var(--radius-inputs, 8px);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  font-size: 13px;
+  margin: 8px 0;
+  overflow-x: auto;
+  color: var(--color-ink, #171717);
+}
+
+.compliance {
+  margin-top: var(--spacing-16, 16px);
+}
+
+.ci {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8, 8px);
+  padding: 8px 12px;
+  border-radius: var(--radius-inputs, 8px);
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.ci.pass { background: #ecfdf5; color: #065f46; }
+.ci.fail { background: #fef2f2; color: #991b1b; }
+
+.notes-box {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  margin-top: var(--spacing-12, 12px);
+  font-size: 13px;
+  color: var(--color-graphite, #525252);
+}
+
+.notes-box h4 {
+  color: var(--color-sienna-brand, #451a03);
+  margin-bottom: var(--spacing-8, 8px);
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.notes-box ul {
+  padding-left: 18px;
+}
+
+.notes-box li {
+  margin-bottom: 4px;
+}
+
+.toggle-group {
+  display: flex;
+  gap: var(--spacing-16, 16px);
+}
+
+.toggle-group label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  margin: 0;
+  font-weight: var(--font-weight-medium, 500);
+  font-size: 14px;
+  color: var(--color-graphite, #525252);
+}
+
+.chk-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chk-row input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-ink, #171717);
+}
+
+.chk-row label {
+  margin: 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Migrated Page-Specific Inline Styles & Target Hooks */
+.p-nbcs_2026_pipe_size_calculator_html-s1 { padding-top:4px; }
+.p-nbcs_2026_pipe_size_calculator_html-s2 { padding-top:4px; }
+.p-nbcs_2026_pipe_size_calculator_html-s3 { margin:14px 0; font-size:13px; color:var(--color-steel, #737373); }
+#totalFixtures { color: var(--color-sienna-brand, #451a03); }
+#dispWsfu { font-size: 1.6rem; }
+#dispLpm { font-size: 1.6rem; color: #16a34a; }
+#dispAvailHead { font-size: 1.6rem; color: var(--color-sienna-brand, #451a03); }
+.p-nbcs_2026_pipe_size_calculator_html-s4 { text-align:center; margin:20px 0; }
+.p-nbcs_2026_pipe_size_calculator_html-s5 { font-size:13px; }
+.p-nbcs_2026_pipe_size_calculator_html-s6 { font-size:13px; }
+.p-nbcs_2026_pipe_size_calculator_html-s7 { font-size:13px; }
+.p-nbcs_2026_pipe_size_calculator_html-s8 { font-size:13px; }
+.p-nbcs_2026_pipe_size_calculator_html-s9 { font-size:13px; }
+.p-nbcs_2026_pipe_size_calculator_html-s10 { font-size:13px; }
+.p-nbcs_2026_pipe_size_calculator_html-s11 { font-size:13px; }
+.p-nbcs_2026_pipe_size_calculator_html-s12 { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }

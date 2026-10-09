@@ -1,0 +1,493 @@
+/**
+ * Atomep Enteam — RO Plant Sizing Calculator Stylesheet
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. Header & Navigation Tabs
+   ========================================================================== */
+header {
+  max-width: var(--page-max-width, 1200px);
+  margin: 0 auto;
+  padding: var(--spacing-24, 24px) var(--spacing-16, 16px) var(--spacing-12, 12px);
+}
+
+.header-label {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-sienna-brand, #451a03);
+  font-weight: var(--font-weight-semibold, 600);
+  margin-bottom: var(--spacing-4, 4px);
+}
+
+h1 {
+  font-family: var(--font-inter);
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  line-height: 1.2;
+  color: var(--color-ink, #171717);
+  letter-spacing: -0.4px;
+  margin-bottom: var(--spacing-4, 4px);
+}
+
+.subtitle {
+  color: var(--color-graphite, #525252);
+  font-size: var(--text-body, 15px);
+  max-width: 700px;
+}
+
+.standards-row {
+  margin-top: var(--spacing-12, 12px);
+  display: flex;
+  gap: var(--spacing-8, 8px);
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-family: var(--font-inter);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  padding: 3px 10px;
+  border-radius: var(--radius-tags, 9999px);
+  background-color: var(--color-ash-mist, #f5f5f5);
+  color: var(--color-graphite, #525252);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.badge.warn    { background-color: #fff7ed; color: #9a3412; border-color: #ffedd5; }
+.badge.success { background-color: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+
+nav.tabs {
+  max-width: var(--page-max-width, 1200px);
+  margin: var(--spacing-16, 16px) auto 0;
+  padding: 0 var(--spacing-16, 16px);
+  display: flex;
+  gap: var(--spacing-8, 8px);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  overflow-x: auto;
+}
+
+nav.tabs button {
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: var(--color-steel, #737373);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+nav.tabs button:hover { color: var(--color-ink, #171717); }
+nav.tabs button.active {
+  color: var(--color-ink, #171717);
+  border-bottom-color: var(--color-ink, #171717);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* ==========================================================================
+   2. Main Layout & Cards
+   ========================================================================== */
+main {
+  max-width: var(--page-max-width, 1200px);
+  margin: 0 auto;
+  padding: var(--spacing-16, 16px) var(--spacing-16, 16px) var(--spacing-48, 48px);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+.card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-20, 20px);
+  margin-bottom: var(--spacing-16, 16px);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-hero {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+}
+
+.card-label {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-steel, #737373);
+  font-weight: var(--font-weight-semibold, 600);
+  margin-bottom: var(--spacing-4, 4px);
+}
+
+h2 {
+  font-size: var(--text-body-lg, 18px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  margin-bottom: var(--spacing-12, 12px);
+}
+
+h3 {
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold, 600);
+  margin-bottom: var(--spacing-8, 8px);
+  color: var(--color-ink, #171717);
+}
+
+/* ==========================================================================
+   3. Input Grid & Buttons
+   ========================================================================== */
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-16, 16px);
+}
+
+.input-group { display: flex; flex-direction: column; gap: 4px; }
+
+label {
+  font-size: 13px;
+  color: var(--color-graphite, #525252);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+label .hint { color: var(--color-steel, #737373); font-size: 11px; }
+
+input[type="number"], select {
+  font-family: var(--font-inter);
+  font-size: 14px;
+  padding: 8px 12px;
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  color: var(--color-ink, #171717);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+input[type="number"]:focus, select:focus {
+  outline: none;
+  border-color: var(--color-ink, #171717);
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.08);
+}
+
+.input-suffix {
+  display: flex;
+  align-items: center;
+}
+
+.input-suffix span {
+  font-family: var(--font-inter);
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+  margin-left: -2.5rem;
+  padding: 8px 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-suffix input { padding-right: 2.5rem; }
+
+.btn {
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium, 500);
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-buttons, 9999px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-ink, #171717);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-charcoal, #262626);
+}
+
+.btn-ghost {
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-graphite, #525252);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.btn-ghost:hover {
+  color: var(--color-ink, #171717);
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+/* ==========================================================================
+   4. Results, KPIs & Tables
+   ========================================================================== */
+.results-section { margin-top: var(--spacing-20, 20px); }
+.results-section.hidden { display: none; }
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-12, 12px);
+  margin-bottom: var(--spacing-16, 16px);
+}
+
+.kpi {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi-label {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-steel, #737373);
+  font-weight: var(--font-weight-medium, 500);
+  margin-bottom: 4px;
+}
+
+.kpi-value {
+  font-family: var(--font-inter);
+  font-size: var(--text-subheading, 22px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.kpi-unit {
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+  font-weight: 400;
+}
+
+.kpi.accent .kpi-value { color: var(--color-sienna-brand, #451a03); }
+.kpi.warn .kpi-value   { color: #ea580c; }
+.kpi.success .kpi-value { color: #16a34a; }
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  position: sticky;
+  top: 0;
+}
+
+th {
+  text-align: left;
+  padding: 8px 10px;
+  font-family: var(--font-inter);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-steel, #737373);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-graphite, #525252);
+}
+
+tr:nth-child(even) td { background-color: var(--color-warm-canvas, #fffdf9); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.critical { color: #dc2626; font-weight: 600; }
+td.warn-cell { color: #ea580c; }
+td.ok-cell   { color: #16a34a; }
+
+.callout {
+  padding: var(--spacing-12, 12px) var(--spacing-16, 16px);
+  border-radius: 0 var(--radius-inputs, 8px) var(--radius-inputs, 8px) 0;
+  font-size: 13px;
+  margin-bottom: var(--spacing-16, 16px);
+  border-left: 3px solid;
+}
+
+.callout-info   { background-color: var(--color-highlight-wash, #fdf8f0); border-color: var(--color-sienna-brand, #451a03); color: var(--color-graphite, #525252); }
+.callout-warn   { background-color: #fff7ed; border-color: #f97316; color: #9a3412; }
+.callout-danger { background-color: #fef2f2; border-color: #ef4444; color: #991b1b; }
+
+/* ==========================================================================
+   5. Flow Diagram Schematic & Hospital Dept Tabs
+   ========================================================================== */
+.flow-diagram {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8, 8px);
+  padding: var(--spacing-16, 16px);
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  overflow-x: auto;
+  margin-top: var(--spacing-8, 8px);
+}
+
+.flow-stage {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: var(--font-inter);
+  white-space: nowrap;
+  text-align: center;
+  color: var(--color-ink, #171717);
+  box-shadow: var(--shadow-sm);
+}
+
+.flow-stage.critical { border-color: #fecaca; background-color: #fef2f2; color: #991b1b; }
+.flow-stage.accent   { border-color: var(--color-soft-fog, #f0f0f0); background-color: var(--color-highlight-wash, #fdf8f0); color: var(--color-sienna-brand, #451a03); }
+.flow-arrow {
+  color: var(--color-steel, #737373);
+  font-size: 16px;
+}
+
+.dept-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--spacing-16, 16px);
+  flex-wrap: wrap;
+}
+
+.dept-tab {
+  font-family: var(--font-inter);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium, 500);
+  padding: 6px 14px;
+  border-radius: var(--radius-buttons, 9999px);
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-graphite, #525252);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dept-tab:hover { color: var(--color-ink, #171717); background-color: var(--color-ash-mist, #f5f5f5); }
+.dept-tab.active {
+  background-color: var(--color-ink, #171717);
+  color: #ffffff;
+  border-color: var(--color-ink, #171717);
+}
+
+.dept-panel { display: none; }
+.dept-panel.active { display: block; }
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-12, 12px);
+  margin-top: var(--spacing-12, 12px);
+}
+
+.meta-item {
+  background-color: var(--color-warm-canvas, #fffdf9);
+  padding: var(--spacing-12, 12px);
+  border-radius: var(--radius-inputs, 8px);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.meta-item-label {
+  font-family: var(--font-inter);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  margin-bottom: 3px;
+}
+
+.meta-item-value {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+}
+
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-16, 16px);
+}
+
+.comp-card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  box-shadow: var(--shadow-sm);
+}
+
+.comp-card h3 {
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold, 600);
+  margin-bottom: var(--spacing-8, 8px);
+}
+
+.comp-card .comp-spec {
+  font-size: 13px;
+  color: var(--color-graphite, #525252);
+  margin-bottom: 4px;
+}
+
+.comp-card .comp-spec strong { color: var(--color-ink, #171717); font-weight: 600; }
+
+footer {
+  max-width: var(--page-max-width, 1200px);
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border-top: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-steel, #737373);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.print-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+@media print {
+  nav.tabs, .print-btn { display: none; }
+  body { background: white; color: black; }
+  .card { border: 1px solid #ccc; break-inside: avoid; }
+  .tab-panel { display: block !important; }
+}
+
+@media (max-width: 600px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .input-grid { grid-template-columns: 1fr; }
+}
+
+/* Migrated Page-Specific Inline Styles */
+.p-ro_plant_sizing_calculator_html-s1 { color: var(--color-steel, #737373); margin-bottom: 1rem; font-size: 0.9rem; }
+.p-ro_plant_sizing_calculator_html-s2 { color: var(--color-steel, #737373); margin-bottom: 1rem; font-size: 0.9rem; }
+.p-ro_plant_sizing_calculator_html-s3 { color: var(--color-steel, #737373); margin-bottom: 1rem; font-size: 0.9rem; }
+.p-ro_plant_sizing_calculator_html-s4 { color: var(--color-steel, #737373); margin-bottom: 1rem; font-size: 0.9rem; }
+.p-ro_plant_sizing_calculator_html-s5 { color: var(--color-steel, #737373); margin-bottom: 1rem; font-size: 0.9rem; }
+.p-ro_plant_sizing_calculator_html-s6 { color: var(--color-steel, #737373); margin-bottom: 1rem; font-size: 0.9rem; }
+.p-ro_plant_sizing_calculator_html-s7 { color: var(--color-steel, #737373); margin-bottom: 1rem; font-size: 0.9rem; }

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Atomep Enteam Pvt Ltd — Engineering calculation tools for water demand, pipe sizing, drainage, pump head, treatment plants, RO, DM, STP, softeners, heat pumps, and storm water design.">
+<title>Atomep Enteam Pvt Ltd — Engineering Tools Portal</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/index.css">
+
+
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <img src="atomep_enteam_logo.png" alt="Atomep Enteam Pvt Ltd" class="hero-logo">
+    <p class="tagline">Water & Environmental Engineering Calculation Suite</p>
+    <p class="subtag">12 IS-code-compliant tools for water demand, pipe sizing, drainage, pump head, treatment plants, STP, RO, DM, softeners, heat pumps & storm water design</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">12</div><div class="lbl">Calculation Tools</div></div>
+      <div class="hero-stat"><div class="num">IS/NBC</div><div class="lbl">Code Compliant</div></div>
+      <div class="hero-stat"><div class="num">100%</div><div class="lbl">Browser-Based</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Tools -->
+<section class="section" id="tools">
+
+    <div id="pwa-install-banner" style="display:none;background:linear-gradient(135deg,#0d6efd,#06b6d4);color:#fff;padding:12px 20px;border-radius:12px;margin:20px auto;max-width:900px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 14px rgba(13,110,253,0.3);">
+      <div class="p-index_html-s1">
+        <span class="p-index_html-s2">📱</span>
+        <div>
+          <strong class="p-index_html-s3">Install Offline Android App</strong>
+          <small class="p-index_html-s4">Run all 12 tools offline from your home screen with zero internet</small>
+        </div>
+      </div>
+      <button id="pwa-install-btn">Install App</button>
+    </div>
+    <script>
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.style.display = 'flex';
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('pwa-install-btn');
+      if (btn) {
+        btn.addEventListener('click', async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const choice = await deferredPrompt.userChoice;
+            if (choice.outcome === 'accepted') {
+              document.getElementById('pwa-install-banner').style.display = 'none';
+            }
+            deferredPrompt = null;
+          }
+        });
+      }
+    });
+    </script>
+
+  <div class="section-head">
+    <h2>Engineering Tools Suite</h2>
+    <p>Click any tool below to launch the calculator — no installation, no login, works entirely in your browser</p>
+  </div>
+  <div class="tool-grid">
+
+    
+    <a href="firefighting_calculator.html" class="tool-card p-index_html-s5">
+      <div class="tool-icon">🚒</div>
+      <div class="tool-body">
+        <div class="tool-title">Fire Fighting Design Calculator</div>
+        <div class="tool-desc">NBC Part IV & NBCS 2026 fire protection sizing — static water storage, fire pump capacities, wet risers, yard hydrants, and sprinkler system hydraulics.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">NBC Part IV</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="NBC2026_Water_Demand_Calculator_v2.html" class="tool-card p-index_html-s6">
+      <div class="tool-icon">🚿</div>
+      <div class="tool-body">
+        <div class="tool-title">Water Demand Calculator</div>
+        <div class="tool-desc">Calculate building water demand per National Building Construction Standards 2026 — water supply, occupancy, fixture-based and commercial analysis.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">NBCS Compliant</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="NBCS_2026_Pipe_Size_Calculator.html" class="tool-card p-index_html-s7">
+      <div class="tool-icon">🔧</div>
+      <div class="tool-body">
+        <div class="tool-title">Pipe Size Calculator</div>
+        <div class="tool-desc">Water supply pipe sizing per NBCS 2026 standards with flow rate, velocity, and pressure loss calculations.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">NBCS Compliant</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="NBCS_2026_Drainage_Calculator.html" class="tool-card p-index_html-s8">
+      <div class="tool-icon">🕳️</div>
+      <div class="tool-body">
+        <div class="tool-title">Drainage System Calculator</div>
+        <div class="tool-desc">Internal and external drainage system design with DFU-based pipe sizing per NBCS 2026 Part E, Section 2 for public utility services.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">NBCS Compliant</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="Storm_Sump_Design_Tool.html" class="tool-card p-index_html-s9">
+      <div class="tool-icon">⛈️</div>
+      <div class="tool-body">
+        <div class="tool-title">Storm Sump Designer</div>
+        <div class="tool-desc">Basement storm water sump design using the Rational Method (IS 16220:2014 + CPHEEO) with fire-fighting LPM per NBC 2016.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">IS Code</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="Water_Treatment_Plant_Designer.html" class="tool-card p-index_html-s10">
+      <div class="tool-icon">💧</div>
+      <div class="tool-body">
+        <div class="tool-title">Water Treatment Plant</div>
+        <div class="tool-desc">IS-code-compliant water treatment plant designer covering raw water intake, filtration, disinfection, and clear-water sump sizing.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">IS Code</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="Water_Softener_Plant_Designer.html" class="tool-card p-index_html-s11">
+      <div class="tool-icon">🧂</div>
+      <div class="tool-body">
+        <div class="tool-title">Softener Plant Designer</div>
+        <div class="tool-desc">Water softener plant design with resin volume, salt requirement, and regeneration cycle calculations for building applications.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">Engineering</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="RO_Plant_Sizing_Calculator.html" class="tool-card p-index_html-s12">
+      <div class="tool-icon">🔬</div>
+      <div class="tool-body">
+        <div class="tool-title">RO Plant Calculator</div>
+        <div class="tool-desc">Reverse osmosis plant sizing for residential, commercial, hospital, hotel, and institutional applications with recovery and flux analysis.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">Public Utility</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="AI_DM_Plant_Platform.html" class="tool-card p-index_html-s13">
+      <div class="tool-icon">🤖</div>
+      <div class="tool-body">
+        <div class="tool-title">DM Plant Platform</div>
+        <div class="tool-desc">AI-powered demineralised water plant design intelligence for hospitals — resin selection, throughput, and regeneration scheduling.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">AI-Powered</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="STP_Design_Calculator.html" class="tool-card p-index_html-s14">
+      <div class="tool-icon">🏭</div>
+      <div class="tool-body">
+        <div class="tool-title">STP Design Calculator</div>
+        <div class="tool-desc">Sewage treatment plant sizing and design tool covering capacity, MBBR/MBR selection, aeration, and sludge calculations.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">Comprehensive</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="heat_pump_sizing_tool.html" class="tool-card p-index_html-s15">
+      <div class="tool-icon">⚡</div>
+      <div class="tool-body">
+        <div class="tool-title">Heat Pump Sizing Tool</div>
+        <div class="tool-desc">Heat pump sizing and kW calculator for hospitals, hotels, hostels, schools, airports, railways, and residential buildings.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">Multi-Use</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+    <a href="pump-head-calculator.html" class="tool-card p-index_html-s16">
+      <div class="tool-icon">🔄</div>
+      <div class="tool-body">
+        <div class="tool-title">Pump Head Calculator</div>
+        <div class="tool-desc">Pump head calculation tool for determining total dynamic head, friction losses, static head, and pump selection for water supply and treatment systems.</div>
+        <div class="tool-foot">
+          <span class="tool-tag">Engineering</span>
+          <span class="tool-go">Open Tool →</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- About -->
+<section class="section" id="about">
+  <div class="about-grid">
+    <div class="about-text">
+      <h2>About Atomep Enteam</h2>
+      <p>Atomep Enteam Pvt Ltd specializes in water, wastewater, and environmental engineering solutions for residential, commercial, hospital, hotel, and institutional projects across India.</p>
+      <p>Our calculation suite brings together 12 engineering tools in a single portal — each aligned with Indian Standards (IS) and National Building Construction Standards (NBCS) to deliver accurate, compliant, and field-ready results.</p>
+      <ul class="about-features">
+        <li><span class="check">✓</span> NBCS 2026 compliant water demand & pipe sizing</li>
+        <li><span class="check">✓</span> IS 16220:2014 + CPHEEO storm water design</li>
+        <li><span class="check">✓</span> AI-powered DM plant intelligence platform</li>
+        <li><span class="check">✓</span> Pump head & heat pump sizing for all building types</li>
+        <li><span class="check">✓</span> Zero installation — runs in any modern browser</li>
+      </ul>
+    </div>
+    <div class="about-visual">
+      <div class="about-visual-item">
+        <span class="v-icon">🏛️</span>
+        <span class="v-text"><strong>Standards-Driven</strong><small>Built on IS codes & NBCS 2026</small></span>
+      </div>
+      <div class="about-visual-item">
+        <span class="v-icon">⚡</span>
+        <span class="v-text"><strong>Instant Results</strong><small>Real-time calculation, no waiting</small></span>
+      </div>
+      <div class="about-visual-item">
+        <span class="v-icon">🔒</span>
+        <span class="v-text"><strong>Private & Secure</strong><small>All computation is local, data stays with you</small></span>
+      </div>
+      <div class="about-visual-item">
+        <span class="v-icon">📱</span>
+        <span class="v-text"><strong>Mobile Friendly</strong><small>Works on phone, tablet & desktop</small></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="section" id="contact">
+  <div class="contact-card">
+    <h2>Get In Touch</h2>
+    <p>For custom engineering design, consultancy, or tool customization, reach out to our team</p>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <div class="c-icon">🏢</div>
+        <div class="c-label">Company</div>
+        <div class="c-value">Atomep Enteam Pvt Ltd</div>
+      </div>
+      <div class="contact-item">
+        <div class="c-icon">🌐</div>
+        <div class="c-label">Portal</div>
+        <div class="c-value">Engineering Tools Suite</div>
+      </div>
+      <div class="contact-item">
+        <div class="c-icon">📍</div>
+        <div class="c-label">Service Area</div>
+        <div class="c-value">Pan India</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>&copy; 2026 <strong>Atomep Enteam Pvt Ltd</strong> — All engineering tools are for professional use. Verify results against applicable IS/NBC codes before implementation.</p>
+</footer>
+
+</body>
+</html>

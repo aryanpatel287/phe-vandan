@@ -1,0 +1,116 @@
+/**
+ * Atomep Enteam — Base & Reset Styles (Light Theme Only)
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-inter);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  color: var(--color-ink);
+  background-color: var(--color-warm-canvas);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography Hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-inter);
+  color: var(--color-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+h1 {
+  font-size: clamp(32px, 5vw, var(--text-display));
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+}
+
+h2 {
+  font-size: clamp(22px, 3.5vw, var(--text-heading));
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+}
+
+h3 {
+  font-size: var(--text-subheading);
+  line-height: var(--leading-subheading);
+}
+
+h4 {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+p {
+  color: var(--color-graphite);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  margin-bottom: var(--spacing-8);
+}
+
+p.strong, strong, b {
+  color: var(--color-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+small {
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  color: var(--color-steel);
+}
+
+a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--color-soft-fog);
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+a:hover {
+  text-decoration-color: var(--color-ink);
+}
+
+code, pre, kbd, samp {
+  font-family: var(--font-ui-monospace);
+  font-size: var(--text-caption);
+}
+
+/* Accessibility & Visible Focus Treatment */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  box-shadow: var(--shadow-focus);
+}
+
+button:focus, input:focus, select:focus, textarea:focus {
+  outline: none;
+}
+
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-highlight-wash);
+  color: var(--color-ink);
+}

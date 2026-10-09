@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBC 2026 Water Demand Calculator — v2 (with Commercial)</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/NBC2026_Water_Demand_Calculator_v2.css">
+
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+
+<div class="header">
+  <h1><span class="water-drop"></span>NBC 2026 Water Demand Calculator
+    <span class="badge">v2 — with Commercial</span>
+  </h1>
+  <div class="subtitle">Based on National Building Construction Standards 2026 — Water Supply (NBCS Part E / Section 1, Clause 4.1 & Table 1)</div>
+</div>
+
+<div class="container">
+
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('calc',event)">Calculator</div>
+    <div class="tab" onclick="switchTab('commercial',event)">Commercial Demand</div>
+    <div class="tab" onclick="switchTab('tables',event)">NBC Reference Tables</div>
+    <div class="tab" onclick="switchTab('storage',event)">Storage Sizing</div>
+  </div>
+
+  <!-- ================= CALCULATOR TAB ================= -->
+  <div id="tab-calc" class="tab-content active">
+
+  <div class="grid">
+
+    <!-- LEFT: Inputs -->
+    <div>
+      <div class="card">
+        <h2>1. Building & Occupancy Type</h2>
+        <div class="field">
+          <label>Building / Occupancy Category</label>
+          <select id="buildingType" onchange="updateBuildingDetails()">
+            <option value="">-- Select type --</option>
+            <optgroup label="Residential (Clause 4.1.1)">
+              <option value="res_urban">Residential — Urban Community (135 LPCD)</option>
+              <option value="res_efficient">Residential — Urban, Water-Efficient Fixtures (100 LPCD)</option>
+              <option value="res_rural">Residential — Rural Community (70 LPCD)</option>
+            </optgroup>
+            <optgroup label="Commercial (Table 1)">
+              <option value="hotel_3star">Hotel up to 3-Star — 180 L/head/day</option>
+              <option value="hotel_4star">Hotel 4-Star & above — 320 L/head/day</option>
+              <option value="hotel_bathtub">Hotel with Bathtub — 380 L/head/day</option>
+              <option value="banquet">Banquet Area — 45 L/head/day</option>
+              <option value="restaurant">Restaurant (incl. kitchen) — 70 L/seat/day</option>
+              <option value="foodcourt">Food Court (incl. kitchen) — 35 L/seat/day</option>
+              <option value="office">Office (incl. canteen) — 45 L/head/day</option>
+              <option value="mall_staff">Shopping Mall — Staff — 45 L/head/day</option>
+              <option value="mall_visitor">Shopping Mall — Visitors — 15 L/head/day</option>
+              <option value="clubhouse">Clubhouse — 45 L/head/day</option>
+              <option value="healthclub_shower">Health Club (with shower) — 45 L/head/day</option>
+              <option value="healthclub_noshower">Health Club (no shower) — 25 L/head/day</option>
+              <option value="cinema">Cinema / Theatre / Multiplex — 15 L/seat/day</option>
+              <option value="indoor_sports">Indoor Sports Facility — 15 L/head/day</option>
+            </optgroup>
+            <optgroup label="Institutional (Table 1)">
+              <option value="hospital_100">Hospital ≤100 beds — 340 L/bed/day</option>
+              <option value="hospital_100plus">Hospital >100 beds — 450 L/bed/day</option>
+              <option value="hospital_secondary">Hospital (Secondary care) — 800 L/bed/day</option>
+              <option value="hospital_super">Super Speciality Hospital — 950 L/bed/day</option>
+              <option value="hospital_opd">Hospital OPD — 15 L/bed/day</option>
+              <option value="nurses_home">Nurses' Home / Medical Quarters — 135 L/head/day</option>
+              <option value="hostel">Hostel — 135 L/head/day</option>
+              <option value="school_day">School (Day, no boarding) — 45 L/head/day</option>
+              <option value="school_boarding">School (With boarding) — 135 L/head/day</option>
+            </optgroup>
+            <optgroup label="Industrial (Table 1)">
+              <option value="factory_bath">Factory (with bathrooms) — 45 L/head/day</option>
+              <option value="factory_nobath">Factory (no bathrooms) — 30 L/head/day</option>
+            </optgroup>
+            <optgroup label="Transport Terminals (Table 1)">
+              <option value="airport">Airport — 70 L/head/day</option>
+              <option value="rail_junction_bath">Railway Junction (with bathing) — 70 L/head/day</option>
+              <option value="rail_junction_nobath">Railway Junction (no bathing) — 45 L/head/day</option>
+              <option value="rail_inter_bath">Railway Intermediate (with bathing) — 45 L/head/day</option>
+              <option value="rail_inter_nobath">Railway Intermediate (no bathing) — 25 L/head/day</option>
+              <option value="bus_interstate">Interstate Bus Terminal — 45 L/head/day</option>
+              <option value="bus_intrastate">Intrastate Bus / Metro / HSR — 15 L/head/day</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div id="lpcdDisplay" class="lpcd-display hidden">
+          <span class="val" id="lpcdValue">—</span>
+          <span class="unit" id="lpcdUnit">LPCD</span>
+          <span class="split" id="lpcdSplit"></span>
+        </div>
+
+        <div id="popSection">
+          <div class="field" id="popMethodField">
+            <label>Population Estimation Method</label>
+            <div class="radio-group">
+              <label><input type="radio" name="popMethod" value="direct" checked onchange="togglePopMethod()"><span>Direct Entry</span></label>
+              <label><input type="radio" name="popMethod" value="auto" onchange="togglePopMethod()"><span>Auto-Estimate (by area/units)</span></label>
+            </div>
+          </div>
+
+          <div id="directPop">
+            <div class="field">
+              <label id="popLabel">Population / Occupants</label>
+              <input type="number" id="population" min="1" value="100" oninput="recalc()">
+            </div>
+          </div>
+
+          <div id="autoPop" class="hidden">
+            <div class="field" id="areaField">
+              <label>Floor Area (m²) <span class="hint">for auto population calculation</span></label>
+              <input type="number" id="floorArea" min="0" value="500" oninput="recalc()">
+            </div>
+            <div class="field hidden" id="unitsField">
+              <label>Number of Dwelling Units</label>
+              <select id="dwellingType" onchange="recalc()">
+                <option value="1bhk">1 BHK (3 persons/unit)</option>
+                <option value="2bhk" selected>2 BHK (4 persons/unit)</option>
+                <option value="3bhk">3 BHK (5 persons/unit)</option>
+                <option value="4bhk">4 BHK & above (6 persons/unit)</option>
+                <option value="studio">Studio Apartment (2 persons/unit)</option>
+                <option value="ews">EWS Dwelling (4 persons/unit)</option>
+              </select>
+              <input type="number" id="dwellingUnits" min="1" value="10" oninput="recalc()">
+            </div>
+            <div class="field hidden" id="seatsField">
+              <label>Number of Seats</label>
+              <input type="number" id="seats" min="1" value="100" oninput="recalc()">
+            </div>
+            <div class="field hidden" id="bedsField">
+              <label>Number of Beds</label>
+              <input type="number" id="beds" min="1" value="50" oninput="recalc()">
+            </div>
+            <div class="info-note blue" id="autoPopNote"></div>
+          </div>
+
+          <div class="field hidden" id="visitorField">
+            <label>Visitor / Floating Population <span class="hint">5-15% of total, per NBC Note 2</span></label>
+            <input type="number" id="visitors" min="0" value="0" oninput="recalc()">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. Additional Demand (Optional)</h2>
+        <div class="field">
+          <label>Landscaping / Lawn Area (m²) <span class="hint">6-8 L/m²/day per clause 4.1.5.2</span></label>
+          <input type="number" id="landscapeArea" min="0" value="0" oninput="recalc()">
+        </div>
+        <div class="field">
+          <label>Swimming Pool / Water Body Make-up (L/day)</label>
+          <input type="number" id="poolDemand" min="0" value="0" oninput="recalc()">
+        </div>
+        <div class="field">
+          <label>HVAC / Cooling Tower Make-up (L/day)</label>
+          <input type="number" id="hvacDemand" min="0" value="0" oninput="recalc()">
+        </div>
+        <div class="field">
+          <label>Firefighting Storage (L) <span class="hint">per Part F — Fire & Life Safety</span></label>
+          <input type="number" id="fireDemand" min="0" value="0" oninput="recalc()">
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div>
+      <div class="result-card" id="resultCard">
+        <div class="label">Total Daily Water Demand</div>
+        <div class="big-number" id="totalDemand">— L/day</div>
+        <div id="perCapitaInfo"></div>
+        <div class="result-grid">
+          <div class="result-box"><div class="v" id="domesticDemand">0</div><div class="l">Domestic (L/day)</div></div>
+          <div class="result-box"><div class="v" id="flushDemand">0</div><div class="l">Flushing (L/day)</div></div>
+          <div class="result-box"><div class="v" id="additionalDemand">0</div><div class="l">Additional (L/day)</div></div>
+        </div>
+      </div>
+
+      <div class="card" id="breakdownCard" style="display:none">
+        <h2>Water Consumption Breakdown</h2>
+        <div id="breakdownContent"></div>
+      </div>
+
+      <div class="card">
+        <h2>Equivalent Units</h2>
+        <table>
+          <tr><th>Unit</th><th>Value</th></tr>
+          <tr><td>Litres per day (L/day)</td><td id="eqLPD">—</td></tr>
+          <tr><td>Kilolitres per day (kL/day)</td><td id="eqKLD">—</td></tr>
+          <tr><td>Cubic metres per day (m³/day)</td><td id="eqCMD">—</td></tr>
+          <tr><td>Litres per year (L/year)</td><td id="eqLYear">—</td></tr>
+          <tr><td>Million litres per day (MLD)</td><td id="eqMLD">—</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-nbc2026_water_demand_calculator_v2_html-s1">
+    <button class="btn btn-success" onclick="recalc()">🔄 Calculate</button>
+    <button class="btn btn-primary" onclick="exportCSV()">⬇ Download CSV</button>
+    <button class="btn btn-outline" onclick="window.print()">🖨 Print / Save PDF</button>
+    <button class="btn btn-outline" onclick="resetForm()">↺ Reset</button>
+  </div>
+
+  </div><!-- /calc tab -->
+
+  <!-- ================= COMMERCIAL TAB ================= -->
+  <div id="tab-commercial" class="tab-content">
+    <div class="card">
+      <h2>Commercial Building Water Demand Calculator</h2>
+      <span class="cat-header cat-commercial">COMMERCIAL — NBC 2026 Table 1</span>
+      <p class="p-nbc2026_water_demand_calculator_v2_html-s2">Select a commercial building type, enter the occupancy/count, and get instant water demand per NBC 2026. LPCD values are shown per the code.</p>
+
+      <div class="field">
+        <label>Commercial Building Type</label>
+        <select id="commBuildingType" onchange="updateCommDetails()">
+          <option value="">-- Select commercial type --</option>
+          <option value="hotel_3star">Hotel up to 3-Star — 180 LPCD (Dom: 120, Flush: 60)</option>
+          <option value="hotel_4star">Hotel 4-Star & above — 320 LPCD (Dom: 260, Flush: 60)</option>
+          <option value="hotel_bathtub">Hotel with Bathtub — 380 LPCD (Dom: 320, Flush: 60)</option>
+          <option value="banquet">Banquet Area — 45 LPCD (Dom: 30, Flush: 15)</option>
+          <option value="restaurant">Restaurant (incl. kitchen) — 70 L/seat (Dom: 55, Flush: 15)</option>
+          <option value="foodcourt">Food Court (incl. kitchen) — 35 L/seat (Dom: 25, Flush: 10)</option>
+          <option value="office">Office (incl. canteen) — 45 LPCD (Dom: 25, Flush: 20)</option>
+          <option value="mall_staff">Mall Staff — 45 LPCD (Dom: 25, Flush: 20)</option>
+          <option value="mall_visitor">Mall Visitors — 15 LPCD (Dom: 5, Flush: 10)</option>
+          <option value="clubhouse">Clubhouse — 45 LPCD (Dom: 25, Flush: 20)</option>
+          <option value="healthclub_shower">Health Club (with shower) — 45 LPCD (Dom: 25, Flush: 20)</option>
+          <option value="healthclub_noshower">Health Club (no shower) — 25 LPCD (Dom: 15, Flush: 10)</option>
+          <option value="cinema">Cinema / Theatre / Multiplex — 15 L/seat (Dom: 5, Flush: 10)</option>
+          <option value="indoor_sports">Indoor Sports Facility — 15 LPCD (Dom: 10, Flush: 5)</option>
+        </select>
+      </div>
+
+      <div id="commLpcdDisplay" class="lpcd-display hidden">
+        <span class="val" id="commLpcdValue">—</span>
+        <span class="unit" id="commLpcdUnit">LPCD</span>
+        <span class="split" id="commLpcdSplit"></span>
+      </div>
+
+      <div class="field">
+        <label id="commPopLabel">Number of Occupants / Seats</label>
+        <input type="number" id="commPopulation" min="1" value="100" oninput="calcCommercial()">
+      </div>
+
+      <div class="field">
+        <label>Visitors / Floating Population (if applicable)</label>
+        <input type="number" id="commVisitors" min="0" value="0" oninput="calcCommercial()">
+      </div>
+
+      <div class="info-note purple">
+        <strong>NBC 2026 Note 6:</strong> Total water demand can be reduced by 25% if the building is equipped with 100% 3-star rated fixtures and fittings per good practice [E-1(5)].
+      </div>
+
+      <div class="field">
+        <label><input type="checkbox" id="commEfficient" onchange="calcCommercial()"> Apply 25% reduction (3-star efficient fixtures)</label>
+      </div>
+
+      <div class="field">
+        <label>Additional Commercial Demand (L/day) <span class="hint">HVAC, landscaping, pool, etc.</span></label>
+        <input type="number" id="commAdditional" min="0" value="0" oninput="calcCommercial()">
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="label">Commercial Daily Water Demand</div>
+      <div class="big-number" id="commTotalDemand">— L/day</div>
+      <div id="commInfo"></div>
+      <div class="result-grid">
+        <div class="result-box"><div class="v" id="commDomestic">0</div><div class="l">Domestic (L/day)</div></div>
+        <div class="result-box"><div class="v" id="commFlush">0</div><div class="l">Flushing (L/day)</div></div>
+        <div class="result-box"><div class="v" id="commAddl">0</div><div class="l">Additional (L/day)</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Commercial Demand Summary</h2>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Building Type</td><td id="commSumType">—</td></tr>
+        <tr><td>Per Capita Demand (Total)</td><td id="commSumLpcd">—</td></tr>
+        <tr><td>Domestic Component</td><td id="commSumDomLpcd">—</td></tr>
+        <tr><td>Flushing Component</td><td id="commSumFlushLpcd">—</td></tr>
+        <tr><td>Total Occupants</td><td id="commSumPop">—</td></tr>
+        <tr><td>Daily Demand (L/day)</td><td id="commSumDaily">—</td></tr>
+        <tr><td>Daily Demand (kL/day)</td><td id="commSumKLD">—</td></tr>
+        <tr><td>Annual Demand (L/year)</td><td id="commSumAnnual">—</td></tr>
+        <tr><td>Efficient Fixture Reduction</td><td id="commSumReduction">—</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Full Commercial LPCD Reference (NBC 2026 Table 1)</h2>
+      <table>
+        <tr><th>Commercial Type</th><th>Domestic</th><th>Flushing</th><th>Total LPCD</th><th>Unit</th></tr>
+        <tr><td>Hotel up to 3-Star (excl. laundry, kitchen, staff, water bodies)</td><td>120</td><td>60</td><td><strong>180</strong></td><td>L/head/day</td></tr>
+        <tr><td>Hotel 4-Star & above (excl. laundry, kitchen, staff, water bodies)</td><td>260</td><td>60</td><td><strong>320</strong></td><td>L/head/day</td></tr>
+        <tr><td>Hotel with Bathtub</td><td>320</td><td>60</td><td><strong>380</strong></td><td>L/head/day</td></tr>
+        <tr><td>Banquet Area</td><td>30</td><td>15</td><td><strong>45</strong></td><td>L/head/day</td></tr>
+        <tr><td>Restaurant (incl. kitchen)</td><td>55</td><td>15</td><td><strong>70</strong></td><td>L/seat/day</td></tr>
+        <tr><td>Food Court (incl. kitchen)</td><td>25</td><td>10</td><td><strong>35</strong></td><td>L/seat/day</td></tr>
+        <tr><td>Office (incl. canteen)</td><td>25</td><td>20</td><td><strong>45</strong></td><td>L/head/day</td></tr>
+        <tr><td>Shopping Mall — Staff</td><td>25</td><td>20</td><td><strong>45</strong></td><td>L/head/day</td></tr>
+        <tr><td>Shopping Mall — Visitors</td><td>5</td><td>10</td><td><strong>15</strong></td><td>L/head/day</td></tr>
+        <tr><td>Clubhouse</td><td>25</td><td>20</td><td><strong>45</strong></td><td>L/head/day</td></tr>
+        <tr><td>Health Club (with shower)</td><td>25</td><td>20</td><td><strong>45</strong></td><td>L/head/day</td></tr>
+        <tr><td>Health Club (no shower)</td><td>15</td><td>10</td><td><strong>25</strong></td><td>L/head/day</td></tr>
+        <tr><td>Cinema / Theatre / Multiplex</td><td>5</td><td>10</td><td><strong>15</strong></td><td>L/seat/day</td></tr>
+        <tr><td>Indoor Sports Facility</td><td>10</td><td>5</td><td><strong>15</strong></td><td>L/head/day</td></tr>
+      </table>
+      <div class="info-note">
+        <strong>NBC 2026 Notes:</strong><br>
+        1. Visitor demand = 15 L/head/day (Note 1).<br>
+        2. Hotel bathtub water volume may be considered additionally based on size (Note 7).<br>
+        3. Hotel demand excludes laundry, kitchen, staff and water bodies — compute separately.<br>
+        4. Population for offices: 1 person per 10 m² of floor area (Clause 4.1).<br>
+        5. Population for mercantile: 1 person / 3 m² (street floor) + 1 person / 6 m² (upper floors). 10% fixed, 90% floating.<br>
+        6. Population for assembly/dining: 1 person / 1.8 m² (dining), 1 person / 0.65 m² (concentrated), 1 person / 1.2 m² (less concentrated).<br>
+        7. Total demand reduced by 25% if 100% 3-star rated fixtures used (Note 6).
+      </div>
+    </div>
+
+    <div class="p-nbc2026_water_demand_calculator_v2_html-s3">
+      <button class="btn btn-success" onclick="calcCommercial()">🔄 Calculate</button>
+      <button class="btn btn-primary" onclick="exportCommCSV()">⬇ Download CSV</button>
+      <button class="btn btn-outline" onclick="window.print()">🖨 Print / Save PDF</button>
+    </div>
+  </div><!-- /commercial tab -->
+
+  <!-- ================= TABLES TAB ================= -->
+  <div id="tab-tables" class="tab-content">
+    <div class="card">
+      <h2>NBC 2026 — Per Capita Water Demand (Clause 4.1.1)</h2>
+      <table>
+        <tr><th>Community Type</th><th>Demand (LPCD)</th><th>Flushing Portion</th></tr>
+        <tr><td>Urban communities</td><td>135</td><td>30 L/head/day</td></tr>
+        <tr><td>Urban with water-efficient fixtures</td><td>100</td><td>30 L/head/day</td></tr>
+        <tr><td>Rural communities</td><td>70</td><td>15 L/head/day (included)</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Residential Breakdown (Clause 4.1.1.1)</h2>
+      <table>
+        <tr><th>Purpose</th><th>Urban (L/head/day)</th><th>Water-Efficient (L/head/day)</th></tr>
+        <tr><td>Drinking</td><td>5</td><td>5</td></tr>
+        <tr><td>Bathing (60:40 cold:hot suggested)</td><td>35</td><td>25</td></tr>
+        <tr><td>Cooking</td><td>10</td><td>5</td></tr>
+        <tr><td>Washing utensils</td><td>20</td><td>15</td></tr>
+        <tr><td>Floor cleaning</td><td>10</td><td>5</td></tr>
+        <tr><td>Washing clothes</td><td>25</td><td>15</td></tr>
+        <tr class="p-nbc2026_water_demand_calculator_v2_html-s4"><td>Total (excl. flushing)</td><td>105</td><td>70</td></tr>
+        <tr class="p-nbc2026_water_demand_calculator_v2_html-s5"><td>Flushing (additional)</td><td>30</td><td>30</td></tr>
+        <tr class="p-nbc2026_water_demand_calculator_v2_html-s6"><td>Grand Total</td><td>135</td><td>100</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Table 1 — All Building Types Water Requirements (Clause 4.1.2)</h2>
+      <table>
+        <tr><th>Sl</th><th>Type</th><th>Domestic</th><th>Flushing</th><th>Total</th></tr>
+        <tr><td>i</td><td>Factory (with bathrooms)</td><td>30/head</td><td>15/head</td><td>45/head</td></tr>
+        <tr><td>ii</td><td>Factory (no bathrooms)</td><td>20/head</td><td>10/head</td><td>30/head</td></tr>
+        <tr><td>iii</td><td>Hospital ≤100 beds</td><td>230/bed</td><td>110/bed</td><td>340/bed</td></tr>
+        <tr><td></td><td>Hospital >100 beds</td><td>300/bed</td><td>150/bed</td><td>450/bed</td></tr>
+        <tr><td></td><td>Hospital OPD</td><td>10/bed</td><td>5/bed</td><td>15/bed</td></tr>
+        <tr><td></td><td>Hospital (Secondary care)</td><td colspan="2">—</td><td>800/bed</td></tr>
+        <tr><td></td><td>Super Speciality Hospital</td><td colspan="2">—</td><td>950/bed</td></tr>
+        <tr><td>iv</td><td>Nurses' Home / Medical Quarters</td><td>90/head</td><td>45/head</td><td>135/head</td></tr>
+        <tr><td>v</td><td>Hostels</td><td>90/head</td><td>45/head</td><td>135/head</td></tr>
+        <tr><td>vi</td><td>Hotel up to 3-Star</td><td>120/head</td><td>60/head</td><td>180/head</td></tr>
+        <tr><td>vii</td><td>Hotel 4-Star & above</td><td>260/head</td><td>60/head</td><td>320/head</td></tr>
+        <tr><td>viii</td><td>Hotel with Bathtub</td><td>320/head</td><td>60/head</td><td>380/head</td></tr>
+        <tr><td>ix</td><td>Banquet Area</td><td>30/head</td><td>15/head</td><td>45/head</td></tr>
+        <tr><td>x</td><td>Health Club (with shower)</td><td>25/head</td><td>20/head</td><td>45/head</td></tr>
+        <tr><td></td><td>Health Club (no shower)</td><td>15/head</td><td>10/head</td><td>25/head</td></tr>
+        <tr><td>xi</td><td>Indoor Sports Facility</td><td>10/head</td><td>5/head</td><td>15/head</td></tr>
+        <tr><td>xii</td><td>Office (incl. canteen)</td><td>25/head</td><td>20/head</td><td>45/head</td></tr>
+        <tr><td>xiii</td><td>Restaurant</td><td>55/seat</td><td>15/seat</td><td>70/seat</td></tr>
+        <tr><td></td><td>Food Court</td><td>25/seat</td><td>10/seat</td><td>35/seat</td></tr>
+        <tr><td>xiv</td><td>Clubhouse</td><td>25/head</td><td>20/head</td><td>45/head</td></tr>
+        <tr><td>xv</td><td>Cinema / Theatre / Multiplex</td><td>5/seat</td><td>10/seat</td><td>15/seat</td></tr>
+        <tr><td>xvi</td><td>School (no boarding)</td><td>25/head</td><td>20/head</td><td>45/head</td></tr>
+        <tr><td></td><td>School (with boarding)</td><td>90/head</td><td>45/head</td><td>135/head</td></tr>
+        <tr><td>xvii</td><td>Mall Staff</td><td>25/head</td><td>20/head</td><td>45/head</td></tr>
+        <tr><td></td><td>Mall Visitors</td><td>5/head</td><td>10/head</td><td>15/head</td></tr>
+        <tr><td>xviii</td><td>Airport</td><td>40/head</td><td>30/head</td><td>70/head</td></tr>
+        <tr><td></td><td>Railway Junction (with bathing)</td><td>40/head</td><td>30/head</td><td>70/head</td></tr>
+        <tr><td></td><td>Railway Junction (no bathing)</td><td>30/head</td><td>15/head</td><td>45/head</td></tr>
+        <tr><td></td><td>Railway Intermediate (with bathing)</td><td>25/head</td><td>20/head</td><td>45/head</td></tr>
+        <tr><td></td><td>Railway Intermediate (no bathing)</td><td>15/head</td><td>10/head</td><td>25/head</td></tr>
+        <tr><td></td><td>Interstate Bus Terminal</td><td>25/head</td><td>20/head</td><td>45/head</td></tr>
+        <tr><td></td><td>Intrastate Bus / Metro / HSR</td><td>10/head</td><td>5/head</td><td>15/head</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Population Estimation Basis (Clause 4.1)</h2>
+      <table>
+        <tr><th>Occupancy</th><th>Population Basis</th></tr>
+        <tr><td>1 BHK dwelling unit</td><td>3 persons</td></tr>
+        <tr><td>2 BHK dwelling unit</td><td>4 persons</td></tr>
+        <tr><td>3 BHK dwelling unit</td><td>5 persons</td></tr>
+        <tr><td>4 BHK & above</td><td>6 persons</td></tr>
+        <tr><td>EWS dwelling</td><td>4 persons</td></tr>
+        <tr><td>Studio apartment</td><td>2 persons</td></tr>
+        <tr><td>Offices</td><td>1 person / 10 m²</td></tr>
+        <tr><td>Schools</td><td>Student + teaching & non-teaching staff</td></tr>
+        <tr><td>Hostels</td><td>Beds + 4.5 × warden residence + staff</td></tr>
+        <tr><td>Hotels</td><td>Beds + staff + restaurant seats</td></tr>
+        <tr><td>Hospitals</td><td>Beds + staff + attendants (density: 5-9 per bed)</td></tr>
+        <tr><td>Mercantile (street/sales floor)</td><td>1 person / 3 m² (street) + 1 / 6 m² (upper)</td></tr>
+        <tr><td>Traffic terminal stations</td><td>Avg daily users + staff + vendors</td></tr>
+        <tr><td>Warehouse</td><td>1 person / 20 m²</td></tr>
+        <tr><td>Industrial/Hazardous</td><td>1 person / 10 m²</td></tr>
+        <tr><td>Storage</td><td>1 person / 30 m²</td></tr>
+        <tr><td>Assembly (concentrated)</td><td>1 person / 0.65 m²</td></tr>
+        <tr><td>Assembly (less concentrated)</td><td>1 person / 1.2 m²</td></tr>
+        <tr><td>Assembly (fixed seating)</td><td>1.2 × number of seats</td></tr>
+        <tr><td>Dining area / restaurants</td><td>1 person / 1.8 m²</td></tr>
+      </table>
+    </div>
+  </div><!-- /tables tab -->
+
+  <!-- ================= STORAGE TAB ================= -->
+  <div id="tab-storage" class="tab-content">
+    <div class="card">
+      <h2>Storage Tank Sizing (Clause 4.4.10)</h2>
+      <p class="p-nbc2026_water_demand_calculator_v2_html-s7">Enter your total daily water demand (from the Calculator or Commercial tab), then select a storage system type.</p>
+
+      <div class="field">
+        <label>Total Daily Water Demand (L/day)</label>
+        <input type="number" id="storageDailyDemand" min="0" value="0" oninput="calcStorage()">
+      </div>
+
+      <h3>Select Storage System Type</h3>
+      <div class="storage-options">
+        <div class="storage-card active" data-storage="oht_only" onclick="selectStorage('oht_only')">
+          <div class="title">OHT Only</div>
+          <div class="desc">33.33% – 50% of daily demand</div>
+        </div>
+        <div class="storage-card" data-storage="ugt_oht_gravity" onclick="selectStorage('ugt_oht_gravity')">
+          <div class="title">UGT + OHT (Gravity)</div>
+          <div class="desc">UGT: 150%, OHT: 50%</div>
+        </div>
+        <div class="storage-card" data-storage="hydro_pneumatic" onclick="selectStorage('hydro_pneumatic')">
+          <div class="title">Hydro-Pneumatic</div>
+          <div class="desc">UGT: 200% of daily demand</div>
+        </div>
+      </div>
+
+      <div class="mt-16" id="storageResults">
+        <table>
+          <tr><th>Tank</th><th>Capacity (L)</th><th>Capacity (kL)</th><th>% of Daily Demand</th></tr>
+          <tr id="row-oht"><td>Overhead Tank (OHT)</td><td id="sOHT">—</td><td id="sOHTkL">—</td><td id="sOHTpct">—</td></tr>
+          <tr id="row-ugt"><td>Underground Tank (UGT)</td><td id="sUGT">—</td><td id="sUGTkL">—</td><td id="sUGTpct">—</td></tr>
+          <tr class="p-nbc2026_water_demand_calculator_v2_html-s8"><td>Total Storage</td><td id="sTotal">—</td><td id="sTotalkL">—</td><td id="sTotalpct">—</td></tr>
+        </table>
+      </div>
+
+      <div class="info-note blue">
+        <strong>NBC 2026 Guidelines (Clause 4.4.10):</strong><br>
+        • OHT only: 33.33–50% of one day's requirement<br>
+        • Combined UGT + OHT (gravity): UGT = 150%, OHT = 50% of daily demand<br>
+        • Hydro-pneumatic / pressurized: UGT = 200% of daily demand<br>
+        • Intermittent supply (plotted dev.): OHT = half-day demand<br>
+        • Apartments/hotels/hospitals/commercial: UGT = 1.5 days, OHT = 0.5 day<br>
+        • STP treated water for flushing: 1 day in UGT + 0.5 day in OHT<br>
+        • Firefighting storage: as per Part F (Fire & Life Safety)
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tank Design Recommendations (Clause 4.4)</h2>
+      <ul class="p-nbc2026_water_demand_calculator_v2_html-s9">
+        <li>Tanks >5,000 L should be arranged in series for isolated cleaning</li>
+        <li>Overflow pipe: one size larger than inlet pipe</li>
+        <li>Tanks >5,000 L need vent pipes</li>
+        <li>Outlet pipe: 50–75 mm above tank bottom with brass strainer</li>
+        <li>OHT bottom: minimum 2 m above highest fixture outlet</li>
+        <li>UGT overflow: 600 mm above external surface level</li>
+        <li>Overflow & scour pipes: air gap of 50 mm, mosquito-proof brass grating</li>
+        <li>Materials: RCC, brick masonry, ferrocement, mild/stainless steel, GRP, or plastic</li>
+      </ul>
+    </div>
+  </div><!-- /storage tab -->
+
+  <div class="footer">
+    <p><strong>NBC 2026 Water Demand Calculator v2</strong> — Based on National Building Construction Standards 2026, Part E (Plumbing Services), Section 1 (Water Supply)</p>
+    <p class="p-nbc2026_water_demand_calculator_v2_html-s10">This tool is for design estimation. Final design must comply with the full NBCS and applicable local authority requirements.</p>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const buildingData = {
+  'res_urban':       {domestic:105, flush:30, total:135, unit:'head', label:'Urban Residential', breakdown:'res_urban', category:'Residential'},
+  'res_efficient':  {domestic:70,  flush:30, total:100, unit:'head', label:'Urban Residential (Efficient Fixtures)', breakdown:'res_efficient', category:'Residential'},
+  'res_rural':       {domestic:55,  flush:15, total:70,  unit:'head', label:'Rural Residential', breakdown:null, category:'Residential'},
+  'factory_bath':    {domestic:30,  flush:15, total:45,  unit:'head', label:'Factory (with bathrooms)', category:'Industrial'},
+  'factory_nobath':  {domestic:20,  flush:10, total:30,  unit:'head', label:'Factory (no bathrooms)', category:'Industrial'},
+  'hospital_100':    {domestic:230, flush:110,total:340, unit:'bed',  label:'Hospital ≤100 beds', category:'Institutional'},
+  'hospital_100plus':{domestic:300, flush:150,total:450, unit:'bed',  label:'Hospital >100 beds', category:'Institutional'},
+  'hospital_secondary':{total:800, unit:'bed', label:'Hospital (Secondary Care)', combined:true, category:'Institutional'},
+  'hospital_super':  {total:950, unit:'bed', label:'Super Speciality Hospital', combined:true, category:'Institutional'},
+  'hospital_opd':    {domestic:10, flush:5, total:15, unit:'bed', label:'Hospital OPD', category:'Institutional'},
+  'nurses_home':     {domestic:90, flush:45, total:135, unit:'head', label:"Nurses' Home", category:'Institutional'},
+  'hostel':           {domestic:90, flush:45, total:135, unit:'head', label:'Hostel', category:'Institutional'},
+  'hotel_3star':     {domestic:120,flush:60, total:180, unit:'head', label:'Hotel up to 3-Star', category:'Commercial'},
+  'hotel_4star':     {domestic:260,flush:60, total:320, unit:'head', label:'Hotel 4-Star & above', category:'Commercial'},
+  'hotel_bathtub':   {domestic:320,flush:60, total:380, unit:'head', label:'Hotel with Bathtub', category:'Commercial'},
+  'banquet':          {domestic:30, flush:15, total:45,  unit:'head', label:'Banquet Area', category:'Commercial'},
+  'healthclub_shower':{domestic:25, flush:20, total:45,  unit:'head', label:'Health Club (shower)', category:'Commercial'},
+  'healthclub_noshower':{domestic:15,flush:10,total:25,  unit:'head', label:'Health Club (no shower)', category:'Commercial'},
+  'indoor_sports':   {domestic:10, flush:5,  total:15,  unit:'head', label:'Indoor Sports Facility', category:'Commercial'},
+  'office':           {domestic:25, flush:20, total:45,  unit:'head', label:'Office (incl. canteen)', category:'Commercial'},
+  'restaurant':       {domestic:55, flush:15, total:70,  unit:'seat', label:'Restaurant', category:'Commercial'},
+  'foodcourt':        {domestic:25, flush:10, total:35,  unit:'seat', label:'Food Court', category:'Commercial'},
+  'clubhouse':        {domestic:25, flush:20, total:45,  unit:'head', label:'Clubhouse', category:'Commercial'},
+  'cinema':           {domestic:5,  flush:10, total:15,  unit:'seat', label:'Cinema / Theatre', category:'Commercial'},
+  'school_day':       {domestic:25, flush:20, total:45,  unit:'head', label:'School (Day)', category:'Institutional'},
+  'school_boarding': {domestic:90, flush:45, total:135, unit:'head', label:'School (Boarding)', category:'Institutional'},
+  'mall_staff':       {domestic:25, flush:20, total:45,  unit:'head', label:'Mall Staff', category:'Commercial'},
+  'mall_visitor':     {domestic:5,  flush:10, total:15,  unit:'head', label:'Mall Visitor', category:'Commercial'},
+  'airport':           {domestic:40, flush:30, total:70,  unit:'head', label:'Airport', category:'Transport'},
+  'rail_junction_bath':{domestic:40,flush:30,total:70,   unit:'head', label:'Railway Junction (bathing)', category:'Transport'},
+  'rail_junction_nobath':{domestic:30,flush:15,total:45, unit:'head', label:'Railway Junction (no bathing)', category:'Transport'},
+  'rail_inter_bath': {domestic:25, flush:20, total:45,  unit:'head', label:'Railway Intermediate (bathing)', category:'Transport'},
+  'rail_inter_nobath':{domestic:15,flush:10, total:25,  unit:'head', label:'Railway Intermediate (no bathing)', category:'Transport'},
+  'bus_interstate':   {domestic:25, flush:20, total:45,  unit:'head', label:'Interstate Bus Terminal', category:'Transport'},
+  'bus_intrastate':   {domestic:10, flush:5,  total:15,  unit:'head', label:'Intrastate Bus / Metro', category:'Transport'},
+};
+
+const popConfig = {
+  'office':         {method:'area', rate:1/10, note:'1 person per 10 m² of floor area (Clause 4.1)'},
+  'mall_staff':     {method:'area', rate:1/10, note:'Staff: 1 person per 10 m²'},
+  'factory_bath':   {method:'area', rate:1/10, note:'1 person per 10 m² (Industrial)'},
+  'factory_nobath': {method:'area', rate:1/10, note:'1 person per 10 m² (Industrial)'},
+  'restaurant':     {method:'area', rate:1/1.8,note:'1 person per 1.8 m² (dining area)'},
+  'foodcourt':      {method:'area', rate:1/1.8,note:'1 person per 1.8 m²'},
+  'res_urban':      {method:'units', note:'Population = units × persons per dwelling unit'},
+  'res_efficient':  {method:'units', note:'Population = units × persons per dwelling unit'},
+  'res_rural':       {method:'units', note:'Population = units × persons per dwelling unit'},
+  'cinema':          {method:'seats', note:'Population = number of fixed seats'},
+  'hospital_100':   {method:'beds', note:'Population = number of beds + staff + attendants'},
+  'hospital_100plus':{method:'beds', note:'Population = number of beds + staff + attendants'},
+  'hospital_secondary':{method:'beds', note:'Population = number of beds + staff + attendants'},
+  'hospital_super': {method:'beds', note:'Population = number of beds + staff + attendants'},
+  'hotel_3star':    {method:'beds', note:'Population = beds + staff + restaurant seats'},
+  'hotel_4star':    {method:'beds', note:'Population = beds + staff + restaurant seats'},
+  'hotel_bathtub':  {method:'beds', note:'Population = beds + staff + restaurant seats'},
+};
+
+const dwellingPop = {'1bhk':3,'2bhk':4,'3bhk':5,'4bhk':6,'studio':2,'ews':4};
+
+const breakdownData = {
+  'res_urban': [
+    {item:'Drinking', urban:5, eff:5},
+    {item:'Bathing (60:40 cold:hot)', urban:35, eff:25},
+    {item:'Cooking', urban:10, eff:5},
+    {item:'Washing utensils', urban:20, eff:15},
+    {item:'Floor cleaning', urban:10, eff:5},
+    {item:'Washing clothes', urban:25, eff:15},
+  ],
+  'res_efficient': [
+    {item:'Drinking', urban:5, eff:5},
+    {item:'Bathing (60:40 cold:hot)', urban:35, eff:25},
+    {item:'Cooking', urban:10, eff:5},
+    {item:'Washing utensils', urban:20, eff:15},
+    {item:'Floor cleaning', urban:10, eff:5},
+    {item:'Washing clothes', urban:25, eff:15},
+  ],
+};
+
+let currentStorage = 'oht_only';
+
+// ============ FUNCTIONS ============
+function switchTab(tabId, evt) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  if(evt) evt.target.classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+  if (tabId === 'storage') {
+    let total = 0;
+    const td = document.getElementById('totalDemand');
+    if (td) total = parseFloat(td.textContent.replace(/[^0-9]/g,'')) || 0;
+    if (!total) {
+      const cd = document.getElementById('commTotalDemand');
+      if (cd) total = parseFloat(cd.textContent.replace(/[^0-9]/g,'')) || 0;
+    }
+    if (total > 0) document.getElementById('storageDailyDemand').value = total;
+    calcStorage();
+  }
+  if (tabId === 'commercial') calcCommercial();
+}
+
+function updateBuildingDetails() {
+  const bt = document.getElementById('buildingType').value;
+  const data = buildingData[bt];
+  const popMethodAuto = document.querySelector('input[name="popMethod"]:checked').value === 'auto';
+
+  document.getElementById('areaField').classList.add('hidden');
+  document.getElementById('unitsField').classList.add('hidden');
+  document.getElementById('seatsField').classList.add('hidden');
+  document.getElementById('bedsField').classList.add('hidden');
+  document.getElementById('visitorField').classList.add('hidden');
+
+  if (data) {
+    const unitLabel = data.unit === 'bed' ? 'Number of Beds' :
+                      data.unit === 'seat' ? 'Number of Seats / Occupants' :
+                      'Number of Occupants';
+    document.getElementById('popLabel').textContent = unitLabel;
+
+    // LPCD display
+    const lpcdDisp = document.getElementById('lpcdDisplay');
+    lpcdDisp.classList.remove('hidden');
+    document.getElementById('lpcdValue').textContent = data.total;
+    document.getElementById('lpcdUnit').textContent = 'L/' + data.unit + '/day';
+    if (data.combined) {
+      document.getElementById('lpcdSplit').textContent = '(combined rate)';
+    } else {
+      document.getElementById('lpcdSplit').innerHTML = '<span class="tag tag-domestic">' + data.domestic + ' dom</span> <span class="tag tag-flush">' + data.flush + ' flush</span>';
+    }
+
+    const cfg = popConfig[bt];
+    if (cfg && popMethodAuto) {
+      if (cfg.method === 'area') document.getElementById('areaField').classList.remove('hidden');
+      if (cfg.method === 'units') document.getElementById('unitsField').classList.remove('hidden');
+      if (cfg.method === 'seats') document.getElementById('seatsField').classList.remove('hidden');
+      if (cfg.method === 'beds') document.getElementById('bedsField').classList.remove('hidden');
+      document.getElementById('autoPopNote').textContent = cfg.note;
+    }
+
+    if (['mall_staff','mall_visitor','hospital_100','hospital_100plus','hospital_secondary','hospital_super','hospital_opd','office','airport'].includes(bt)) {
+      document.getElementById('visitorField').classList.remove('hidden');
+    }
+  } else {
+    document.getElementById('lpcdDisplay').classList.add('hidden');
+  }
+  recalc();
+}
+
+function togglePopMethod() {
+  const method = document.querySelector('input[name="popMethod"]:checked').value;
+  document.getElementById('directPop').classList.toggle('hidden', method === 'auto');
+  document.getElementById('autoPop').classList.toggle('hidden', method === 'direct');
+  updateBuildingDetails();
+}
+
+function getPopulation() {
+  const bt = document.getElementById('buildingType').value;
+  const method = document.querySelector('input[name="popMethod"]:checked')?.value || 'direct';
+  const cfg = popConfig[bt];
+
+  if (method === 'auto' && cfg) {
+    if (cfg.method === 'area') {
+      const area = parseFloat(document.getElementById('floorArea').value) || 0;
+      return Math.ceil(area * cfg.rate);
+    }
+    if (cfg.method === 'units') {
+      const units = parseInt(document.getElementById('dwellingUnits').value) || 0;
+      const dtype = document.getElementById('dwellingType').value;
+      return units * (dwellingPop[dtype] || 4);
+    }
+    if (cfg.method === 'seats') return parseInt(document.getElementById('seats').value) || 0;
+    if (cfg.method === 'beds') return parseInt(document.getElementById('beds').value) || 0;
+  }
+  return parseInt(document.getElementById('population').value) || 0;
+}
+
+function recalc() {
+  const bt = document.getElementById('buildingType').value;
+  const data = buildingData[bt];
+  if (!data) return;
+
+  const pop = getPopulation();
+  const visitors = parseInt(document.getElementById('visitors').value) || 0;
+  const totalPop = pop + visitors;
+
+  let domestic = 0, flush = 0, total = 0;
+  if (data.combined) {
+    total = totalPop * data.total;
+    domestic = Math.round(total * 0.667);
+    flush = total - domestic;
+  } else {
+    domestic = totalPop * data.domestic;
+    flush = totalPop * data.flush;
+    total = totalPop * data.total;
+  }
+
+  const landscape = parseFloat(document.getElementById('landscapeArea').value) || 0;
+  const landscapeWater = landscape * 7;
+  const pool = parseFloat(document.getElementById('poolDemand').value) || 0;
+  const hvac = parseFloat(document.getElementById('hvacDemand').value) || 0;
+  const fire = parseFloat(document.getElementById('fireDemand').value) || 0;
+  const additional = landscapeWater + pool + hvac + fire;
+
+  const grandTotal = total + additional;
+
+  document.getElementById('totalDemand').textContent = formatNum(grandTotal) + ' L/day';
+  document.getElementById('perCapitaInfo').textContent = data.label + (totalPop > 0 ? ' · ' + totalPop + ' ' + data.unit + '(s) · ' + data.total + ' L/' + data.unit + '/day' : '');
+  document.getElementById('domesticDemand').textContent = formatNum(domestic);
+  document.getElementById('flushDemand').textContent = formatNum(flush);
+  document.getElementById('additionalDemand').textContent = formatNum(additional);
+
+  document.getElementById('eqLPD').textContent = formatNum(grandTotal) + ' L/day';
+  document.getElementById('eqKLD').textContent = (grandTotal/1000).toFixed(2) + ' kL/day';
+  document.getElementById('eqCMD').textContent = (grandTotal/1000).toFixed(2) + ' m³/day';
+  document.getElementById('eqLYear').textContent = formatNum(grandTotal*365) + ' L/year';
+  document.getElementById('eqMLD').textContent = (grandTotal/1000000).toFixed(4) + ' MLD';
+
+  if (data.breakdown && breakdownData[data.breakdown]) {
+    document.getElementById('breakdownCard').style.display = 'block';
+    const isEfficient = data.breakdown === 'res_efficient';
+    const bd = breakdownData[data.breakdown];
+    const valKey = isEfficient ? 'eff' : 'urban';
+    let html = '<ul class="breakdown-list">';
+    bd.forEach(item => {
+      const daily = item[valKey] * totalPop;
+      html += '<li><span>' + item.item + '</span><span><span class="tag tag-domestic">' + item[valKey] + ' L/head</span> → ' + formatNum(daily) + ' L/day</span></li>';
+    });
+    html += '<li><span>Flushing</span><span><span class="tag tag-flush">30 L/head</span> → ' + formatNum(30*totalPop) + ' L/day</span></li>';
+    html += '<li><span>Total per capita</span><span><span class="tag tag-total">' + data.total + ' L/head</span> → ' + formatNum(total) + ' L/day</span></li>';
+    html += '</ul>';
+    document.getElementById('breakdownContent').innerHTML = html;
+  } else {
+    document.getElementById('breakdownCard').style.display = 'none';
+  }
+
+  if (document.getElementById('tab-storage').classList.contains('active')) {
+    document.getElementById('storageDailyDemand').value = grandTotal;
+    calcStorage();
+  }
+}
+
+function formatNum(n) {
+  return Math.round(n).toLocaleString('en-IN');
+}
+
+// ============ COMMERCIAL ============
+function updateCommDetails() {
+  const bt = document.getElementById('commBuildingType').value;
+  const data = buildingData[bt];
+  if (!data) {
+    document.getElementById('commLpcdDisplay').classList.add('hidden');
+    return;
+  }
+  document.getElementById('commLpcdDisplay').classList.remove('hidden');
+  document.getElementById('commLpcdValue').textContent = data.total;
+  document.getElementById('commLpcdUnit').textContent = 'L/' + data.unit + '/day';
+  if (data.combined) {
+    document.getElementById('commLpcdSplit').textContent = '(combined rate)';
+  } else {
+    document.getElementById('commLpcdSplit').innerHTML = '<span class="tag tag-domestic">' + data.domestic + ' dom</span> <span class="tag tag-flush">' + data.flush + ' flush</span>';
+  }
+  document.getElementById('commPopLabel').textContent = data.unit === 'seat' ? 'Number of Seats' : 'Number of Occupants / Heads';
+  calcCommercial();
+}
+
+function calcCommercial() {
+  const bt = document.getElementById('commBuildingType').value;
+  const data = buildingData[bt];
+  if (!data) return;
+
+  const pop = parseInt(document.getElementById('commPopulation').value) || 0;
+  const visitors = parseInt(document.getElementById('commVisitors').value) || 0;
+  const totalPop = pop + visitors;
+  const addl = parseFloat(document.getElementById('commAdditional').value) || 0;
+  const efficient = document.getElementById('commEfficient').checked;
+  const reductionFactor = efficient ? 0.75 : 1.0;
+
+  let domestic, flush, total;
+  if (data.combined) {
+    total = totalPop * data.total * reductionFactor;
+    domestic = Math.round(total * 0.667);
+    flush = total - domestic;
+  } else {
+    domestic = totalPop * data.domestic * reductionFactor;
+    flush = totalPop * data.flush * reductionFactor;
+    total = totalPop * data.total * reductionFactor;
+  }
+
+  const grandTotal = total + addl;
+  const originalTotal = totalPop * data.total;
+
+  document.getElementById('commTotalDemand').textContent = formatNum(grandTotal) + ' L/day';
+  document.getElementById('commInfo').textContent = data.label + ' · ' + totalPop + ' ' + data.unit + '(s) · ' + data.total + ' L/' + data.unit + '/day' + (efficient ? ' · 25% reduction applied' : '');
+  document.getElementById('commDomestic').textContent = formatNum(domestic);
+  document.getElementById('commFlush').textContent = formatNum(flush);
+  document.getElementById('commAddl').textContent = formatNum(addl);
+
+  // Summary
+  document.getElementById('commSumType').textContent = data.label;
+  document.getElementById('commSumLpcd').textContent = data.total + ' L/' + data.unit + '/day';
+  document.getElementById('commSumDomLpcd').textContent = data.combined ? 'N/A (combined)' : data.domestic + ' L/' + data.unit + '/day';
+  document.getElementById('commSumFlushLpcd').textContent = data.combined ? 'N/A (combined)' : data.flush + ' L/' + data.unit + '/day';
+  document.getElementById('commSumPop').textContent = totalPop + ' ' + data.unit + '(s)';
+  document.getElementById('commSumDaily').textContent = formatNum(grandTotal) + ' L/day';
+  document.getElementById('commSumKLD').textContent = (grandTotal/1000).toFixed(2) + ' kL/day';
+  document.getElementById('commSumAnnual').textContent = formatNum(grandTotal*365) + ' L/year';
+  document.getElementById('commSumReduction').textContent = efficient ? 'Yes (-25%, -' + formatNum(originalTotal*0.25) + ' L/day)' : 'No';
+
+  // Sync to storage
+  if (document.getElementById('tab-storage').classList.contains('active')) {
+    document.getElementById('storageDailyDemand').value = grandTotal;
+    calcStorage();
+  }
+}
+
+function exportCommCSV() {
+  const bt = document.getElementById('commBuildingType').value;
+  const data = buildingData[bt];
+  if (!data) { alert('Please select a commercial building type first.'); return; }
+
+  const pop = parseInt(document.getElementById('commPopulation').value) || 0;
+  const visitors = parseInt(document.getElementById('commVisitors').value) || 0;
+  const totalPop = pop + visitors;
+  const total = parseFloat(document.getElementById('commTotalDemand').textContent.replace(/[^0-9]/g,'')) || 0;
+  const efficient = document.getElementById('commEfficient').checked;
+
+  let csv = 'NBC 2026 Commercial Water Demand Calculation Report\n\n';
+  csv += 'Parameter,Value,Unit\n';
+  csv += '"Building Type","' + data.label + '",""\n';
+  csv += '"Category","Commercial",""\n';
+  csv += '"Population / Occupants","' + totalPop + '","' + data.unit + '"\n';
+  csv += '"Per Capita Demand (Domestic)","' + (data.combined ? 'N/A' : data.domestic) + '","L/' + data.unit + '/day"\n';
+  csv += '"Per Capita Demand (Flushing)","' + (data.combined ? 'N/A' : data.flush) + '","L/' + data.unit + '/day"\n';
+  csv += '"Per Capita Demand (Total)","' + data.total + '","L/' + data.unit + '/day"\n';
+  csv += '"Efficient Fixture Reduction","' + (efficient ? '25%' : 'No') + '",""\n';
+  csv += '"Daily Domestic Demand","' + document.getElementById('commDomestic').textContent + '","L/day"\n';
+  csv += '"Daily Flushing Demand","' + document.getElementById('commFlush').textContent + '","L/day"\n';
+  csv += '"Additional Demand","' + document.getElementById('commAddl').textContent + '","L/day"\n';
+  csv += '"TOTAL DAILY DEMAND","' + formatNum(total) + '","L/day"\n';
+  csv += '"Total Daily Demand (kL)","' + (total/1000).toFixed(2) + '","kL/day"\n';
+  csv += '"Total Daily Demand (MLD)","' + (total/1000000).toFixed(4) + '","MLD"\n';
+  csv += '"Annual Demand","' + formatNum(total*365) + '","L/year"\n';
+  csv += '\n"Generated by NBC 2026 Water Demand Calculator v2","' + new Date().toLocaleString('en-IN') + '",""\n';
+
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'NBC2026_Commercial_Water_Demand_Report.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============ STORAGE ============
+function selectStorage(type) {
+  currentStorage = type;
+  document.querySelectorAll('.storage-card').forEach(c => c.classList.remove('active'));
+  document.querySelector('[data-storage="' + type + '"]').classList.add('active');
+  calcStorage();
+}
+
+function calcStorage() {
+  const demand = parseFloat(document.getElementById('storageDailyDemand').value) || 0;
+  let oht = 0, ugt = 0;
+
+  if (currentStorage === 'oht_only') {
+    oht = demand * 0.5;
+  } else if (currentStorage === 'ugt_oht_gravity') {
+    ugt = demand * 1.5;
+    oht = demand * 0.5;
+  } else if (currentStorage === 'hydro_pneumatic') {
+    ugt = demand * 2.0;
+    oht = 0;
+  }
+
+  const total = oht + ugt;
+
+  document.getElementById('sOHT').textContent = formatNum(oht);
+  document.getElementById('sOHTkL').textContent = (oht/1000).toFixed(2);
+  document.getElementById('sOHTpct').textContent = demand > 0 ? ((oht/demand)*100).toFixed(0) + '%' : '—';
+  document.getElementById('sUGT').textContent = formatNum(ugt);
+  document.getElementById('sUGTkL').textContent = (ugt/1000).toFixed(2);
+  document.getElementById('sUGTpct').textContent = demand > 0 ? ((ugt/demand)*100).toFixed(0) + '%' : '—';
+  document.getElementById('sTotal').textContent = formatNum(total);
+  document.getElementById('sTotalkL').textContent = (total/1000).toFixed(2);
+  document.getElementById('sTotalpct').textContent = demand > 0 ? ((total/demand)*100).toFixed(0) + '%' : '—';
+}
+
+// ============ EXPORT CSV (main calc) ============
+function exportCSV() {
+  const bt = document.getElementById('buildingType').value;
+  const data = buildingData[bt];
+  if (!data) { alert('Please select a building type first.'); return; }
+
+  const pop = getPopulation();
+  const visitors = parseInt(document.getElementById('visitors').value) || 0;
+  const totalPop = pop + visitors;
+  const total = parseFloat(document.getElementById('totalDemand').textContent.replace(/[^0-9]/g,'')) || 0;
+
+  let csv = 'NBC 2026 Water Demand Calculation Report\n\n';
+  csv += 'Parameter,Value,Unit\n';
+  csv += '"Building Type","' + data.label + '",""\n';
+  csv += '"Category","' + data.category + '",""\n';
+  csv += '"Population / Occupants","' + totalPop + '","' + data.unit + '"\n';
+  csv += '"Per Capita Demand (Domestic)","' + (data.combined ? 'N/A' : data.domestic) + '","L/' + data.unit + '/day"\n';
+  csv += '"Per Capita Demand (Flushing)","' + (data.combined ? 'N/A' : data.flush) + '","L/' + data.unit + '/day"\n';
+  csv += '"Per Capita Demand (Total)","' + data.total + '","L/' + data.unit + '/day"\n';
+  csv += '"Daily Domestic Demand","' + document.getElementById('domesticDemand').textContent + '","L/day"\n';
+  csv += '"Daily Flushing Demand","' + document.getElementById('flushDemand').textContent + '","L/day"\n';
+  csv += '"Additional Demand","' + document.getElementById('additionalDemand').textContent + '","L/day"\n';
+  csv += '"TOTAL DAILY DEMAND","' + formatNum(total) + '","L/day"\n';
+  csv += '"Total Daily Demand (kL)","' + (total/1000).toFixed(2) + '","kL/day"\n';
+  csv += '"Total Daily Demand (MLD)","' + (total/1000000).toFixed(4) + '","MLD"\n';
+  csv += '"Annual Demand","' + formatNum(total*365) + '","L/year"\n';
+  csv += '\n"Storage Sizing"\n';
+  csv += '"Overhead Tank (OHT)","' + document.getElementById('sOHT').textContent + '","L"\n';
+  csv += '"Underground Tank (UGT)","' + document.getElementById('sUGT').textContent + '","L"\n';
+  csv += '\n"Generated by NBC 2026 Water Demand Calculator v2","' + new Date().toLocaleString('en-IN') + '",""\n';
+
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'NBC2026_Water_Demand_Report.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetForm() {
+  document.getElementById('buildingType').value = '';
+  document.getElementById('population').value = 100;
+  document.getElementById('landscapeArea').value = 0;
+  document.getElementById('poolDemand').value = 0;
+  document.getElementById('hvacDemand').value = 0;
+  document.getElementById('fireDemand').value = 0;
+  document.getElementById('visitors').value = 0;
+  document.getElementById('totalDemand').textContent = '— L/day';
+  document.getElementById('domesticDemand').textContent = '0';
+  document.getElementById('flushDemand').textContent = '0';
+  document.getElementById('additionalDemand').textContent = '0';
+  document.getElementById('breakdownCard').style.display = 'none';
+  document.getElementById('lpcdDisplay').classList.add('hidden');
+  ['eqLPD','eqKLD','eqCMD','eqLYear','eqMLD'].forEach(id => document.getElementById(id).textContent = '—');
+}
+
+// Init
+calcStorage();
+</script>
+</body>
+</html>

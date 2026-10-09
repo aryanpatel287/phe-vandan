@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBCS 2026 — Drainage System Calculator</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/NBCS_2026_Drainage_Calculator.css">
+
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+<header>
+  <h1>NBCS 2026 — Drainage System Design Calculator</h1>
+  <div class="subtitle">Public Utility Services · Internal & External Drainage · DFU-Based Sizing per NBCS 2026 Part E, Section 2</div>
+  <div class="code-ref">Based on: NBCS 2026 Part E — Plumbing Services, Section 2 — Drainage and Sanitation (Clauses 4.5.3.5 – 4.5.10)</div>
+</header>
+
+<div class="container">
+
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+
+  <div class="export-bar">
+    <span class="export-label">Download Report:</span>
+    <button class="export-btn" onclick="exportPDF()">PDF</button>
+    <button class="export-btn" onclick="exportWord()">Word</button>
+    <button class="export-btn" onclick="exportExcel()">Excel</button>
+    <button class="export-btn" onclick="exportPrint()">Print</button>
+    <span class="export-loading" id="exportLoading">Generating...</span>
+  </div>
+
+  <div class="nav" id="nav">
+    <button class="active" onclick="showPanel('project', this)">1. Project Info</button>
+    <button onclick="showPanel('internal', this)">2. Internal DFU</button>
+    <button onclick="showPanel('demand', this)">3. Probable Demand</button>
+    <button onclick="showPanel('horizontal', this)">4. Horizontal Pipes</button>
+    <button onclick="showPanel('stack', this)">5. Stack Sizing</button>
+    <button onclick="showPanel('slope', this)">6. Slope & Velocity</button>
+    <button onclick="showPanel('manhole', this)">7. Manholes</button>
+    <button onclick="showPanel('stackformula', this)">8. Stack Formula</button>
+    <button onclick="showPanel('reference', this)">9. Reference Tables</button>
+  </div>
+
+  <!-- PANEL 1: PROJECT INFO -->
+  <div class="panel active" id="panel-project">
+    <div class="panel-title">1 · Project Information</div>
+    <div class="panel-desc">Enter project details. The utility type determines default DFU application (Public or Enhanced Public).</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Project Name</label><input type="text" id="projName" placeholder="e.g., Public Toilet Complex — Sector 12"></div>
+      <div class="form-group"><label>Location / City</label><input type="text" id="projLoc" placeholder="e.g., New Delhi"></div>
+      <div class="form-group"><label>Designed By</label><input type="text" id="projEng" placeholder="Engineer name"></div>
+      <div class="form-group"><label>Date</label><input type="date" id="projDate"></div>
+      <div class="form-group"><label>Building / Utility Type</label>
+        <select id="projType" onchange="setUtilityType()">
+          <option value="public">Public Toilet Complex</option>
+          <option value="public_enhanced">Public Utility (Enhanced Load)</option>
+          <option value="railway">Railway Station / Bus Terminal</option>
+          <option value="school">School / Educational Institution</option>
+          <option value="hospital">Hospital / Healthcare</option>
+          <option value="mall">Shopping Mall / Market</option>
+          <option value="office">Office Building</option>
+          <option value="residential">Residential (Private)</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Default Fixture Application</label>
+        <select id="defaultApp">
+          <option value="public">Public Use</option>
+          <option value="enhanced">Public Use — Enhanced (parenthetical values)</option>
+          <option value="private">Private Use</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Flush System Type</label>
+        <select id="flushType"><option value="valve">Flush Valve System</option><option value="tank">Flush Tank System</option></select>
+      </div>
+      <div class="form-group"><label>Number of Floors / Branch Intervals</label><input type="number" id="numFloors" value="1" min="1" max="50"></div>
+    </div>
+    <div class="alert alert-info" id="typeHint">Public utility services use <strong>Public</strong> or <strong>Enhanced Public</strong> DFU values from Table 20. Enhanced values (in parentheses) apply where higher-than-normal peak usage is expected.</div>
+    <div class="result-card info">
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Code Reference</div><div class="value p-nbcs_2026_drainage_calculator_html-s1">NBCS 2026</div></div>
+        <div class="result-item"><div class="label">Part / Section</div><div class="value p-nbcs_2026_drainage_calculator_html-s2">Part E, Sec 2</div></div>
+        <div class="result-item"><div class="label">Clauses</div><div class="value p-nbcs_2026_drainage_calculator_html-s3">4.5.3.5 – 4.5.10</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: INTERNAL DFU -->
+  <div class="panel" id="panel-internal">
+    <div class="panel-title">2 · Internal DFU Calculation (Table 20 & Table 21)</div>
+    <div class="panel-desc">Select fixtures and enter quantities. DFU values auto-populate from Table 20. For fixtures not in Table 20, use Table 21 (based on trap size).</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Application Override (all fixtures)</label>
+        <select id="globalApp" onchange="updateAllApps()">
+          <option value="">— Use default —</option>
+          <option value="public">Public</option>
+          <option value="enhanced">Enhanced Public</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+      <div class="form-group p-nbcs_2026_drainage_calculator_html-s4">
+        <button class="btn btn-accent" onclick="addCustomFixture()">+ Add Custom Fixture (Table 21)</button>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table id="fixtureTable">
+        <thead><tr><th class="p-nbcs_2026_drainage_calculator_html-s5">#</th><th class="p-nbcs_2026_drainage_calculator_html-s6">Fixture Type</th><th>Application</th><th>Quantity</th><th>DFU / Unit</th><th>Min Trap (mm)</th><th>Total DFU</th><th></th></tr></thead>
+        <tbody id="fixtureBody"></tbody>
+      </table>
+    </div>
+    <div class="total-bar"><span>CUMULATIVE TOTAL DFU:</span><span class="total-value" id="totalDFU">0</span></div>
+    <div class="result-card" id="internalResult">
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Total Fixtures</div><div class="value" id="totalFixtures">0</div></div>
+        <div class="result-item"><div class="label">Total DFU Load</div><div class="value" id="totalDFUResult">0</div></div>
+        <div class="result-item"><div class="label">Water Closet Count</div><div class="value" id="wcCount">0</div></div>
+        <div class="result-item"><div class="label">Min Drain Size (if WC)</div><div class="value" id="minDrainSize">75 mm</div></div>
+      </div>
+    </div>
+    <div class="alert alert-success" id="internalNote" style="display:none"></div>
+  </div>
+
+  <!-- PANEL 3: PROBABLE DEMAND -->
+  <div class="panel" id="panel-demand">
+    <div class="panel-title">3 · Probable Demand (Fig. 6 — DFU to LPM)</div>
+    <div class="panel-desc">Convert total DFU to peak demand in Litres Per Minute (LPM) using Fig. 6. Curve 1 = Flush Valve; Curve 2 = Flush Tank.</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Total DFU (auto from Panel 2, or enter manually)</label><input type="number" id="demandDFU" value="0" min="0" oninput="calcDemand()"></div>
+      <div class="form-group"><label>Flush System</label>
+        <select id="demandFlushType" onchange="calcDemand()"><option value="valve">Flush Valve (Curve 1)</option><option value="tank">Flush Tank (Curve 2)</option></select>
+      </div>
+      <div class="form-group"><label>Population (persons served)</label><input type="number" id="demandPop" value="0" min="0" oninput="calcDemand()"></div>
+    </div>
+    <button class="btn btn-primary" onclick="syncDFU()">Sync DFU from Panel 2</button>
+    <div class="result-card">
+      <div class="result-label">Probable Peak Demand</div>
+      <div class="result-value" id="demandLPM">0 <small>LPM</small></div>
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Demand (L/s)</div><div class="value" id="demandLPS">0</div></div>
+        <div class="result-item"><div class="label">Demand (m³/min)</div><div class="value" id="demandCMM">0</div></div>
+        <div class="result-item"><div class="label">Max Discharge (3× avg)</div><div class="value" id="demandMax">0 <small>LPM</small></div></div>
+        <div class="result-item"><div class="label">Avg Flow (3LPM/10p)</div><div class="value" id="demandAvg">0 <small>LPM</small></div></div>
+      </div>
+    </div>
+    <div class="alert alert-info"><strong>Clause 4.5.3.5.1(b):</strong> Maximum discharge flow = 3 × average rate. Average flow = 3 LPM per 10 persons.</div>
+  </div>
+
+  <!-- PANEL 4: HORIZONTAL PIPES -->
+  <div class="panel" id="panel-horizontal">
+    <div class="panel-title">4 · Horizontal Pipe Sizing (Tables 22 & 23)</div>
+    <div class="panel-desc">Size horizontal fixture branches, building drains, and building sewers based on DFU load and available slope.</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Design DFU Load</label><input type="number" id="hDFU" value="0" min="0" oninput="calcHorizontal()"></div>
+      <div class="form-group"><label>Pipe Category</label>
+        <select id="hCategory" onchange="calcHorizontal()">
+          <option value="branch">Horizontal Fixture Branch (Table 22)</option>
+          <option value="drain">Building Drain / Sewer (Table 23)</option>
+        </select>
+      </div>
+      <div class="form-group" id="slopeGroup"><label>Available Slope (for Drain/Sewer)</label>
+        <select id="hSlope" onchange="calcHorizontal()">
+          <option value="0.005">1 in 200 (1/200)</option>
+          <option value="0.01">1 in 100 (1/100)</option>
+          <option value="0.02">1 in 50 (1/50)</option>
+          <option value="0.04">1 in 25 (1/25)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="syncDFUtoHorizontal()">Sync DFU from Panel 2</button>
+    <div class="result-card" id="hResult">
+      <div class="result-label">Recommended Minimum Pipe Size</div>
+      <div class="result-value" id="hPipeSize">— <small>mm</small></div>
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Selected Slope</div><div class="value" id="hSlopeDisplay">—</div></div>
+        <div class="result-item"><div class="label">Max DFU at Size</div><div class="value" id="hMaxDFU">—</div></div>
+        <div class="result-item"><div class="label">Utilization</div><div class="value" id="hUtilization">—</div></div>
+        <div class="result-item"><div class="label">Code Table</div><div class="value" id="hTable">—</div></div>
+      </div>
+    </div>
+    <div id="hWarnings"></div>
+    <div class="sub-section-title">Full Sizing Table (selected row highlighted)</div>
+    <div class="table-scroll"><table id="hTableDisplay"><thead id="hTableHead"></thead><tbody id="hTableBody"></tbody></table></div>
+  </div>
+
+  <!-- PANEL 5: STACK SIZING -->
+  <div class="panel" id="panel-stack">
+    <div class="panel-title">5 · Stack (Vertical Pipe) Sizing (Table 22)</div>
+    <div class="panel-desc">Size vertical drainage stacks based on cumulative DFU and number of branch intervals. Stacks sized for 1/3 of carrying capacity.</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Design DFU Load on Stack</label><input type="number" id="sDFU" value="0" min="0" oninput="calcStack()"></div>
+      <div class="form-group"><label>Number of Branch Intervals</label>
+        <select id="sIntervals" onchange="calcStack()"><option value="3">3 or Fewer Branch Intervals</option><option value="4">More Than 3 Branch Intervals</option></select>
+      </div>
+      <div class="form-group"><label>Max DFU per Single Branch Interval</label><input type="number" id="sPerInterval" value="0" min="0" oninput="calcStack()"></div>
+    </div>
+    <button class="btn btn-primary" onclick="syncDFUtoStack()">Sync DFU from Panel 2</button>
+    <div class="result-card" id="sResult">
+      <div class="result-label">Recommended Minimum Stack Diameter</div>
+      <div class="result-value" id="sPipeSize">— <small>mm</small></div>
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Max DFU (Stack Total)</div><div class="value" id="sMaxDFU">—</div></div>
+        <div class="result-item"><div class="label">Max DFU per Interval</div><div class="value" id="sMaxInterval">—</div></div>
+        <div class="result-item"><div class="label">Utilization</div><div class="value" id="sUtilization">—</div></div>
+        <div class="result-item"><div class="label">Carrying Capacity Used</div><div class="value" id="sCapacity">—</div></div>
+      </div>
+    </div>
+    <div class="alert alert-info"><strong>Clause 4.5.3.5.1(c):</strong> Drainage stacks sized for 1/3 of carrying capacity. Stack diameters shall not be reduced to less than 1/2 of the larger stack size required.</div>
+    <div class="sub-section-title">Table 22 — Stack Sizing Reference</div>
+    <div class="table-scroll"><table class="ref-table" id="stackTableDisplay"></table></div>
+  </div>
+
+  <!-- PANEL 6: SLOPE & VELOCITY -->
+  <div class="panel" id="panel-slope">
+    <div class="panel-title">6 · Slope & Velocity (Table 24 — Manning's n=0.015)</div>
+    <div class="panel-desc">Sewers designed for half-full flow at peak. Min self-cleansing velocity 0.75 m/s. Max 2.4 m/s (use cast iron if exceeded). Absolute min 0.61 m/s.</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Pipe Diameter (mm)</label>
+        <select id="vDiameter" onchange="calcVelocity()">
+          <option value="100">100 mm</option><option value="150">150 mm</option><option value="200">200 mm</option>
+          <option value="230">230 mm</option><option value="250">250 mm</option><option value="300">300 mm</option>
+          <option value="custom">Custom (Manning's calc)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Available Slope</label>
+        <select id="vSlope" onchange="calcVelocity()">
+          <option value="0.005">1 in 200 (0.5%)</option><option value="0.01">1 in 100 (1%)</option>
+          <option value="0.02">1 in 50 (2%)</option><option value="0.04">1 in 25 (4%)</option>
+          <option value="custom">Custom slope</option>
+        </select>
+      </div>
+      <div class="form-group" id="customDiaGroup" style="display:none"><label>Custom Pipe Diameter (mm)</label><input type="number" id="vCustomDia" value="200" min="100" oninput="calcVelocity()"></div>
+      <div class="form-group" id="customSlopeGroup" style="display:none"><label>Custom Slope (1 in N)</label><input type="number" id="vCustomSlope" value="100" min="1" oninput="calcVelocity()"></div>
+    </div>
+    <div class="result-card" id="vResult">
+      <div class="result-label">Flow Velocity (Half-Full, Manning's n=0.015)</div>
+      <div class="result-value" id="vVelocity">— <small>m/s</small></div>
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Discharge (m³/min)</div><div class="value" id="vDischarge">—</div></div>
+        <div class="result-item"><div class="label">Discharge (LPM)</div><div class="value" id="vDischargeLPM">—</div></div>
+        <div class="result-item"><div class="label">Flow Condition</div><div class="value" id="vCondition">—</div></div>
+        <div class="result-item"><div class="label">Self-Cleansing</div><div class="value" id="vCleansing">—</div></div>
+      </div>
+    </div>
+    <div id="vWarnings"></div>
+    <div class="alert alert-info"><strong>Clause 4.5.3.5.2.5:</strong> Discharge based on Manning's formula with n=0.015. <strong>4.5.3.5.2.2:</strong> Half-full at peak, min velocity 0.75 m/s. <strong>4.5.3.5.2.3:</strong> Absolute min 0.61 m/s. <strong>4.5.3.5.2.4:</strong> Max 2.4 m/s — use cast iron if exceeded.</div>
+    <div class="sub-section-title">Table 24 — Velocity & Discharge at Min/Max Gradient</div>
+    <div class="table-scroll">
+      <table class="ref-table">
+        <thead><tr class="p-nbcs_2026_drainage_calculator_html-s7"><th>Dia (mm)</th><th>Min Gradient (0.75 m/s)</th><th>Discharge (m³/min)</th><th>Max Gradient (2.4 m/s)</th><th>Discharge (m³/min)</th></tr></thead>
+        <tbody>
+          <tr><td>100</td><td>1 in 57</td><td>0.18</td><td>1 in 5.6</td><td>0.59</td></tr>
+          <tr><td>150</td><td>1 in 100</td><td>0.42</td><td>1 in 9.7</td><td>1.32</td></tr>
+          <tr><td>200</td><td>1 in 145</td><td>0.73</td><td>1 in 14</td><td>2.40</td></tr>
+          <tr><td>230</td><td>1 in 175</td><td>0.93</td><td>1 in 17</td><td>2.98</td></tr>
+          <tr><td>250</td><td>1 in 195</td><td>1.10</td><td>1 in 19</td><td>3.60</td></tr>
+          <tr><td>300</td><td>1 in 250</td><td>1.70</td><td>1 in 24.5</td><td>5.30</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL 7: MANHOLES -->
+  <div class="panel" id="panel-manhole">
+    <div class="panel-title">7 · Manhole Design (Clause 4.5.10)</div>
+    <div class="panel-desc">Determine manhole type, size, spacing, wall thickness, bed concrete based on depth and pipe diameter. Min depth 800 mm. Min sewer pipe dia 200 mm.</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Manhole Depth (m)</label><input type="number" id="mhDepth" value="1.5" min="0.3" step="0.1" oninput="calcManhole()"></div>
+      <div class="form-group"><label>Incoming Pipe Diameter (mm)</label>
+        <select id="mhPipeDia" onchange="calcManhole()">
+          <option value="100">100</option><option value="150">150</option><option value="200" selected>200</option>
+          <option value="250">250</option><option value="300">300</option><option value="375">375</option>
+          <option value="450">450</option><option value="500">500</option><option value="600">600</option><option value="900">900</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Manhole Shape Preference</label>
+        <select id="mhShape" onchange="calcManhole()">
+          <option value="auto">Auto (code-recommended)</option><option value="rect">Rectangular</option>
+          <option value="arch">Arch Type</option><option value="circular">Circular</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Number of Incoming Branches</label><input type="number" id="mhBranches" value="1" min="0" max="6" oninput="calcManhole()"></div>
+    </div>
+    <div class="result-card" id="mhResult">
+      <div class="result-label">Recommended Manhole</div>
+      <div class="result-value" id="mhSize">—</div>
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Manhole Type</div><div class="value" id="mhType">—</div></div>
+        <div class="result-item"><div class="label">Wall Thickness</div><div class="value" id="mhWall">—</div></div>
+        <div class="result-item"><div class="label">Bed Concrete</div><div class="value" id="mhBed">—</div></div>
+        <div class="result-item"><div class="label">Max Spacing</div><div class="value" id="mhSpacing">—</div></div>
+        <div class="result-item"><div class="label">Cover Clear Opening</div><div class="value" id="mhCover">—</div></div>
+        <div class="result-item"><div class="label">Rungs Required</div><div class="value" id="mhRungs">—</div></div>
+      </div>
+    </div>
+    <div id="mhWarnings"></div>
+    <div class="sub-section-title">Construction Specifications</div>
+    <div class="table-scroll"><table class="ref-table"><thead><tr class="p-nbcs_2026_drainage_calculator_html-s8"><th>Component</th><th>Specification</th><th>Clause</th></tr></thead><tbody id="mhSpecBody"></tbody></table></div>
+    <div class="sub-section-title">Manhole Size Reference (Clause 4.5.10.3)</div>
+    <div class="table-scroll">
+      <table class="ref-table">
+        <thead><tr class="p-nbcs_2026_drainage_calculator_html-s9"><th>Type</th><th>Depth Range</th><th>Internal Size</th></tr></thead>
+        <tbody>
+          <tr><td>Rectangular</td><td>< 0.90 m (up to 0.60 m option)</td><td>900 × 800 mm (or 600 × 600 mm)</td></tr>
+          <tr><td>Rectangular</td><td>0.90 m – 2.50 m</td><td>1200 × 900 mm</td></tr>
+          <tr><td>Arch</td><td>≥ 2.50 m</td><td>1400 × 900 mm</td></tr>
+          <tr><td>Circular</td><td>0.90 m – 1.65 m</td><td>900 mm dia</td></tr>
+          <tr><td>Circular</td><td>1.65 m – 2.30 m</td><td>1200 mm dia</td></tr>
+          <tr><td>Circular</td><td>2.30 m – 9.00 m</td><td>1500 mm dia</td></tr>
+          <tr><td>Circular</td><td>9.00 m – 14.00 m</td><td>1800 mm dia</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="sub-section-title">Manhole Spacing (Clause 4.5.10.2)</div>
+    <div class="table-scroll">
+      <table class="ref-table">
+        <thead><tr class="p-nbcs_2026_drainage_calculator_html-s10"><th>Pipe Diameter (mm)</th><th>Max Spacing (m)</th></tr></thead>
+        <tbody><tr><td>Up to 300</td><td>45</td></tr><tr><td>301 – 500</td><td>75</td></tr><tr><td>501 – 900</td><td>90</td></tr><tr><td>Beyond 900</td><td>As approved by Authority</td></tr></tbody>
+      </table>
+    </div>
+    <div class="sub-section-title">Wall Thickness by Depth (Clause 4.5.10.4.3)</div>
+    <div class="table-scroll">
+      <table class="ref-table">
+        <thead><tr class="p-nbcs_2026_drainage_calculator_html-s11"><th>Chamber Depth</th><th>Wall Thickness</th><th>Brick Equivalent</th></tr></thead>
+        <tbody>
+          <tr><td>Up to 2.25 m</td><td>200 mm</td><td>1 brick length</td></tr>
+          <tr><td>2.25 – 3.00 m</td><td>300 mm</td><td>1.5 brick length</td></tr>
+          <tr><td>3.00 – 5.00 m</td><td>400 mm</td><td>2 brick length</td></tr>
+          <tr><td>5.00 – 9.00 m</td><td>500 mm</td><td>2.5 brick length</td></tr>
+          <tr><td>Above 9.00 m</td><td>600 mm</td><td>3 brick length</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-divider"></div>
+    <div class="sub-section-title">Manhole-to-Manhole Invert Level Calculator (Clauses 4.5.10.2 & 4.5.10.5)</div>
+    <div class="panel-desc p-nbcs_2026_drainage_calculator_html-s12">
+      Calculate the invert level at the next manhole based on distance, pipe slope, and pipe diameter.
+      Checks: code max spacing, drop manhole trigger (600 mm level difference), velocity (Manning's n=0.015),
+      and identifies which manhole types apply at each end based on depth.
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group"><label>MH-1 (Upstream) Invert Level (m)</label><input type="number" id="ilMH1" value="100.000" step="0.001" oninput="calcInvert()"></div>
+      <div class="form-group"><label>MH-1 (Upstream) Ground Level (m)</label><input type="number" id="glMH1" value="101.500" step="0.001" oninput="calcInvert()"></div>
+      <div class="form-group"><label>Pipe Diameter (mm)</label>
+        <select id="ilPipeDia" onchange="calcInvert()">
+          <option value="100">100</option><option value="150">150</option><option value="200" selected>200</option>
+          <option value="250">250</option><option value="300">300</option><option value="375">375</option>
+          <option value="450">450</option><option value="500">500</option><option value="600">600</option><option value="900">900</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Pipe Slope / Gradient</label>
+        <select id="ilSlope" onchange="calcInvert()">
+          <option value="0.005">1 in 200 (1/200)</option>
+          <option value="0.01" selected>1 in 100 (1/100)</option>
+          <option value="0.02">1 in 50 (1/50)</option>
+          <option value="0.04">1 in 25 (1/25)</option>
+          <option value="custom">Custom (1 in N)</option>
+        </select>
+      </div>
+      <div class="form-group" id="ilCustomSlopeGroup" style="display:none"><label>Custom Slope (1 in N)</label><input type="number" id="ilCustomSlope" value="120" min="1" oninput="calcInvert()"></div>
+      <div class="form-group"><label>Distance MH-1 to MH-2 (m)</label><input type="number" id="ilDistance" value="45" min="1" step="0.5" oninput="calcInvert()"></div>
+      <div class="form-group"><label>MH-2 (Downstream) Ground Level (m)</label><input type="number" id="glMH2" value="101.200" step="0.001" oninput="calcInvert()"></div>
+    </div>
+
+    <div class="result-card" id="ilResult">
+      <div class="result-label">MH-2 (Downstream) Invert Level</div>
+      <div class="result-value" id="ilMH2Invert">— <small>m</small></div>
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Fall (m)</div><div class="value" id="ilFall">—</div></div>
+        <div class="result-item"><div class="label">Fall (mm)</div><div class="value" id="ilFallMM">—</div></div>
+        <div class="result-item"><div class="label">Slope Used</div><div class="value" id="ilSlopeUsed">—</div></div>
+        <div class="result-item"><div class="label">Velocity (m/s)</div><div class="value" id="ilVelocity">—</div></div>
+        <div class="result-item"><div class="label">Max Spacing (code)</div><div class="value" id="ilMaxSpacing">—</div></div>
+        <div class="result-item"><div class="label">Spacing Check</div><div class="value" id="ilSpacingCheck">—</div></div>
+        <div class="result-item"><div class="label">Drop Manhole?</div><div class="value" id="ilDropStatus">—</div></div>
+        <div class="result-item"><div class="label">MH-1 Depth (m)</div><div class="value" id="ilMH1Depth">—</div></div>
+        <div class="result-item"><div class="label">MH-2 Depth (m)</div><div class="value" id="ilMH2Depth">—</div></div>
+        <div class="result-item"><div class="label">MH-1 Type</div><div class="value" id="ilMH1Type">—</div></div>
+        <div class="result-item"><div class="label">MH-2 Type</div><div class="value" id="ilMH2Type">—</div></div>
+      </div>
+    </div>
+
+    <div id="ilWarnings"></div>
+
+    <div class="alert alert-info">
+      <strong>Clause 4.5.10.2:</strong> When pipe diameter increases, the crown of the pipes shall be fixed at the same level; the necessary slope is given in the invert of the manhole chamber.
+      <br><strong>Clause 4.5.10.5 (Drop Manhole):</strong> If the difference in level between the incoming drain and the sewer exceeds 600 mm, a vertical shaft outside the manhole chamber is required. If ≤ 600 mm, the fall can be accommodated by a ramp in the benching.
+      <br><strong>Table 24:</strong> Velocity is calculated using Manning's formula (n=0.015) for half-full flow. Min self-cleansing = 0.75 m/s; max = 2.4 m/s (use cast iron if exceeded).
+    </div>
+
+    <div class="sub-section-title">Invert Level Calculation Detail</div>
+    <div class="table-scroll">
+      <table class="ref-table">
+        <thead><tr class="p-nbcs_2026_drainage_calculator_html-s13"><th>Parameter</th><th>Value</th><th>Formula / Code Ref.</th></tr></thead>
+        <tbody id="ilDetailBody"></tbody>
+      </table>
+    </div>
+
+    <div class="sub-section-title">Multi-Manhole Chain Calculator (Sequential)</div>
+    <div class="panel-desc p-nbcs_2026_drainage_calculator_html-s14">
+      Enter the starting invert level, pipe diameter, slope, and a comma-separated list of distances between successive manholes.
+      The tool will calculate the invert level at each manhole along the chain, flag any that need drop manholes, and identify the manhole type at each.
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Starting Invert Level (m)</label><input type="number" id="chainStartIL" value="100.000" step="0.001"></div>
+      <div class="form-group"><label>Starting Ground Level (m)</label><input type="number" id="chainStartGL" value="101.500" step="0.001"></div>
+      <div class="form-group"><label>Pipe Diameter (mm)</label>
+        <select id="chainPipeDia">
+          <option value="100">100</option><option value="150">150</option><option value="200" selected>200</option>
+          <option value="250">250</option><option value="300">300</option><option value="375">375</option>
+          <option value="450">450</option><option value="500">500</option><option value="600">600</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Slope (1 in N)</label><input type="number" id="chainSlopeN" value="100" min="1"></div>
+      <div class="form-group p-nbcs_2026_drainage_calculator_html-s15"><label>Distances between manholes (m, comma-separated)</label>
+        <input type="text" id="chainDistances" value="45, 45, 30">
+      </div>
+      <div class="form-group p-nbcs_2026_drainage_calculator_html-s16"><label>Ground levels at each MH (m, comma-separated, including start)</label>
+        <input type="text" id="chainGLs" value="101.500, 101.200, 100.900, 100.700">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="calcChain()">Calculate Chain</button>
+    <div class="mt-14" id="chainResult"></div>
+  </div>
+
+  <!-- PANEL 8: STACK FORMULA -->
+  <div class="panel" id="panel-stackformula">
+    <div class="panel-title">8 · Stack Flow Calculations (Clauses 4.5.3.5 & 4.5.3.5.1b)</div>
+    <div class="panel-desc">Terminal velocity, terminal length, and stack flow capacity using NBCS 2026 formulae.</div>
+    <div class="sub-section-title">Terminal Velocity & Terminal Length</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Flow Rate, Q (L/s)</label><input type="number" id="sfQ" value="2" min="0.1" step="0.1" oninput="calcStackFormula()"></div>
+      <div class="form-group"><label>Stack Diameter, d (mm)</label>
+        <select id="sfD" onchange="calcStackFormula()">
+          <option value="75">75</option><option value="100" selected>100</option><option value="125">125</option>
+          <option value="150">150</option><option value="200">200</option><option value="250">250</option><option value="300">300</option>
+        </select>
+      </div>
+    </div>
+    <div class="calc-note">Vt = 3.0 × (Q/d)^(2/5) &nbsp; Lt = 0.052 × Vt²</div>
+    <div class="result-card">
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Terminal Velocity (Vt)</div><div class="value" id="sfVt">— <small>m/s</small></div></div>
+        <div class="result-item"><div class="label">Terminal Length (Lt)</div><div class="value" id="sfLt">— <small>m</small></div></div>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="sub-section-title">Stack Flow Capacity</div>
+    <div class="calc-note">Q = 27.8 × 0.06309 × rs^(5/3) × (D/25.4)^(8/3) (corrected from NBCS 2026 for SI units)</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Stack Diameter, D (mm)</label>
+        <select id="scD" onchange="calcStackCapacity()">
+          <option value="75">75</option><option value="100" selected>100</option><option value="125">125</option>
+          <option value="150">150</option><option value="200">200</option><option value="250">250</option><option value="300">300</option>
+        </select>
+      </div>
+      <div class="form-group"><label>rs — Cross-Section Ratio</label>
+        <select id="scRs" onchange="calcStackCapacity()">
+          <option value="0.25">1/4 (standard)</option>
+          <option value="0.2083" selected>7/24 (1/3 of capacity)</option>
+          <option value="0.3333">1/3</option>
+          <option value="0.5">1/2</option>
+          <option value="0.6667">2/3</option>
+        </select>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Stack Flow Capacity</div>
+      <div class="result-value" id="scQ">— <small>L/s</small></div>
+      <div class="result-grid">
+        <div class="result-item"><div class="label">Capacity (LPM)</div><div class="value" id="scQPM">—</div></div>
+        <div class="result-item"><div class="label">Design Flow (1/3 capacity)</div><div class="value" id="scDesign">— <small>L/s</small></div></div>
+      </div>
+    </div>
+    <div class="alert alert-warning"><strong>Unit correction:</strong> NBCS 2026 formula Q = 27.8 × rs^(5/3) × D^(8/3) adapted from US UPC (D in inches, Q in gpm). This tool applies correct SI conversion.</div>
+  </div>
+
+  <!-- PANEL 9: REFERENCE TABLES -->
+  <div class="panel" id="panel-reference">
+    <div class="panel-title">9 · NBCS 2026 Reference Tables</div>
+    <div class="panel-desc">Complete code data tables for quick reference during design.</div>
+    <div class="sub-section-title">Table 20 — DFU for Different Fixtures</div>
+    <div class="table-scroll"><table class="ref-table" id="refTable20"></table></div>
+    <div class="sub-section-title">Table 21 — Fixture Unit Values by Trap Size</div>
+    <div class="table-scroll"><table class="ref-table"><thead><tr class="p-nbcs_2026_drainage_calculator_html-s17"><th>Trap / Drain Size</th><th>Fixture Unit Value</th></tr></thead><tbody><tr><td>32 mm and smaller</td><td>1</td></tr><tr><td>40 mm</td><td>2</td></tr><tr><td>50 mm</td><td>3</td></tr><tr><td>65 mm</td><td>4</td></tr><tr><td>80 mm</td><td>5</td></tr><tr><td>100 mm</td><td>6</td></tr></tbody></table></div>
+    <div class="sub-section-title">Table 22 — Horizontal Branches & Stacks</div>
+    <div class="table-scroll"><table class="ref-table" id="refTable22"></table></div>
+    <div class="sub-section-title">Table 23 — Building Drains & Sewers (DFU by Slope)</div>
+    <div class="table-scroll"><table class="ref-table" id="refTable23"></table></div>
+    <div class="sub-section-title">Table 24 — Pipe Velocity & Discharge</div>
+    <div class="table-scroll"><table class="ref-table" id="refTable24"></table></div>
+    <div class="sub-section-title">Key Code Requirements — Quick Reference</div>
+    <div class="table-scroll"><table class="ref-table"><thead><tr class="p-nbcs_2026_drainage_calculator_html-s18"><th>Parameter</th><th>Value</th><th>Clause</th></tr></thead><tbody>
+      <tr><td>Min self-cleansing velocity</td><td>0.75 m/s</td><td>4.5.3.5.2.2</td></tr>
+      <tr><td>Absolute min velocity</td><td>0.61 m/s</td><td>4.5.3.5.2.3</td></tr>
+      <tr><td>Max velocity (CI pipe if exceeded)</td><td>2.4 m/s</td><td>4.5.3.5.2.4</td></tr>
+      <tr><td>Manning's roughness</td><td>n = 0.015</td><td>4.5.3.5.2.5</td></tr>
+      <tr><td>Flow condition at design</td><td>Half-full</td><td>4.5.3.5.2.2</td></tr>
+      <tr><td>Min drain serving WC</td><td>75 mm</td><td>Table 23 Note 2</td></tr>
+      <tr><td>Min sewer pipe dia</td><td>200 mm</td><td>4.5.10.3 Note 4</td></tr>
+      <tr><td>Min manhole depth</td><td>800 mm</td><td>4.5.10.1</td></tr>
+      <tr><td>Min cover opening (>0.9m depth)</td><td>500 mm dia</td><td>4.5.10.4.7</td></tr>
+      <tr><td>Rungs required for depth ></td><td>0.8 m</td><td>4.5.10.4.6</td></tr>
+      <tr><td>Stack design capacity</td><td>1/3 of capacity</td><td>4.5.3.5.1(c)</td></tr>
+      <tr><td>Max discharge flow</td><td>3 × average</td><td>4.5.3.5.1(b)</td></tr>
+      <tr><td>Average flow rate</td><td>3 LPM per 10 persons</td><td>4.5.3.5.1(b)</td></tr>
+      <tr><td>Manhole inside building</td><td>Not permitted</td><td>4.5.10.1</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<script src="assets/vendor/jspdf.umd.min.js"></script>
+<script src="assets/vendor/jspdf.plugin.autotable.min.js"></script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<script src="assets/vendor/html-docx.js"></script>
+<script>
+// ============ NBCS 2026 DATA ============
+var TABLE_20 = [
+  {name:"Water Closet (Flush Valve)", priv:4, pub:6, enh:8, trap:80, cat:"wc"},
+  {name:"Water Closet (Flush Tank)", priv:3, pub:4, enh:6, trap:80, cat:"wc"},
+  {name:"Urinal (Flush Valve)", priv:2, pub:2, enh:2, trap:50, cat:"urinal"},
+  {name:"Urinal (Flush Tank)", priv:2, pub:2, enh:2, trap:50, cat:"urinal"},
+  {name:"Urinal (Sensor Operated)", priv:2, pub:2, enh:2, trap:50, cat:"urinal"},
+  {name:"Wash Basin", priv:1, pub:1, enh:1, trap:32, cat:"basin"},
+  {name:"Shower", priv:2, pub:2, enh:2, trap:50, cat:"shower"},
+  {name:"Bathtub", priv:3, pub:3, enh:3, trap:40, cat:"bath"},
+  {name:"Kitchen Sink", priv:2, pub:2, enh:2, trap:40, cat:"sink"},
+  {name:"Laundry Sink", priv:2, pub:2, enh:2, trap:40, cat:"sink"},
+  {name:"Service / Mop Basin / Sink", priv:0, pub:3, enh:3, trap:50, cat:"sink"},
+  {name:"Clinical / Surgeon Scrub Sink", priv:0, pub:6, enh:6, trap:80, cat:"special"},
+  {name:"Dishwasher", priv:2, pub:2, enh:2, trap:40, cat:"appliance"},
+  {name:"Clothes Washer", priv:3, pub:3, enh:3, trap:50, cat:"appliance"},
+  {name:"Drinking Fountain", priv:0, pub:0.5, enh:0.75, trap:32, cat:"misc"},
+  {name:"Floor Drain", priv:1, pub:2, enh:2, trap:50, cat:"floor"},
+  {name:"Bar Sink", priv:1, pub:2, enh:2, trap:40, cat:"sink"},
+  {name:"Bidet / Ablution Faucet", priv:1, pub:2, enh:2, trap:40, cat:"bidet"},
+  {name:"Combination Fixture (Faucet)", priv:1, pub:2, enh:2, trap:40, cat:"combo"}
+];
+var TABLE_21 = {32:1, 40:2, 50:3, 65:4, 80:5, 100:6};
+var TABLE_22 = [[32,1,2,2,2],[40,3,2,4,8],[50,6,6,10,24],[65,12,9,20,42],[75,20,20,48,72],[100,160,90,240,500],[125,360,200,540,1100],[150,620,350,960,1900],[200,1400,600,2200,3600],[250,2500,1000,3800,5600],[300,3900,1500,6000,8400],[375,7000,null,null,null]];
+var TABLE_23 = [[32,null,null,1,1],[40,null,null,3,3],[50,null,null,21,26],[65,null,null,24,31],[75,null,36,42,50],[100,null,180,216,250],[125,null,390,480,575],[150,null,700,840,1000],[200,1400,1600,1920,2300],[250,2500,2900,3300,4200],[300,3900,4600,5600,6700],[375,7000,8300,10000,12000]];
+var TABLE_24 = [[100,57,0.18,5.6,0.59],[150,100,0.42,9.7,1.32],[200,145,0.73,14,2.40],[230,175,0.93,17,2.98],[250,195,1.10,19,3.60],[300,250,1.70,24.5,5.30]];
+var CURVE_VALVE = [[1,5],[5,15],[10,35],[20,60],[50,130],[100,200],[200,320],[300,420],[500,600],[700,720],[800,780],[1000,880],[1500,1100],[2000,1400],[3000,1850],[4000,2250],[5000,2600],[6000,2900],[7000,3150],[8000,3350],[9000,3450],[10000,3550]];
+var CURVE_TANK = [[1,3],[5,8],[10,18],[20,35],[50,65],[100,100],[200,160],[300,200],[500,280],[700,340],[800,370],[1000,430],[1500,540],[2000,680],[3000,880],[4000,1050],[5000,1200],[6000,1350],[7000,1450],[8000,1550],[9000,1650],[10000,1750]];
+
+// ============ NAVIGATION ============
+function showPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');});
+  if (btn) btn.classList.add('active');
+  if (id === 'internal') calcInternal();
+  if (id === 'demand') calcDemand();
+  if (id === 'horizontal') calcHorizontal();
+  if (id === 'stack') calcStack();
+  if (id === 'slope') calcVelocity();
+  if (id === 'manhole') { calcManhole(); calcInvert(); }
+  if (id === 'stackformula') { calcStackFormula(); calcStackCapacity(); }
+}
+
+function setUtilityType() {
+  var t = document.getElementById('projType').value;
+  var da = document.getElementById('defaultApp');
+  var hint = document.getElementById('typeHint');
+  if (t === 'public') { da.value = 'public'; hint.innerHTML = 'Public utility services use <strong>Public</strong> DFU values from Table 20.'; }
+  else if (t === 'public_enhanced' || t === 'railway' || t === 'hospital') { da.value = 'enhanced'; hint.innerHTML = '<strong>Enhanced Public</strong> DFU values (parenthetical in Table 20) apply — higher peak usage expected.'; }
+  else if (t === 'residential') { da.value = 'private'; hint.innerHTML = '<strong>Private</strong> DFU values from Table 20 apply.'; }
+  else { da.value = 'public'; hint.innerHTML = 'Defaulting to <strong>Public</strong> DFU values. Adjust if needed.'; }
+}
+
+// ============ PANEL 2: INTERNAL DFU ============
+var fixtureRows = [];
+
+function initFixtures() {
+  fixtureRows = [];
+  var tbody = document.getElementById('fixtureBody');
+  tbody.innerHTML = '';
+  addFixtureRow(0, 'enhanced', 4);
+  addFixtureRow(5, 'public', 4);
+  addFixtureRow(6, 'public', 2);
+  addFixtureRow(2, 'public', 2);
+  calcInternal();
+}
+
+function addFixtureRow(tableIdx, app, qty) {
+  tableIdx = (tableIdx === undefined) ? -1 : tableIdx;
+  app = app || document.getElementById('defaultApp').value;
+  qty = qty || 1;
+  var rowId = fixtureRows.length;
+  fixtureRows.push({tableIdx: tableIdx, customTrap: null, app: app, qty: qty});
+  var tbody = document.getElementById('fixtureBody');
+  var tr = document.createElement('tr');
+  tr.className = 'fixture-row';
+  tr.id = 'frow-' + rowId;
+  var opts = TABLE_20.map(function(f, i) {
+    var sel = (i === tableIdx) ? ' selected' : '';
+    return '<option value="' + i + '"' + sel + '>' + f.name + '</option>';
+  }).join('');
+  opts += '<option value="-1"' + (tableIdx === -1 ? ' selected' : '') + '>— Custom (Table 21) —</option>';
+  var appSel = ['private', 'public', 'enhanced'].map(function(a) {
+    var sel = (a === app) ? ' selected' : '';
+    var label = a.charAt(0).toUpperCase() + a.slice(1);
+    if (a === 'enhanced') label = 'Enhanced';
+    return '<option value="' + a + '"' + sel + '>' + label + '</option>';
+  }).join('');
+  tr.innerHTML = '<td>' + (rowId + 1) + '</td>' +
+    '<td class="fixture-name"><select onchange="updateFixtureRow(' + rowId + ', this.value, \'name\')">' + opts + '</select></td>' +
+    '<td><select id="fapp-' + rowId + '" onchange="updateFixtureRow(' + rowId + ', null, \'app\')">' + appSel + '</select></td>' +
+    '<td><input type="number" id="fqty-' + rowId + '" value="' + qty + '" min="0" oninput="updateFixtureRow(' + rowId + ', null, \'qty\')"></td>' +
+    '<td><span id="fdfu-' + rowId + '" style="font-weight:700">—</span></td>' +
+    '<td><span id="ftrap-' + rowId + '">—</span></td>' +
+    '<td><span id="ftotal-' + rowId + '" style="font-weight:700;color:var(--primary)">—</span></td>' +
+    '<td><button class="btn btn-danger btn-sm" onclick="removeFixtureRow(' + rowId + ')">×</button></td>';
+  tbody.appendChild(tr);
+  refreshFixtureRow(rowId);
+}
+
+function addCustomFixture() { addFixtureRow(-1); }
+
+function removeFixtureRow(rowId) {
+  var tr = document.getElementById('frow-' + rowId);
+  if (tr) tr.remove();
+  fixtureRows[rowId] = null;
+  calcInternal();
+}
+
+function updateFixtureRow(rowId, value, field) {
+  var r = fixtureRows[rowId];
+  if (!r) return;
+  if (field === 'name') {
+    r.tableIdx = parseInt(value);
+    if (r.tableIdx === -1) {
+      var trapCell = document.getElementById('ftrap-' + rowId);
+      trapCell.innerHTML = '<select id="ftrapinput-' + rowId + '" onchange="updateCustomTrap(' + rowId + ')">' +
+        Object.keys(TABLE_21).map(function(s) { return '<option value="' + s + '">' + s + ' mm</option>'; }).join('') + '</select>';
+      r.customTrap = 32;
+    } else {
+      document.getElementById('ftrap-' + rowId).innerHTML = TABLE_20[r.tableIdx].trap + ' mm';
+      r.customTrap = null;
+    }
+  }
+  if (field === 'app') r.app = document.getElementById('fapp-' + rowId).value;
+  if (field === 'qty') r.qty = parseFloat(document.getElementById('fqty-' + rowId).value) || 0;
+  refreshFixtureRow(rowId);
+  calcInternal();
+}
+
+function updateCustomTrap(rowId) {
+  var r = fixtureRows[rowId];
+  if (!r) return;
+  r.customTrap = parseInt(document.getElementById('ftrapinput-' + rowId).value);
+  refreshFixtureRow(rowId);
+  calcInternal();
+}
+
+function refreshFixtureRow(rowId) {
+  var r = fixtureRows[rowId];
+  if (!r) return;
+  var dfu, trap;
+  if (r.tableIdx >= 0) {
+    var f = TABLE_20[r.tableIdx];
+    dfu = getDFU(f, r.app);
+    trap = f.trap;
+    document.getElementById('ftrap-' + rowId).innerHTML = trap + ' mm';
+  } else {
+    trap = r.customTrap || 32;
+    dfu = TABLE_21[trap] || 1;
+  }
+  document.getElementById('fdfu-' + rowId).textContent = dfu;
+  var total = dfu * r.qty;
+  document.getElementById('ftotal-' + rowId).textContent = (total % 1 === 0) ? total : total.toFixed(2);
+}
+
+function getDFU(fixture, app) {
+  if (app === 'enhanced') return fixture.enh || fixture.pub;
+  if (app === 'private') return fixture.priv || fixture.pub;
+  return fixture.pub;
+}
+
+function updateAllApps() {
+  var app = document.getElementById('globalApp').value;
+  if (!app) return;
+  fixtureRows.forEach(function(r, i) {
+    if (!r) return;
+    r.app = app;
+    var sel = document.getElementById('fapp-' + i);
+    if (sel) sel.value = app;
+    refreshFixtureRow(i);
+  });
+  calcInternal();
+}
+
+function calcInternal() {
+  var totalDFU = 0, totalFixtures = 0, wcCount = 0, hasWC = false;
+  fixtureRows.forEach(function(r, i) {
+    if (!r) return;
+    var dfu;
+    if (r.tableIdx >= 0) {
+      var f = TABLE_20[r.tableIdx];
+      dfu = getDFU(f, r.app);
+      if (f.cat === 'wc') { wcCount += r.qty; hasWC = true; }
+    } else {
+      dfu = TABLE_21[r.customTrap || 32] || 1;
+    }
+    totalDFU += dfu * r.qty;
+    totalFixtures += r.qty;
+  });
+  var dfuStr = (totalDFU % 1 === 0) ? totalDFU : totalDFU.toFixed(2);
+  document.getElementById('totalDFU').textContent = dfuStr;
+  document.getElementById('totalDFUResult').textContent = dfuStr;
+  document.getElementById('totalFixtures').textContent = totalFixtures;
+  document.getElementById('wcCount').textContent = wcCount;
+  document.getElementById('minDrainSize').textContent = hasWC ? '75 mm' : '50 mm';
+  var note = document.getElementById('internalNote');
+  note.style.display = 'block';
+  note.className = 'alert alert-success';
+  if (hasWC) {
+    note.innerHTML = '<strong>Table 23 Note 2:</strong> Minimum building drain serving water closet = 75 mm. Minimum sewer pipe diameter = 200 mm (Clause 4.5.10.3 Note 4).';
+  } else {
+    note.innerHTML = 'No water closet in system. Minimum trap/drain sizes per Table 20 apply.';
+  }
+}
+
+// ============ PANEL 3: PROBABLE DEMAND ============
+function interpolateCurve(curve, fu) {
+  if (fu <= 0) return 0;
+  if (fu >= curve[curve.length - 1][0]) return curve[curve.length - 1][1];
+  for (var i = 0; i < curve.length - 1; i++) {
+    if (fu >= curve[i][0] && fu <= curve[i + 1][0]) {
+      var x0 = curve[i][0], y0 = curve[i][1], x1 = curve[i + 1][0], y1 = curve[i + 1][1];
+      var t = (fu - x0) / (x1 - x0);
+      return y0 + t * (y1 - y0);
+    }
+  }
+  return curve[curve.length - 1][1];
+}
+
+function syncDFU() {
+  document.getElementById('demandDFU').value = parseFloat(document.getElementById('totalDFU').textContent) || 0;
+  calcDemand();
+}
+
+function calcDemand() {
+  var fu = parseFloat(document.getElementById('demandDFU').value) || 0;
+  var type = document.getElementById('demandFlushType').value;
+  var pop = parseFloat(document.getElementById('demandPop').value) || 0;
+  var curve = (type === 'valve') ? CURVE_VALVE : CURVE_TANK;
+  var lpm = interpolateCurve(curve, fu);
+  var lps = lpm / 60;
+  var cmm = lpm / 1000;
+  var avg = pop * 3 / 10;
+  var maxDischarge = avg * 3;
+  document.getElementById('demandLPM').innerHTML = lpm.toFixed(0) + ' <small>LPM</small>';
+  document.getElementById('demandLPS').textContent = lps.toFixed(2);
+  document.getElementById('demandCMM').textContent = cmm.toFixed(4);
+  document.getElementById('demandAvg').innerHTML = avg.toFixed(0) + ' <small>LPM</small>';
+  document.getElementById('demandMax').innerHTML = maxDischarge.toFixed(0) + ' <small>LPM</small>';
+}
+
+// ============ PANEL 4: HORIZONTAL PIPE SIZING ============
+function syncDFUtoHorizontal() {
+  document.getElementById('hDFU').value = parseFloat(document.getElementById('totalDFU').textContent) || 0;
+  calcHorizontal();
+}
+
+function calcHorizontal() {
+  var dfu = parseFloat(document.getElementById('hDFU').value) || 0;
+  var cat = document.getElementById('hCategory').value;
+  var slope = parseFloat(document.getElementById('hSlope').value);
+  document.getElementById('slopeGroup').style.display = (cat === 'drain') ? '' : 'none';
+  var resultSize = 0, resultMaxDFU = 0, tableData, slopeIdx;
+  if (cat === 'branch') {
+    for (var i = 0; i < TABLE_22.length; i++) {
+      if (dfu <= TABLE_22[i][1]) { resultSize = TABLE_22[i][0]; resultMaxDFU = TABLE_22[i][1]; break; }
+    }
+    if (resultSize === 0) { resultSize = 375; resultMaxDFU = 7000; }
+    document.getElementById('hTable').textContent = 'Table 22';
+    document.getElementById('hSlopeDisplay').textContent = 'N/A (branch)';
+    renderHTable('branch', 0);
+  } else {
+    var slopes = [0.005, 0.01, 0.02, 0.04];
+    slopeIdx = slopes.indexOf(slope);
+    if (slopeIdx === -1) slopeIdx = 2;
+    for (var j = 0; j < TABLE_23.length; j++) {
+      var maxVal = TABLE_23[j][slopeIdx + 1];
+      if (maxVal !== null && dfu <= maxVal) { resultSize = TABLE_23[j][0]; resultMaxDFU = maxVal; break; }
+    }
+    if (resultSize === 0) { resultSize = 375; resultMaxDFU = TABLE_23[TABLE_23.length - 1][slopeIdx + 1]; }
+    var slopeLabels = ['1/200', '1/100', '1/50', '1/25'];
+    document.getElementById('hTable').textContent = 'Table 23';
+    document.getElementById('hSlopeDisplay').textContent = slopeLabels[slopeIdx];
+    renderHTable('drain', slopeIdx);
+  }
+  var util = (resultMaxDFU > 0) ? ((dfu / resultMaxDFU) * 100).toFixed(1) + '%' : '—';
+  document.getElementById('hPipeSize').innerHTML = resultSize + ' <small>mm</small>';
+  document.getElementById('hMaxDFU').textContent = resultMaxDFU.toLocaleString();
+  document.getElementById('hUtilization').textContent = util;
+  var warns = document.getElementById('hWarnings');
+  warns.innerHTML = '';
+  if (cat === 'drain' && resultSize < 75) {
+    warns.innerHTML += '<div class="alert alert-danger"><strong>Table 23 Note 2:</strong> Minimum building drain serving a water closet = 75 mm.</div>';
+  }
+  if (cat === 'drain' && resultSize < 200) {
+    warns.innerHTML += '<div class="alert alert-warning"><strong>Clause 4.5.10.3 Note 4:</strong> Minimum sewer pipe diameter = 200 mm.</div>';
+  }
+}
+
+function renderHTable(type, slopeIdx) {
+  var head = document.getElementById('hTableHead');
+  var body = document.getElementById('hTableBody');
+  var dfu = parseFloat(document.getElementById('hDFU').value) || 0;
+  if (type === 'branch') {
+    head.innerHTML = '<tr><th>Dia (mm)</th><th>Max DFU (Branch)</th><th>Per Interval</th><th>Stack ≤3 Int.</th><th>Stack >3 Int.</th><th></th></tr>';
+    body.innerHTML = TABLE_22.map(function(r) {
+      var ok = (dfu > 0 && dfu <= r[1]);
+      return '<tr style="' + (ok ? 'background:#c8e6c9;font-weight:bold' : '') + '"><td>' + r[0] + '</td><td>' + r[1].toLocaleString() + '</td><td>' + r[2] + '</td><td>' + (r[3] ? r[3].toLocaleString() : 'See Note') + '</td><td>' + (r[4] ? r[4].toLocaleString() : 'See Note') + '</td><td>' + (ok ? '<span class="tag tag-ok">SELECTED</span>' : '') + '</td></tr>';
+    }).join('');
+  } else {
+    var labels = ['1/200', '1/100', '1/50', '1/25'];
+    head.innerHTML = '<tr><th>Dia (mm)</th><th>Slope ' + labels[0] + '</th><th>Slope ' + labels[1] + '</th><th>Slope ' + labels[2] + '</th><th>Slope ' + labels[3] + '</th><th></th></tr>';
+    body.innerHTML = TABLE_23.map(function(r) {
+      var cv = function(v) { return (v !== null) ? v.toLocaleString() : '—'; };
+      var ok = (dfu > 0 && r[slopeIdx + 1] !== null && dfu <= r[slopeIdx + 1]);
+      return '<tr style="' + (ok ? 'background:#c8e6c9;font-weight:bold' : '') + '"><td>' + r[0] + '</td><td>' + cv(r[1]) + '</td><td>' + cv(r[2]) + '</td><td>' + cv(r[3]) + '</td><td>' + cv(r[4]) + '</td><td>' + (ok ? '<span class="tag tag-ok">SELECTED</span>' : '') + '</td></tr>';
+    }).join('');
+  }
+}
+
+// ============ PANEL 5: STACK SIZING ============
+function syncDFUtoStack() {
+  document.getElementById('sDFU').value = parseFloat(document.getElementById('totalDFU').textContent) || 0;
+  calcStack();
+}
+
+function calcStack() {
+  var dfu = parseFloat(document.getElementById('sDFU').value) || 0;
+  var intervals = parseInt(document.getElementById('sIntervals').value);
+  var perInterval = parseFloat(document.getElementById('sPerInterval').value) || 0;
+  var col = (intervals === 3) ? 3 : 4;
+  var resultSize = 0, resultMaxDFU = 0, resultMaxInterval = 0;
+  for (var i = 0; i < TABLE_22.length; i++) {
+    var maxS = TABLE_22[i][col];
+    var maxI = TABLE_22[i][2];
+    if (maxS !== null && dfu <= maxS && perInterval <= maxI) {
+      resultSize = TABLE_22[i][0]; resultMaxDFU = maxS; resultMaxInterval = maxI; break;
+    }
+  }
+  if (resultSize === 0) { resultSize = 375; resultMaxDFU = 'See Note'; resultMaxInterval = 'See Note'; }
+  var util = (typeof resultMaxDFU === 'number' && resultMaxDFU > 0) ? ((dfu / resultMaxDFU) * 100).toFixed(1) + '%' : '—';
+  var capUsed = (typeof resultMaxDFU === 'number' && resultMaxDFU > 0) ? (1/3 * 100).toFixed(0) + '%' : '—';
+  document.getElementById('sPipeSize').innerHTML = resultSize + ' <small>mm</small>';
+  document.getElementById('sMaxDFU').textContent = (typeof resultMaxDFU === 'number') ? resultMaxDFU.toLocaleString() : resultMaxDFU;
+  document.getElementById('sMaxInterval').textContent = (typeof resultMaxInterval === 'number') ? resultMaxInterval.toLocaleString() : resultMaxInterval;
+  document.getElementById('sUtilization').textContent = util;
+  document.getElementById('sCapacity').textContent = capUsed;
+  renderStackTable(dfu, col);
+}
+
+function renderStackTable(dfu, col) {
+  var tbl = document.getElementById('stackTableDisplay');
+  var rows = TABLE_22.map(function(r) {
+    var maxS = r[col];
+    var ok = (dfu > 0 && maxS !== null && dfu <= maxS);
+    return '<tr style="' + (ok ? 'background:#c8e6c9;font-weight:bold' : '') + '"><td>' + r[0] + '</td><td>' + r[1].toLocaleString() + '</td><td>' + r[2] + '</td><td>' + (r[3] ? r[3].toLocaleString() : '—') + '</td><td>' + (r[4] ? r[4].toLocaleString() : '—') + '</td><td>' + (ok ? '<span class="tag tag-ok">SELECTED</span>' : '') + '</td></tr>';
+  }).join('');
+  tbl.innerHTML = '<thead><tr style="background:var(--primary);color:#fff"><th>Dia (mm)</th><th>Branch Total</th><th>Per Interval</th><th>Stack ≤3 Int.</th><th>Stack >3 Int.</th><th></th></tr></thead><tbody>' + rows + '</tbody>';
+}
+
+// ============ PANEL 6: SLOPE & VELOCITY ============
+function calcVelocity() {
+  var diaSel = document.getElementById('vDiameter').value;
+  var slopeSel = document.getElementById('vSlope').value;
+  document.getElementById('customDiaGroup').style.display = (diaSel === 'custom') ? '' : 'none';
+  document.getElementById('customSlopeGroup').style.display = (slopeSel === 'custom') ? '' : 'none';
+  var dia, slope;
+  if (diaSel === 'custom') { dia = parseFloat(document.getElementById('vCustomDia').value) || 200; }
+  else { dia = parseFloat(diaSel); }
+  if (slopeSel === 'custom') { var N = parseFloat(document.getElementById('vCustomSlope').value) || 100; slope = 1 / N; }
+  else { slope = parseFloat(slopeSel); }
+  var n = 0.015;
+  var Dm = dia / 1000;
+  var R = Dm / 4;
+  var V = (1 / n) * Math.pow(R, 2/3) * Math.pow(slope, 0.5);
+  var A = Math.PI * Dm * Dm / 8;
+  var Q = V * A;
+  var Qmin = Q * 60;
+  var Qlpm = Q * 1000 * 60;
+  document.getElementById('vVelocity').innerHTML = V.toFixed(2) + ' <small>m/s</small>';
+  document.getElementById('vDischarge').textContent = Qmin.toFixed(3);
+  document.getElementById('vDischargeLPM').textContent = Qlpm.toFixed(0);
+  var cond, cleansing, cardClass = '';
+  if (V < 0.61) { cond = 'BELOW ABSOLUTE MINIMUM'; cleansing = 'NO — Will deposit solids'; cardClass = 'danger'; }
+  else if (V < 0.75) { cond = 'BELOW SELF-CLEANSING'; cleansing = 'Marginal — flushing required'; cardClass = 'warning'; }
+  else if (V <= 2.4) { cond = 'ACCEPTABLE'; cleansing = 'YES — Self-cleansing'; cardClass = ''; }
+  else if (V <= 3.0) { cond = 'EXCEEDS MAX — Use Cast Iron'; cleansing = 'YES (scouring risk)'; cardClass = 'warning'; }
+  else { cond = 'EXCEEDS MAX — Use Cast Iron'; cleansing = 'Excessive — erosion risk'; cardClass = 'danger'; }
+  document.getElementById('vResult').className = 'result-card' + (cardClass ? ' ' + cardClass : '');
+  document.getElementById('vCondition').textContent = cond;
+  document.getElementById('vCleansing').textContent = cleansing;
+  var warns = document.getElementById('vWarnings');
+  warns.innerHTML = '';
+  if (V < 0.61) warns.innerHTML += '<div class="alert alert-danger"><strong>Clause 4.5.3.5.2.3:</strong> Velocity ' + V.toFixed(2) + ' m/s is below absolute minimum of 0.61 m/s.</div>';
+  else if (V < 0.75) warns.innerHTML += '<div class="alert alert-warning"><strong>Clause 4.5.3.5.2.2:</strong> Velocity ' + V.toFixed(2) + ' m/s below self-cleansing 0.75 m/s. Provide flushing.</div>';
+  if (V > 2.4) warns.innerHTML += '<div class="alert alert-warning"><strong>Clause 4.5.3.5.2.4:</strong> Velocity ' + V.toFixed(2) + ' m/s exceeds max 2.4 m/s. Use cast iron pipes.</div>';
+  warns.innerHTML += '<div class="alert alert-info"><strong>Note:</strong> Using larger pipe at flatter gradient does NOT increase velocity — it reduces flow depth. Discouraged.</div>';
+}
+
+// ============ PANEL 7: MANHOLE ============
+function calcManhole() {
+  var depth = parseFloat(document.getElementById('mhDepth').value) || 0;
+  var pipeDia = parseInt(document.getElementById('mhPipeDia').value);
+  var shapePref = document.getElementById('mhShape').value;
+  var branches = parseInt(document.getElementById('mhBranches').value) || 0;
+  var shape, size, type;
+  if (shapePref === 'auto') {
+    if (depth < 0.90) { shape = 'Rectangular'; size = '900 × 800 mm'; type = 'rect'; }
+    else if (depth <= 2.5) { shape = 'Rectangular'; size = '1200 × 900 mm'; type = 'rect'; }
+    else { shape = 'Arch'; size = '1400 × 900 mm'; type = 'arch'; }
+  } else if (shapePref === 'rect') {
+    shape = 'Rectangular'; type = 'rect';
+    if (depth < 0.90) size = '900 × 800 mm';
+    else if (depth <= 2.5) size = '1200 × 900 mm';
+    else size = '1400 × 900 mm (consider arch type)';
+  } else if (shapePref === 'arch') {
+    shape = 'Arch'; type = 'arch'; size = '1400 × 900 mm';
+  } else {
+    shape = 'Circular'; type = 'circular';
+    if (depth > 0.90 && depth <= 1.65) size = '900 mm dia';
+    else if (depth > 1.65 && depth <= 2.30) size = '1200 mm dia';
+    else if (depth > 2.30 && depth <= 9.00) size = '1500 mm dia';
+    else if (depth > 9.00 && depth <= 14.00) size = '1800 mm dia';
+    else if (depth <= 0.90) size = '900 mm dia (or rect 900×800)';
+    else size = 'Consult Authority (>14m)';
+  }
+  if (depth <= 0.60 && type === 'rect') size += ' (or 600 × 600 mm for ≤ 0.60 m)';
+  var wall;
+  if (depth <= 2.25) wall = '200 mm (1 brick)';
+  else if (depth <= 3.0) wall = '300 mm (1.5 brick)';
+  else if (depth <= 5.0) wall = '400 mm (2 brick)';
+  else if (depth <= 9.0) wall = '500 mm (2.5 brick)';
+  else wall = '600 mm (3 brick)';
+  var bed;
+  if (depth <= 0.9) bed = '150 mm (min)';
+  else if (depth <= 2.5) bed = '200 mm (min)';
+  else bed = '300 mm (min)';
+  var spacing;
+  if (pipeDia <= 300) spacing = '45 m';
+  else if (pipeDia <= 500) spacing = '75 m';
+  else if (pipeDia <= 900) spacing = '90 m';
+  else spacing = 'As approved by Authority';
+  var cover = (depth > 0.90) ? '500 mm dia (min clear opening)' : 'Standard cover';
+  var rungs = (depth > 0.8) ? 'Yes (CI/PVC encapsulated)' : 'Not required';
+  document.getElementById('mhSize').textContent = shape + ' — ' + size;
+  document.getElementById('mhType').textContent = shape;
+  document.getElementById('mhWall').textContent = wall;
+  document.getElementById('mhBed').textContent = bed;
+  document.getElementById('mhSpacing').textContent = spacing;
+  document.getElementById('mhCover').textContent = cover;
+  document.getElementById('mhRungs').textContent = rungs;
+  var specRows = [
+    ['Bed Concrete', '1:4:8 (cement:sand:aggregate 40mm), ' + bed, '4.5.10.4.2'],
+    ['Brickwork', 'First class bricks, cement mortar 1:5, English Bond, wall ' + wall, '4.5.10.4.3'],
+    ['Plastering', '15mm min, cement mortar 1:3, neat cement finish, 75mm radius corners', '4.5.10.4.4'],
+    ['Channels & Benching', 'Semi-circular, CC 1:2:4, plastered 1:2, slope towards channel', '4.5.10.4.5'],
+    ['Rungs', rungs + ' — staggered 300mm apart, min 100mm projection', '4.5.10.4.6'],
+    ['Cover & Frame', cover, '4.5.10.4.7']
+  ];
+  if (branches > 1 || pipeDia > 450) {
+    specRows.push(['Width Adjustment', 'Increase width > 900mm for bends/junctions/pipes > 450mm (min 200mm benching each side)', '4.5.10.3.1 Note']);
+  }
+  document.getElementById('mhSpecBody').innerHTML = specRows.map(function(r) {
+    return '<tr><td>' + r[0] + '</td><td style="text-align:left">' + r[1] + '</td><td>' + r[2] + '</td></tr>';
+  }).join('');
+  var warns = document.getElementById('mhWarnings');
+  warns.innerHTML = '';
+  if (depth < 0.8) warns.innerHTML += '<div class="alert alert-danger"><strong>Clause 4.5.10.1:</strong> Minimum manhole depth = 800 mm. Current: ' + depth + ' m.</div>';
+  if (pipeDia < 200) warns.innerHTML += '<div class="alert alert-warning"><strong>Clause 4.5.10.3 Note 4:</strong> Minimum sewer pipe diameter = 200 mm. Current: ' + pipeDia + ' mm.</div>';
+  if (depth > 14) warns.innerHTML += '<div class="alert alert-warning"><strong>Clause 4.5.10.3.1:</strong> Depth exceeds 14.00 m — consult Authority.</div>';
+}
+
+// ============ MANHOLE-TO-MANHOLE INVERT LEVEL CALCULATOR ============
+function getManholeTypeByDepth(depth) {
+  if (depth < 0.90) return 'Rect 900x800 (or 600x600 if <=0.60m)';
+  else if (depth <= 2.5) return 'Rect 1200x900';
+  else return 'Arch 1400x900 (or Circular per depth)';
+}
+
+function getWallThicknessByDepth(depth) {
+  if (depth <= 2.25) return '200 mm';
+  else if (depth <= 3.0) return '300 mm';
+  else if (depth <= 5.0) return '400 mm';
+  else if (depth <= 9.0) return '500 mm';
+  else return '600 mm';
+}
+
+function getMaxSpacing(dia) {
+  if (dia <= 300) return 45;
+  else if (dia <= 500) return 75;
+  else if (dia <= 900) return 90;
+  else return -1; // authority approval
+}
+
+function calcInvert() {
+  var mh1IL = parseFloat(document.getElementById('ilMH1').value) || 0;
+  var gl1 = parseFloat(document.getElementById('glMH1').value) || 0;
+  var pipeDia = parseInt(document.getElementById('ilPipeDia').value);
+  var slopeSel = document.getElementById('ilSlope').value;
+  var distance = parseFloat(document.getElementById('ilDistance').value) || 0;
+  var gl2 = parseFloat(document.getElementById('glMH2').value) || 0;
+
+  // Show/hide custom slope input
+  document.getElementById('ilCustomSlopeGroup').style.display = (slopeSel === 'custom') ? '' : 'none';
+
+  // Determine slope
+  var slope, slopeLabel;
+  if (slopeSel === 'custom') {
+    var N = parseFloat(document.getElementById('ilCustomSlope').value) || 100;
+    slope = 1 / N;
+    slopeLabel = '1 in ' + N + ' (custom)';
+  } else {
+    slope = parseFloat(slopeSel);
+    var slopeMap = {'0.005':'1/200','0.01':'1/100','0.02':'1/50','0.04':'1/25'};
+    slopeLabel = slopeMap[slopeSel] || '—';
+  }
+
+  // Calculate fall and MH-2 invert
+  var fall = slope * distance; // in metres
+  var mh2IL = mh1IL - fall;
+
+  // Manning's formula for velocity (half-full pipe)
+  var n = 0.015;
+  var Dm = pipeDia / 1000;
+  var R = Dm / 4;
+  var V = (1 / n) * Math.pow(R, 2/3) * Math.pow(slope, 0.5);
+
+  // Code max spacing
+  var maxSpacing = getMaxSpacing(pipeDia);
+
+  // Spacing check
+  var spacingOK;
+  if (maxSpacing === -1) spacingOK = 'Authority approval needed';
+  else if (distance <= maxSpacing) spacingOK = 'PASS';
+  else spacingOK = 'FAIL — exceeds ' + maxSpacing + 'm';
+
+  // Drop manhole check (Clause 4.5.10.5)
+  // If level difference > 600mm, drop manhole required
+  var fallMM = fall * 1000;
+  var dropStatus, dropClass;
+  if (fallMM > 600) {
+    dropStatus = 'YES — vertical shaft required';
+    dropClass = 'warning';
+  } else {
+    dropStatus = 'NO — ramp in benching OK';
+    dropClass = '';
+  }
+
+  // Manhole depths (GL - invert level)
+  var mh1Depth = gl1 - mh1IL;
+  var mh2Depth = gl2 - mh2IL;
+
+  // Manhole types
+  var mh1Type = getManholeTypeByDepth(mh1Depth);
+  var mh2Type = getManholeTypeByDepth(mh2Depth);
+
+  // Update results
+  document.getElementById('ilMH2Invert').innerHTML = mh2IL.toFixed(3) + ' <small>m</small>';
+  document.getElementById('ilFall').textContent = fall.toFixed(3);
+  document.getElementById('ilFallMM').textContent = fallMM.toFixed(0) + ' mm';
+  document.getElementById('ilSlopeUsed').textContent = slopeLabel;
+  document.getElementById('ilVelocity').textContent = V.toFixed(2);
+  document.getElementById('ilMaxSpacing').textContent = (maxSpacing === -1) ? 'Authority' : maxSpacing + ' m';
+  document.getElementById('ilSpacingCheck').textContent = spacingOK;
+  document.getElementById('ilDropStatus').textContent = dropStatus;
+  document.getElementById('ilMH1Depth').textContent = mh1Depth.toFixed(3);
+  document.getElementById('ilMH2Depth').textContent = mh2Depth.toFixed(3);
+  document.getElementById('ilMH1Type').textContent = mh1Type;
+  document.getElementById('ilMH2Type').textContent = mh2Type;
+
+  // Color code the spacing check
+  var spacingEl = document.getElementById('ilSpacingCheck');
+  if (spacingOK.startsWith('FAIL')) spacingEl.style.color = 'var(--danger)';
+  else if (spacingOK.startsWith('PASS')) spacingEl.style.color = 'var(--success)';
+  else spacingEl.style.color = 'var(--warning)';
+
+  // Color code drop status
+  var dropEl = document.getElementById('ilDropStatus');
+  dropEl.style.color = (fallMM > 600) ? 'var(--warning)' : 'var(--success)';
+
+  // Warnings
+  var warns = document.getElementById('ilWarnings');
+  warns.innerHTML = '';
+  if (maxSpacing !== -1 && distance > maxSpacing) {
+    warns.innerHTML += '<div class="alert alert-danger"><strong>Clause 4.5.10.2:</strong> Distance ' + distance + ' m exceeds maximum spacing of ' + maxSpacing + ' m for ' + pipeDia + ' mm pipe. Add an intermediate manhole.</div>';
+  }
+  if (fallMM > 600) {
+    warns.innerHTML += '<div class="alert alert-warning"><strong>Clause 4.5.10.5 (Drop Manhole):</strong> Fall of ' + fallMM.toFixed(0) + ' mm exceeds 600 mm. A vertical shaft outside the manhole chamber is required.</div>';
+  }
+  if (V < 0.75 && V > 0) {
+    warns.innerHTML += '<div class="alert alert-warning"><strong>Clause 4.5.3.5.2.2:</strong> Velocity ' + V.toFixed(2) + ' m/s is below self-cleansing minimum of 0.75 m/s. Increase slope or reduce pipe size.</div>';
+  } else if (V < 0.61 && V > 0) {
+    warns.innerHTML += '<div class="alert alert-danger"><strong>Clause 4.5.3.5.2.3:</strong> Velocity ' + V.toFixed(2) + ' m/s is below absolute minimum of 0.61 m/s.</div>';
+  } else if (V > 2.4) {
+    warns.innerHTML += '<div class="alert alert-warning"><strong>Clause 4.5.3.5.2.4:</strong> Velocity ' + V.toFixed(2) + ' m/s exceeds maximum 2.4 m/s. Use cast iron pipes.</div>';
+  }
+  if (mh1Depth < 0.8) {
+    warns.innerHTML += '<div class="alert alert-danger"><strong>Clause 4.5.10.1:</strong> MH-1 depth ' + mh1Depth.toFixed(2) + ' m is below minimum 0.80 m.</div>';
+  }
+  if (mh2Depth < 0.8) {
+    warns.innerHTML += '<div class="alert alert-danger"><strong>Clause 4.5.10.1:</strong> MH-2 depth ' + mh2Depth.toFixed(2) + ' m is below minimum 0.80 m.</div>';
+  }
+
+  // Detail table
+  var detailRows = [
+    ['MH-1 Invert Level', mh1IL.toFixed(3) + ' m', 'User input'],
+    ['MH-2 Invert Level', mh2IL.toFixed(3) + ' m', 'MH1 IL − (slope × distance)'],
+    ['Fall (drop) between manholes', fall.toFixed(3) + ' m (' + fallMM.toFixed(0) + ' mm)', 'slope × distance'],
+    ['Slope / Gradient used', slopeLabel, 'S = Fall / Distance'],
+    ['Distance MH-1 to MH-2', distance.toFixed(2) + ' m', 'User input'],
+    ['Pipe diameter', pipeDia + ' mm', 'User input'],
+    ['Hydraulic radius (R)', R.toFixed(4) + ' m', 'R = D/4 (half-full)'],
+    ['Flow velocity (V)', V.toFixed(2) + ' m/s', 'V = (1/n) × R^(2/3) × S^(1/2), n=0.015'],
+    ['Code max spacing', (maxSpacing === -1 ? 'Authority' : maxSpacing + ' m'), 'Clause 4.5.10.2'],
+    ['Spacing compliance', spacingOK, distance + ' m vs ' + maxSpacing + ' m max'],
+    ['Drop manhole required', (fallMM > 600 ? 'YES' : 'NO'), 'Clause 4.5.10.5 (>600mm = drop)'],
+    ['MH-1 depth', mh1Depth.toFixed(3) + ' m', 'GL1 − IL1'],
+    ['MH-1 manhole type', mh1Type, 'Clause 4.5.10.3.1'],
+    ['MH-1 wall thickness', getWallThicknessByDepth(mh1Depth), 'Clause 4.5.10.4.3'],
+    ['MH-2 depth', mh2Depth.toFixed(3) + ' m', 'GL2 − IL2'],
+    ['MH-2 manhole type', mh2Type, 'Clause 4.5.10.3.1'],
+    ['MH-2 wall thickness', getWallThicknessByDepth(mh2Depth), 'Clause 4.5.10.4.3']
+  ];
+  document.getElementById('ilDetailBody').innerHTML = detailRows.map(function(r) {
+    return '<tr><td>' + r[0] + '</td><td style="font-weight:bold">' + r[1] + '</td><td style="font-size:.72rem;color:var(--text-muted)">' + r[2] + '</td></tr>';
+  }).join('');
+}
+
+// ============ MULTI-MANHOLE CHAIN CALCULATOR ============
+function calcChain() {
+  var startIL = parseFloat(document.getElementById('chainStartIL').value) || 0;
+  var startGL = parseFloat(document.getElementById('chainStartGL').value) || 0;
+  var pipeDia = parseInt(document.getElementById('chainPipeDia').value);
+  var slopeN = parseFloat(document.getElementById('chainSlopeN').value) || 100;
+  var distStr = document.getElementById('chainDistances').value;
+  var glStr = document.getElementById('chainGLs').value;
+
+  // Parse distances
+  var distances = distStr.split(',').map(function(s) { return parseFloat(s.trim()); }).filter(function(v) { return !isNaN(v) && v > 0; });
+  // Parse ground levels
+  var gls = glStr.split(',').map(function(s) { return parseFloat(s.trim()); }).filter(function(v) { return !isNaN(v); });
+
+  if (distances.length === 0) {
+    document.getElementById('chainResult').innerHTML = '<div class="alert alert-danger">Please enter at least one distance.</div>';
+    return;
+  }
+
+  var slope = 1 / slopeN;
+  var n = 0.015;
+  var Dm = pipeDia / 1000;
+  var R = Dm / 4;
+  var V = (1 / n) * Math.pow(R, 2/3) * Math.pow(slope, 0.5);
+  var maxSpacing = getMaxSpacing(pipeDia);
+
+  // Build chain
+  var mhCount = distances.length + 1; // start MH + each segment end
+  var chain = [];
+  var currentIL = startIL;
+  var currentGL = (gls.length > 0) ? gls[0] : startGL;
+  var cumulativeDist = 0;
+
+  // MH-0 (starting manhole)
+  var depth0 = currentGL - currentIL;
+  chain.push({
+    id: 'MH-1',
+    gl: currentGL,
+    il: currentIL,
+    depth: depth0,
+    segDist: 0,
+    cumDist: 0,
+    fall: 0,
+    fallMM: 0,
+    drop: false,
+    type: getManholeTypeByDepth(depth0),
+    wall: getWallThicknessByDepth(depth0)
+  });
+
+  for (var i = 0; i < distances.length; i++) {
+    var segDist = distances[i];
+    cumulativeDist += segDist;
+    var fall = slope * segDist;
+    var fallMM = fall * 1000;
+    var newIL = currentIL - fall;
+    var newGL = (gls.length > i + 1) ? gls[i + 1] : currentGL;
+    var depth = newGL - newIL;
+    chain.push({
+      id: 'MH-' + (i + 2),
+      gl: newGL,
+      il: newIL,
+      depth: depth,
+      segDist: segDist,
+      cumDist: cumulativeDist,
+      fall: fall,
+      fallMM: fallMM,
+      drop: fallMM > 600,
+      type: getManholeTypeByDepth(depth),
+      wall: getWallThicknessByDepth(depth)
+    });
+    currentIL = newIL;
+    currentGL = newGL;
+  }
+
+  // Build HTML table
+  var html = '<div style="overflow-x:auto"><table class="ref-table"><thead><tr style="background:var(--primary);color:#fff">';
+  html += '<th>Manhole</th><th>Ground Level (m)</th><th>Invert Level (m)</th><th>Depth (m)</th><th>Seg. Dist (m)</th><th>Cum. Dist (m)</th><th>Fall (mm)</th><th>Drop MH?</th><th>Spacing OK?</th><th>MH Type</th><th>Wall</th>';
+  html += '</tr></thead><tbody>';
+
+  chain.forEach(function(mh, idx) {
+    var spacingOK = '—';
+    var spacingColor = '';
+    if (idx > 0) {
+      if (maxSpacing === -1) { spacingOK = 'Authority'; spacingColor = 'color:var(--warning)'; }
+      else if (mh.segDist <= maxSpacing) { spacingOK = 'PASS'; spacingColor = 'color:var(--success)'; }
+      else { spacingOK = 'FAIL'; spacingColor = 'color:var(--danger)'; }
+    }
+    var dropLabel = mh.drop ? '<span style="color:var(--warning);font-weight:bold">YES</span>' : '<span style="color:var(--success)">No</span>';
+    var depthWarn = mh.depth < 0.8 ? ' style="color:var(--danger);font-weight:bold"' : '';
+
+    html += '<tr>';
+    html += '<td style="font-weight:bold">' + mh.id + '</td>';
+    html += '<td>' + mh.gl.toFixed(3) + '</td>';
+    html += '<td style="font-weight:bold">' + mh.il.toFixed(3) + '</td>';
+    html += '<td' + depthWarn + '>' + mh.depth.toFixed(3) + '</td>';
+    html += '<td>' + (idx === 0 ? '—' : mh.segDist.toFixed(2)) + '</td>';
+    html += '<td>' + mh.cumDist.toFixed(2) + '</td>';
+    html += '<td>' + (idx === 0 ? '—' : mh.fallMM.toFixed(0)) + '</td>';
+    html += '<td>' + (idx === 0 ? '—' : dropLabel) + '</td>';
+    html += '<td style="' + spacingColor + '">' + spacingOK + '</td>';
+    html += '<td style="font-size:.72rem">' + mh.type + '</td>';
+    html += '<td>' + mh.wall + '</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+
+  // Summary
+  var dropCount = chain.filter(function(mh) { return mh.drop; }).length;
+  var spacingFails = chain.filter(function(mh, idx) { return idx > 0 && maxSpacing !== -1 && mh.segDist > maxSpacing; }).length;
+  var depthFails = chain.filter(function(mh) { return mh.depth < 0.8; }).length;
+  var totalFall = (chain[0].il - chain[chain.length - 1].il) * 1000;
+
+  html += '<div class="result-card" style="margin-top:12px">';
+  html += '<div class="result-grid">';
+  html += '<div class="result-item"><div class="label">Total Manholes</div><div class="value">' + mhCount + '</div></div>';
+  html += '<div class="result-item"><div class="label">Total Chain Length</div><div class="value">' + cumulativeDist.toFixed(2) + ' m</div></div>';
+  html += '<div class="result-item"><div class="label">Total Fall</div><div class="value">' + totalFall.toFixed(0) + ' mm</div></div>';
+  html += '<div class="result-item"><div class="label">Velocity</div><div class="value">' + V.toFixed(2) + ' m/s</div></div>';
+  html += '<div class="result-item"><div class="label">Drop Manholes</div><div class="value">' + dropCount + '</div></div>';
+  html += '<div class="result-item"><div class="label">Spacing Violations</div><div class="value">' + spacingFails + '</div></div>';
+  html += '<div class="result-item"><div class="label">Depth Violations (<0.8m)</div><div class="value">' + depthFails + '</div></div>';
+  html += '<div class="result-item"><div class="label">Slope Used</div><div class="value">1 in ' + slopeN + '</div></div>';
+  html += '</div></div>';
+
+  // Warnings
+  var warns = '';
+  if (dropCount > 0) warns += '<div class="alert alert-warning"><strong>Clause 4.5.10.5:</strong> ' + dropCount + ' manhole(s) require drop manhole construction (fall > 600mm).</div>';
+  if (spacingFails > 0) warns += '<div class="alert alert-danger"><strong>Clause 4.5.10.2:</strong> ' + spacingFails + ' segment(s) exceed maximum spacing of ' + maxSpacing + ' m. Add intermediate manholes.</div>';
+  if (depthFails > 0) warns += '<div class="alert alert-danger"><strong>Clause 4.5.10.1:</strong> ' + depthFails + ' manhole(s) have depth below minimum 0.80 m.</div>';
+  if (V < 0.75) warns += '<div class="alert alert-warning"><strong>Clause 4.5.3.5.2.2:</strong> Velocity ' + V.toFixed(2) + ' m/s below self-cleansing 0.75 m/s.</div>';
+  else if (V > 2.4) warns += '<div class="alert alert-warning"><strong>Clause 4.5.3.5.2.4:</strong> Velocity ' + V.toFixed(2) + ' m/s exceeds max 2.4 m/s. Use cast iron.</div>';
+  if (warns === '') warns = '<div class="alert alert-success">All checks passed — no code violations detected.</div>';
+  html += warns;
+
+  document.getElementById('chainResult').innerHTML = html;
+}
+
+// ============ PANEL 8: STACK FORMULA ============
+function calcStackFormula() {
+  var Q = parseFloat(document.getElementById('sfQ').value) || 0;
+  var d = parseFloat(document.getElementById('sfD').value) || 100;
+  var Vt = 3.0 * Math.pow(Q / d, 0.4);
+  var Lt = 0.052 * Vt * Vt;
+  document.getElementById('sfVt').innerHTML = Vt.toFixed(2) + ' <small>m/s</small>';
+  document.getElementById('sfLt').innerHTML = Lt.toFixed(2) + ' <small>m</small>';
+}
+
+function calcStackCapacity() {
+  var D = parseFloat(document.getElementById('scD').value) || 100;
+  var rs = parseFloat(document.getElementById('scRs').value);
+  var Qgpm = 27.8 * Math.pow(rs, 5/3) * Math.pow(D / 25.4, 8/3);
+  var Q = Qgpm * 0.06309;
+  var QPM = Q * 60;
+  var design = Q / 3;
+  document.getElementById('scQ').innerHTML = Q.toFixed(2) + ' <small>L/s</small>';
+  document.getElementById('scQPM').textContent = QPM.toFixed(0);
+  document.getElementById('scDesign').innerHTML = design.toFixed(2) + ' <small>L/s</small>';
+}
+
+// ============ PANEL 9: REFERENCE TABLES ============
+function renderRefTables() {
+  document.getElementById('refTable20').innerHTML = '<thead><tr style="background:var(--primary);color:#fff"><th>#</th><th style="text-align:left">Fixture Type</th><th>Private</th><th>Public</th><th>Enhanced</th><th>Min Trap (mm)</th></tr></thead><tbody>' +
+    TABLE_20.map(function(f, i) {
+      return '<tr><td>' + (i + 1) + '</td><td style="text-align:left;font-weight:600">' + f.name + '</td><td>' + (f.priv || '—') + '</td><td>' + (f.pub || '—') + '</td><td>' + (f.enh || '—') + '</td><td>' + f.trap + '</td></tr>';
+    }).join('') + '</tbody>';
+  document.getElementById('refTable22').innerHTML = '<thead><tr style="background:var(--primary);color:#fff"><th>Dia (mm)</th><th>Branch Total</th><th>Per Interval</th><th>Stack ≤3 Int.</th><th>Stack >3 Int.</th></tr></thead><tbody>' +
+    TABLE_22.map(function(r) {
+      return '<tr><td>' + r[0] + '</td><td>' + r[1].toLocaleString() + '</td><td>' + r[2] + '</td><td>' + (r[3] ? r[3].toLocaleString() : '—') + '</td><td>' + (r[4] ? r[4].toLocaleString() : '—') + '</td></tr>';
+    }).join('') + '</tbody>';
+  document.getElementById('refTable23').innerHTML = '<thead><tr style="background:var(--primary);color:#fff"><th>Dia (mm)</th><th>Slope 1/200</th><th>Slope 1/100</th><th>Slope 1/50</th><th>Slope 1/25</th></tr></thead><tbody>' +
+    TABLE_23.map(function(r) {
+      var cv = function(v) { return (v !== null) ? v.toLocaleString() : '—'; };
+      return '<tr><td>' + r[0] + '</td><td>' + cv(r[1]) + '</td><td>' + cv(r[2]) + '</td><td>' + cv(r[3]) + '</td><td>' + cv(r[4]) + '</td></tr>';
+    }).join('') + '</tbody>';
+  document.getElementById('refTable24').innerHTML = '<thead><tr style="background:var(--primary);color:#fff"><th>Dia (mm)</th><th>Min Gradient (0.75m/s)</th><th>Disch. (m³/min)</th><th>Max Gradient (2.4m/s)</th><th>Disch. (m³/min)</th></tr></thead><tbody>' +
+    TABLE_24.map(function(r) {
+      return '<tr><td>' + r[0] + '</td><td>1 in ' + r[1] + '</td><td>' + r[2] + '</td><td>1 in ' + r[3] + '</td><td>' + r[4] + '</td></tr>';
+    }).join('') + '</tbody>';
+}
+
+// ============ EXPORT HELPERS ============
+function setLoading(on) {
+  var el = document.getElementById('exportLoading');
+  if (el) el.classList.toggle('active', on);
+}
+
+function safeFilename() {
+  var n = (document.getElementById('projName') && document.getElementById('projName').value) || 'NBCS_2026_Drainage';
+  return n.replace(/[^a-zA-Z0-9_\-]/g, '_').substring(0, 50) || 'NBCS_2026_Drainage';
+}
+
+function gatherReportData() {
+  function gv(id) { var el = document.getElementById(id); return el ? el.textContent.replace(/\s+/g, ' ').trim() : '—'; }
+  function gval(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+  function gsel(id) { var el = document.getElementById(id); return (el && el.selectedIndex >= 0) ? el.options[el.selectedIndex].text : '—'; }
+  return {
+    projName: gval('projName') || 'Drainage Project',
+    projLoc: gval('projLoc') || '—',
+    projEng: gval('projEng') || '—',
+    projDate: gval('projDate') || new Date().toISOString().split('T')[0],
+    projType: gsel('projType'),
+    flushType: gsel('flushType'),
+    numFloors: gval('numFloors') || '1',
+    totalDFU: gv('totalDFU'),
+    totalFixtures: gv('totalFixtures'),
+    wcCount: gv('wcCount'),
+    minDrainSize: gv('minDrainSize'),
+    demandLPM: gv('demandLPM'),
+    demandLPS: gv('demandLPS'),
+    demandMax: gv('demandMax'),
+    demandAvg: gv('demandAvg'),
+    hPipeSize: gv('hPipeSize'),
+    hSlopeDisplay: gv('hSlopeDisplay'),
+    hMaxDFU: gv('hMaxDFU'),
+    hTable: gv('hTable'),
+    sPipeSize: gv('sPipeSize'),
+    sMaxDFU: gv('sMaxDFU'),
+    vVelocity: gv('vVelocity'),
+    vDischarge: gv('vDischarge'),
+    vCondition: gv('vCondition'),
+    mhSize: gv('mhSize'),
+    mhWall: gv('mhWall'),
+    mhBed: gv('mhBed'),
+    mhSpacing: gv('mhSpacing'),
+    sfVt: gv('sfVt'),
+    sfLt: gv('sfLt'),
+    scQ: gv('scQ')
+  };
+}
+
+function gatherFixtureRows() {
+  var rows = [];
+  if (typeof fixtureRows === 'undefined') return rows;
+  fixtureRows.forEach(function(r, i) {
+    if (!r) return;
+    var name, dfu, trap;
+    if (r.tableIdx >= 0) {
+      var f = TABLE_20[r.tableIdx];
+      name = f.name; dfu = getDFU(f, r.app); trap = f.trap + ' mm';
+    } else {
+      trap = (r.customTrap || 32) + ' mm';
+      dfu = TABLE_21[r.customTrap || 32] || 1;
+      name = 'Custom (Table 21)';
+    }
+    var totalEl = document.getElementById('ftotal-' + i);
+    var total = totalEl ? totalEl.textContent : (dfu * r.qty);
+    rows.push({name: name, app: r.app, qty: r.qty, dfu: dfu, trap: trap, total: total});
+  });
+  return rows;
+}
+
+// ============ PDF EXPORT ============
+function exportPDF() {
+  try {
+    setLoading(true);
+    var D = gatherReportData();
+    var fixtures = gatherFixtureRows();
+    var doc = new jsPDF('p', 'mm', 'a4');
+    var margin = 14, pageW = 210, contentW = pageW - 2 * margin;
+    var y = 16;
+    doc.setFillColor(13, 71, 161);
+    doc.rect(0, 0, pageW, 28, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NBCS 2026 - Drainage System Design Report', margin, 12);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Part E - Plumbing Services, Section 2 - Drainage and Sanitation', margin, 18);
+    doc.text('Generated: ' + new Date().toLocaleString(), margin, 24);
+    y = 36;
+
+    // Section 1: Project Info
+    doc.setTextColor(13, 71, 161);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('1. Project Information', margin, y);
+    y += 6;
+    doc.autoTable({
+      startY: y, theme: 'grid',
+      headStyles: {fillColor: [13, 71, 161], fontSize: 8},
+      bodyStyles: {fontSize: 8},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Field', 'Value']],
+      body: [
+        ['Project Name', D.projName], ['Location', D.projLoc], ['Designed By', D.projEng],
+        ['Date', D.projDate], ['Building/Utility Type', D.projType],
+        ['Flush System', D.flushType], ['Number of Floors', D.numFloors]
+      ]
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Section 2: Internal DFU
+    doc.setFontSize(11);
+    doc.text('2. Internal DFU Calculation (Table 20 & 21)', margin, y);
+    y += 5;
+    if (fixtures.length > 0) {
+      doc.autoTable({
+        startY: y, theme: 'striped',
+        headStyles: {fillColor: [0, 105, 92], fontSize: 8},
+        bodyStyles: {fontSize: 8},
+        margin: {left: margin, right: margin},
+        tableWidth: contentW,
+        head: [['#', 'Fixture Type', 'Application', 'Qty', 'DFU/Unit', 'Trap', 'Total DFU']],
+        body: fixtures.map(function(f, i) { return [i + 1, f.name, f.app, f.qty, f.dfu, f.trap, f.total]; }),
+        foot: [['', '', '', '', '', 'TOTAL:', D.totalDFU]],
+        footStyles: {fillColor: [13, 71, 161], fontSize: 9, textColor: [255, 255, 255]}
+      });
+      y = doc.lastAutoTable.finalY + 4;
+    }
+    doc.autoTable({
+      startY: y, theme: 'grid',
+      headStyles: {fillColor: [46, 125, 50], fontSize: 8},
+      bodyStyles: {fontSize: 8},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Total Fixtures', 'Total DFU', 'WC Count', 'Min Drain Size']],
+      body: [[D.totalFixtures, D.totalDFU, D.wcCount, D.minDrainSize]]
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Section 3: Probable Demand
+    if (y > 250) { doc.addPage(); y = 16; }
+    doc.setFontSize(11);
+    doc.setTextColor(13, 71, 161);
+    doc.text('3. Probable Demand (Fig. 6)', margin, y);
+    y += 5;
+    doc.autoTable({
+      startY: y, theme: 'grid',
+      headStyles: {fillColor: [2, 119, 189], fontSize: 8},
+      bodyStyles: {fontSize: 8},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Peak Demand (LPM)', 'Demand (L/s)', 'Max Discharge (3x avg)', 'Avg Flow']],
+      body: [[D.demandLPM, D.demandLPS, D.demandMax, D.demandAvg]]
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Section 4: Horizontal Pipe
+    if (y > 230) { doc.addPage(); y = 16; }
+    doc.setFontSize(11);
+    doc.text('4. Horizontal Pipe Sizing', margin, y);
+    y += 5;
+    doc.autoTable({
+      startY: y, theme: 'grid',
+      headStyles: {fillColor: [0, 105, 92], fontSize: 8},
+      bodyStyles: {fontSize: 8},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Recommended Pipe Size', 'Slope', 'Max DFU', 'Code Table']],
+      body: [[D.hPipeSize, D.hSlopeDisplay, D.hMaxDFU, D.hTable]]
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Section 5: Stack Sizing
+    doc.setFontSize(11);
+    doc.text('5. Stack Sizing (Table 22)', margin, y);
+    y += 5;
+    doc.autoTable({
+      startY: y, theme: 'grid',
+      headStyles: {fillColor: [0, 105, 92], fontSize: 8},
+      bodyStyles: {fontSize: 8},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Recommended Stack Dia', 'Max DFU (Stack Total)']],
+      body: [[D.sPipeSize, D.sMaxDFU]]
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Section 6: Slope & Velocity
+    if (y > 230) { doc.addPage(); y = 16; }
+    doc.setFontSize(11);
+    doc.text('6. Slope & Velocity (Manning n=0.015)', margin, y);
+    y += 5;
+    doc.autoTable({
+      startY: y, theme: 'grid',
+      headStyles: {fillColor: [230, 81, 0], fontSize: 8},
+      bodyStyles: {fontSize: 8},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Velocity (m/s)', 'Discharge (m3/min)', 'Flow Condition']],
+      body: [[D.vVelocity, D.vDischarge, D.vCondition]]
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Section 7: Manhole
+    doc.setFontSize(11);
+    doc.text('7. Manhole Design (Clause 4.5.10)', margin, y);
+    y += 5;
+    doc.autoTable({
+      startY: y, theme: 'grid',
+      headStyles: {fillColor: [0, 105, 92], fontSize: 8},
+      bodyStyles: {fontSize: 8},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Manhole Size/Type', 'Wall Thickness', 'Bed Concrete', 'Max Spacing']],
+      body: [[D.mhSize, D.mhWall, D.mhBed, D.mhSpacing]]
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Section 8: Stack Formula
+    if (y > 220) { doc.addPage(); y = 16; }
+    doc.setFontSize(11);
+    doc.text('8. Stack Flow Calculations', margin, y);
+    y += 5;
+    doc.autoTable({
+      startY: y, theme: 'grid',
+      headStyles: {fillColor: [2, 119, 189], fontSize: 8},
+      bodyStyles: {fontSize: 8},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Terminal Velocity (Vt)', 'Terminal Length (Lt)', 'Stack Capacity (Q)']],
+      body: [[D.sfVt, D.sfLt, D.scQ]]
+    });
+    y = doc.lastAutoTable.finalY + 8;
+
+    // Appendix: Table 20
+    if (y > 200) { doc.addPage(); y = 16; }
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Appendix: Table 20 - DFU Values', margin, y);
+    y += 4;
+    doc.autoTable({
+      startY: y, theme: 'striped',
+      headStyles: {fillColor: [13, 71, 161], fontSize: 7},
+      bodyStyles: {fontSize: 7},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['#', 'Fixture Type', 'Private', 'Public', 'Enhanced', 'Trap (mm)']],
+      body: TABLE_20.map(function(f, i) { return [i + 1, f.name, f.priv || '—', f.pub || '—', f.enh || '—', f.trap]; })
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Appendix: Table 22
+    if (y > 200) { doc.addPage(); y = 16; }
+    doc.setFontSize(10);
+    doc.text('Appendix: Table 22 - Branches & Stacks', margin, y);
+    y += 4;
+    doc.autoTable({
+      startY: y, theme: 'striped',
+      headStyles: {fillColor: [13, 71, 161], fontSize: 7},
+      bodyStyles: {fontSize: 7},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Dia (mm)', 'Branch Total', 'Per Interval', 'Stack <=3', 'Stack >3']],
+      body: TABLE_22.map(function(r) { return [r[0], r[1], r[2], r[3] || '—', r[4] || '—']; })
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Appendix: Table 23
+    if (y > 200) { doc.addPage(); y = 16; }
+    doc.setFontSize(10);
+    doc.text('Appendix: Table 23 - Building Drains & Sewers', margin, y);
+    y += 4;
+    doc.autoTable({
+      startY: y, theme: 'striped',
+      headStyles: {fillColor: [13, 71, 161], fontSize: 7},
+      bodyStyles: {fontSize: 7},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Dia (mm)', '1/200', '1/100', '1/50', '1/25']],
+      body: TABLE_23.map(function(r) { return [r[0], r[1] === null ? '—' : r[1], r[2] === null ? '—' : r[2], r[3] === null ? '—' : r[3], r[4] === null ? '—' : r[4]]; })
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Appendix: Table 24
+    if (y > 200) { doc.addPage(); y = 16; }
+    doc.setFontSize(10);
+    doc.text('Appendix: Table 24 - Velocity & Discharge', margin, y);
+    y += 4;
+    doc.autoTable({
+      startY: y, theme: 'striped',
+      headStyles: {fillColor: [13, 71, 161], fontSize: 7},
+      bodyStyles: {fontSize: 7},
+      margin: {left: margin, right: margin},
+      tableWidth: contentW,
+      head: [['Dia (mm)', 'Min Gradient', 'Disch (m3/min)', 'Max Gradient', 'Disch (m3/min)']],
+      body: TABLE_24.map(function(r) { return [r[0], '1 in ' + r[1], r[2], '1 in ' + r[3], r[4]]; })
+    });
+
+    // Footer on every page
+    var pageCount = doc.internal.getNumberOfPages();
+    for (var p = 1; p <= pageCount; p++) {
+      doc.setPage(p);
+      doc.setFontSize(7);
+      doc.setTextColor(120, 120, 120);
+      doc.text('NBCS 2026 Drainage Calculator - Page ' + p + ' of ' + pageCount, margin, 290);
+    }
+    doc.save(safeFilename() + '.pdf');
+    setLoading(false);
+  } catch (e) {
+    setLoading(false);
+    console.error('PDF export error:', e);
+    alert('PDF export error: ' + e.message + '\n\nFalling back to Print. You can save as PDF from the print dialog.');
+    window.print();
+  }
+}
+
+// ============ WORD EXPORT ============
+function exportWord() {
+  try {
+    setLoading(true);
+    var D = gatherReportData();
+    var fixtures = gatherFixtureRows();
+    var h = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>NBCS 2026 Drainage Report</title>';
+    h += '<style>body{font-family:Calibri,sans-serif;font-size:11pt;line-height:1.5}h1{color:#0d47a1;font-size:18pt;border-bottom:3px solid #0d47a1}h2{color:#0d47a1;font-size:13pt;margin-top:18px;border-bottom:1px solid #ccc}table{border-collapse:collapse;width:100%;margin:8px 0;font-size:10pt}th{background:#0d47a1;color:#fff;padding:6px;border:1px solid #0d47a1}td{padding:5px;border:1px solid #ccc}.note{background:#fff3e0;border-left:4px solid #e65100;padding:8px;margin:8px 0;font-size:9pt}</style>';
+    h += '</head><body>';
+    h += '<h1>NBCS 2026 - Drainage System Design Report</h1>';
+    h += '<p style="color:#546e7a;font-size:9pt">Part E, Section 2 - Drainage and Sanitation (Clauses 4.5.3.5-4.5.10)<br>Generated: ' + new Date().toLocaleString() + '</p>';
+
+    h += '<h2>1. Project Information</h2><table><tr><th>Field</th><th>Value</th></tr>';
+    h += '<tr><td>Project Name</td><td>' + D.projName + '</td></tr>';
+    h += '<tr><td>Location</td><td>' + D.projLoc + '</td></tr>';
+    h += '<tr><td>Designed By</td><td>' + D.projEng + '</td></tr>';
+    h += '<tr><td>Date</td><td>' + D.projDate + '</td></tr>';
+    h += '<tr><td>Utility Type</td><td>' + D.projType + '</td></tr>';
+    h += '<tr><td>Flush System</td><td>' + D.flushType + '</td></tr>';
+    h += '<tr><td>Floors</td><td>' + D.numFloors + '</td></tr></table>';
+
+    h += '<h2>2. Internal DFU Calculation</h2>';
+    if (fixtures.length > 0) {
+      h += '<table><tr><th>#</th><th>Fixture</th><th>App</th><th>Qty</th><th>DFU</th><th>Trap</th><th>Total</th></tr>';
+      fixtures.forEach(function(f, i) {
+        h += '<tr><td>' + (i + 1) + '</td><td>' + f.name + '</td><td>' + f.app + '</td><td>' + f.qty + '</td><td>' + f.dfu + '</td><td>' + f.trap + '</td><td><b>' + f.total + '</b></td></tr>';
+      });
+      h += '</table>';
+    }
+    h += '<table><tr><th>Total Fixtures</th><th>Total DFU</th><th>WC Count</th><th>Min Drain</th></tr><tr><td><b>' + D.totalFixtures + '</b></td><td><b>' + D.totalDFU + '</b></td><td><b>' + D.wcCount + '</b></td><td><b>' + D.minDrainSize + '</b></td></tr></table>';
+
+    h += '<h2>3. Probable Demand</h2><table><tr><th>Peak (LPM)</th><th>L/s</th><th>Max (3x)</th><th>Avg</th></tr><tr><td><b>' + D.demandLPM + '</b></td><td>' + D.demandLPS + '</td><td>' + D.demandMax + '</td><td>' + D.demandAvg + '</td></tr></table>';
+    h += '<div class="note"><b>Clause 4.5.3.5.1(b):</b> Max discharge = 3x average. Avg = 3 LPM per 10 persons.</div>';
+
+    h += '<h2>4. Horizontal Pipe Sizing</h2><table><tr><th>Pipe Size</th><th>Slope</th><th>Max DFU</th><th>Table</th></tr><tr><td><b>' + D.hPipeSize + '</b></td><td>' + D.hSlopeDisplay + '</td><td>' + D.hMaxDFU + '</td><td>' + D.hTable + '</td></tr></table>';
+    h += '<h2>5. Stack Sizing</h2><table><tr><th>Stack Dia</th><th>Max DFU</th></tr><tr><td><b>' + D.sPipeSize + '</b></td><td>' + D.sMaxDFU + '</td></tr></table>';
+    h += '<h2>6. Slope & Velocity</h2><table><tr><th>Velocity</th><th>Discharge</th><th>Condition</th></tr><tr><td><b>' + D.vVelocity + '</b></td><td>' + D.vDischarge + '</td><td>' + D.vCondition + '</td></tr></table>';
+    h += '<div class="note">Manning n=0.015. Min 0.75 m/s, max 2.4 m/s.</div>';
+    h += '<h2>7. Manhole Design</h2><table><tr><th>Size/Type</th><th>Wall</th><th>Bed Concrete</th><th>Spacing</th></tr><tr><td><b>' + D.mhSize + '</b></td><td>' + D.mhWall + '</td><td>' + D.mhBed + '</td><td>' + D.mhSpacing + '</td></tr></table>';
+    h += '<h2>8. Stack Flow</h2><table><tr><th>Vt</th><th>Lt</th><th>Capacity (Q)</th></tr><tr><td><b>' + D.sfVt + '</b></td><td>' + D.sfLt + '</td><td>' + D.scQ + '</td></tr></table>';
+
+    h += '<h2>Appendix A: Table 20</h2><table><tr><th>#</th><th>Fixture</th><th>Priv</th><th>Pub</th><th>Enh</th><th>Trap</th></tr>';
+    TABLE_20.forEach(function(f, i) { h += '<tr><td>' + (i+1) + '</td><td>' + f.name + '</td><td>' + (f.priv||'—') + '</td><td>' + (f.pub||'—') + '</td><td>' + (f.enh||'—') + '</td><td>' + f.trap + '</td></tr>'; });
+    h += '</table>';
+    h += '<h2>Appendix B: Table 22</h2><table><tr><th>Dia</th><th>Branch</th><th>Interval</th><th>Stk<=3</th><th>Stk>3</th></tr>';
+    TABLE_22.forEach(function(r) { h += '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + (r[3]||'—') + '</td><td>' + (r[4]||'—') + '</td></tr>'; });
+    h += '</table>';
+    h += '<h2>Appendix C: Table 23</h2><table><tr><th>Dia</th><th>1/200</th><th>1/100</th><th>1/50</th><th>1/25</th></tr>';
+    TABLE_23.forEach(function(r) { var cv = function(v){return v===null?'—':v;}; h += '<tr><td>' + r[0] + '</td><td>' + cv(r[1]) + '</td><td>' + cv(r[2]) + '</td><td>' + cv(r[3]) + '</td><td>' + cv(r[4]) + '</td></tr>'; });
+    h += '</table>';
+    h += '<h2>Appendix D: Table 24</h2><table><tr><th>Dia</th><th>Min Grad</th><th>Disch</th><th>Max grad</th><th>Disch</th></tr>';
+    TABLE_24.forEach(function(r) { h += '<tr><td>' + r[0] + '</td><td>1 in ' + r[1] + '</td><td>' + r[2] + '</td><td>1 in ' + r[3] + '</td><td>' + r[4] + '</td></tr>'; });
+    h += '</table>';
+    h += '</body></html>';
+
+    var blob = htmlDocx.asBlob(h);
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = safeFilename() + '.docx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setLoading(false);
+  } catch (e) {
+    setLoading(false);
+    console.error('Word export error:', e);
+    alert('Word export error: ' + e.message);
+  }
+}
+
+// ============ EXCEL EXPORT ============
+function exportExcel() {
+  try {
+    setLoading(true);
+    var D = gatherReportData();
+    var fixtures = gatherFixtureRows();
+    var wb = XLSX.utils.book_new();
+
+    var summaryData = [
+      ['NBCS 2026 - Drainage System Design Report'],
+      ['Part E, Section 2 - Drainage and Sanitation'],
+      ['Generated: ' + new Date().toLocaleString()],
+      [],
+      ['PROJECT INFORMATION'],
+      ['Project Name', D.projName], ['Location', D.projLoc], ['Designed By', D.projEng],
+      ['Date', D.projDate], ['Utility Type', D.projType], ['Flush System', D.flushType],
+      ['Floors', D.numFloors], [],
+      ['INTERNAL DFU CALCULATION'],
+      ['Total Fixtures', D.totalFixtures], ['Total DFU', D.totalDFU],
+      ['WC Count', D.wcCount], ['Min Drain Size', D.minDrainSize], [],
+      ['PROBABLE DEMAND'],
+      ['Peak Demand (LPM)', D.demandLPM], ['Demand (L/s)', D.demandLPS],
+      ['Max Discharge', D.demandMax], ['Avg Flow', D.demandAvg], [],
+      ['HORIZONTAL PIPE SIZING'],
+      ['Pipe Size', D.hPipeSize], ['Slope', D.hSlopeDisplay], ['Max DFU', D.hMaxDFU], ['Table', D.hTable], [],
+      ['STACK SIZING'],
+      ['Stack Diameter', D.sPipeSize], ['Max DFU', D.sMaxDFU], [],
+      ['SLOPE & VELOCITY'],
+      ['Velocity', D.vVelocity], ['Discharge', D.vDischarge], ['Condition', D.vCondition], [],
+      ['MANHOLE DESIGN'],
+      ['Size/Type', D.mhSize], ['Wall Thickness', D.mhWall], ['Bed Concrete', D.mhBed], ['Spacing', D.mhSpacing], [],
+      ['STACK FLOW'],
+      ['Terminal Velocity', D.sfVt], ['Terminal Length', D.sfLt], ['Capacity', D.scQ]
+    ];
+    var ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+    ws1['!cols'] = [{wch: 30}, {wch: 45}];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
+
+    var fixData = [['#', 'Fixture Type', 'Application', 'Qty', 'DFU/Unit', 'Trap', 'Total DFU']];
+    fixtures.forEach(function(f, i) { fixData.push([i + 1, f.name, f.app, f.qty, f.dfu, f.trap, f.total]); });
+    fixData.push([]); fixData.push(['', '', '', '', '', 'TOTAL:', D.totalDFU]);
+    var ws2 = XLSX.utils.aoa_to_sheet(fixData);
+    ws2['!cols'] = [{wch: 5}, {wch: 35}, {wch: 12}, {wch: 10}, {wch: 12}, {wch: 14}, {wch: 12}];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Internal DFU');
+
+    var t20 = [['#', 'Fixture', 'Private', 'Public', 'Enhanced', 'Trap (mm)']];
+    TABLE_20.forEach(function(f, i) { t20.push([i + 1, f.name, f.priv || '—', f.pub || '—', f.enh || '—', f.trap]); });
+    var ws3 = XLSX.utils.aoa_to_sheet(t20);
+    ws3['!cols'] = [{wch: 5}, {wch: 35}, {wch: 10}, {wch: 10}, {wch: 10}, {wch: 14}];
+    XLSX.utils.book_append_sheet(wb, ws3, 'Table 20');
+
+    var t22 = [['Dia (mm)', 'Branch Total', 'Per Interval', 'Stack <=3', 'Stack >3']];
+    TABLE_22.forEach(function(r) { t22.push([r[0], r[1], r[2], r[3] || '—', r[4] || '—']); });
+    var ws5 = XLSX.utils.aoa_to_sheet(t22);
+    ws5['!cols'] = [{wch: 12}, {wch: 14}, {wch: 14}, {wch: 14}, {wch: 14}];
+    XLSX.utils.book_append_sheet(wb, ws5, 'Table 22');
+
+    var t23 = [['Dia (mm)', '1/200', '1/100', '1/50', '1/25']];
+    TABLE_23.forEach(function(r) { var cv = function(v){return v===null?'—':v;}; t23.push([r[0], cv(r[1]), cv(r[2]), cv(r[3]), cv(r[4])]); });
+    var ws6 = XLSX.utils.aoa_to_sheet(t23);
+    ws6['!cols'] = [{wch: 12}, {wch: 14}, {wch: 14}, {wch: 14}, {wch: 14}];
+    XLSX.utils.book_append_sheet(wb, ws6, 'Table 23');
+
+    var t24 = [['Dia (mm)', 'Min Gradient', 'Disch (m3/min)', 'Max Gradient', 'Disch (m3/min)']];
+    TABLE_24.forEach(function(r) { t24.push([r[0], '1 in ' + r[1], r[2], '1 in ' + r[3], r[4]]); });
+    var ws7 = XLSX.utils.aoa_to_sheet(t24);
+    ws7['!cols'] = [{wch: 12}, {wch: 18}, {wch: 16}, {wch: 18}, {wch: 16}];
+    XLSX.utils.book_append_sheet(wb, ws7, 'Table 24');
+
+    var mhData = [
+      ['MANHOLE SIZES'], ['Type', 'Depth', 'Size'],
+      ['Rectangular', '< 0.90 m', '900x800 mm (or 600x600)'],
+      ['Rectangular', '0.90-2.50 m', '1200x900 mm'],
+      ['Arch', '>= 2.50 m', '1400x900 mm'],
+      ['Circular', '0.90-1.65 m', '900 mm dia'],
+      ['Circular', '1.65-2.30 m', '1200 mm dia'],
+      ['Circular', '2.30-9.00 m', '1500 mm dia'],
+      ['Circular', '9.00-14.00 m', '1800 mm dia'],
+      [], ['SPACING'], ['Pipe Dia', 'Max Spacing'],
+      ['Up to 300', '45 m'], ['301-500', '75 m'], ['501-900', '90 m'],
+      [], ['WALL THICKNESS'], ['Depth', 'Thickness', 'Brick'],
+      ['Up to 2.25 m', '200 mm', '1 brick'],
+      ['2.25-3.00 m', '300 mm', '1.5 brick'],
+      ['3.00-5.00 m', '400 mm', '2 brick'],
+      ['5.00-9.00 m', '500 mm', '2.5 brick'],
+      ['Above 9.00 m', '600 mm', '3 brick']
+    ];
+    var ws8 = XLSX.utils.aoa_to_sheet(mhData);
+    ws8['!cols'] = [{wch: 20}, {wch: 25}, {wch: 30}];
+    XLSX.utils.book_append_sheet(wb, ws8, 'Manhole Ref');
+
+    XLSX.writeFile(wb, safeFilename() + '.xlsx');
+    setLoading(false);
+  } catch (e) {
+    setLoading(false);
+    console.error('Excel export error:', e);
+    alert('Excel export error: ' + e.message);
+  }
+}
+
+// ============ PRINT EXPORT ============
+function exportPrint() {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.add('active'); });
+  window.print();
+  setTimeout(function() {
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    var fp = document.getElementById('panel-project');
+    if (fp) fp.classList.add('active');
+  }, 500);
+}
+
+// ============ INITIALIZATION ============
+window.addEventListener('DOMContentLoaded', function() {
+  setUtilityType();
+  initFixtures();
+  calcDemand();
+  calcHorizontal();
+  calcStack();
+  calcVelocity();
+  calcManhole();
+  calcInvert();
+  calcStackFormula();
+  calcStackCapacity();
+  renderRefTables();
+});
+</script>
+</body>
+</html>

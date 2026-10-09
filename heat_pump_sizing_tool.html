@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heat Pump Sizing Tool | Hospital · Hotel · Hostel · School · Airport · Railway · Residential</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/heat_pump_sizing_tool.css">
+
+<script src="assets/vendor/chart.umd.min.js"></script>
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+<div class="container-1400">
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+</div>
+
+
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <h1>⚡ Heat Pump Sizing & kW Calculator</h1>
+    <div class="sub">Engineering-grade thermal & electrical sizing · ASHRAE/ISHRAE method · 7 building types</div>
+  </div>
+</header>
+
+<!-- BUILDING TYPE TABS -->
+<div class="tabbar" id="tabbar"></div>
+
+<div class="grid">
+  <!-- ============ LEFT: INPUTS ============ -->
+  <div class="panel">
+    <h2>① Project & Building Inputs</h2>
+
+    <div class="field">
+      <label>Building Type</label>
+      <select id="btype" onchange="loadDefaults()"></select>
+    </div>
+
+    <div class="field">
+      <label>Project Name</label>
+      <input id="pname" value="My Project" oninput="recalc()">
+    </div>
+
+    <div class="field">
+      <label>City / Climate Zone</label>
+      <select id="climate" onchange="loadClimate()"></select>
+    </div>
+
+    <div class="field">
+      <label>Built-up / Carpet Area</label>
+      <div class="row"><input id="area" type="number" value="5000" oninput="recalc()"><span class="unit">m²</span></div>
+      <div class="hint">Total conditioned floor area.</div>
+    </div>
+
+    <div class="field">
+      <label>Floors (above grade)</label>
+      <div class="row"><input id="floors" type="number" value="1" min="1" oninput="recalc()"><span class="unit">nos</span></div>
+      <div class="hint">Used to derive footprint & exposed wall area. Roof load applies to top floor.</div>
+    </div>
+
+    <div class="field">
+      <label>Occupancy Density</label>
+      <div class="row"><input id="occ_density" type="number" value="25" oninput="recalc()"><span class="unit">m²/person</span></div>
+      <div class="hint">Lower = denser. Hospital≈25, Hotel≈30, School≈4, Airport≈10.</div>
+    </div>
+
+    <div class="field">
+      <label>People (auto = Area ÷ Density)</label>
+      <input id="occ_disp" type="number" disabled>
+    </div>
+
+    <div class="section-title">② Domestic Hot Water (DHW)</div>
+    <div class="field">
+      <label>DHW Demand per Person</label>
+      <div class="row"><input id="dhw_lpd" type="number" value="120" oninput="recalc()"><span class="unit">L/person/day</span></div>
+    </div>
+    <div class="field">
+      <label>Recovery (Peak Draw-off) Period</label>
+      <div class="row"><input id="dhw_rec_h" type="number" value="2" step="0.5" oninput="recalc()"><span class="unit">hours</span></div>
+      <div class="hint">Critical. Shorter recovery ⇒ much higher peak kW. Hospital≈2h, Hotel≈4h, Airport≈6h.</div>
+    </div>
+    <div class="field">
+      <label>Hot Water Temp</label>
+      <div class="row"><input id="dhw_t_hot" type="number" value="60" oninput="recalc()"><span class="unit">°C</span></div>
+    </div>
+    <div class="field">
+      <label>Cold Mains Temp</label>
+      <div class="row"><input id="dhw_t_cold" type="number" value="15" oninput="recalc()"><span class="unit">°C</span></div>
+    </div>
+
+    <div class="section-title">③ Envelope & Ventilation</div>
+    <div class="field">
+      <label>Glazing Ratio (wall area)</label>
+      <div class="row"><input id="glazing_ratio" type="number" value="0.20" step="0.05" oninput="recalc()"><span class="unit">ratio</span></div>
+    </div>
+    <div class="field">
+      <label>Wall U-value</label>
+      <div class="row"><input id="U_wall" type="number" value="0.40" step="0.01" oninput="recalc()"><span class="unit">W/m²·K</span></div>
+    </div>
+    <div class="field">
+      <label>Roof U-value</label>
+      <div class="row"><input id="U_roof" type="number" value="0.33" step="0.01" oninput="recalc()"><span class="unit">W/m²·K</span></div>
+    </div>
+    <div class="field">
+      <label>Glass U-value</label>
+      <div class="row"><input id="U_glass" type="number" value="2.80" step="0.1" oninput="recalc()"><span class="unit">W/m²·K</span></div>
+    </div>
+    <div class="field">
+      <label>Floor U-value</label>
+      <div class="row"><input id="U_floor" type="number" value="0.50" step="0.05" oninput="recalc()"><span class="unit">W/m²·K</span></div>
+      <div class="hint">Floor exposed to ground. For mid-floor of multi-storey, set to 0.</div>
+    </div>
+    <div class="field">
+      <label>Ventilation Rate</label>
+      <div class="row"><input id="vent_lps" type="number" value="10" oninput="recalc()"><span class="unit">L/s/person</span></div>
+    </div>
+    <div class="field">
+      <label>Infiltration (ACH)</label>
+      <div class="row"><input id="inf_ach" type="number" value="0.5" step="0.1" oninput="recalc()"><span class="unit">air changes/h</span></div>
+    </div>
+    <div class="field">
+      <label>Internal Gains</label>
+      <div class="row"><input id="internal_wm2" type="number" value="25" oninput="recalc()"><span class="unit">W/m²</span></div>
+      <div class="hint">Lights + equipment. Hospital≈25, Hotel≈15, Residential≈8.</div>
+    </div>
+
+    <div class="section-title">④ Heat Pump Performance</div>
+    <div class="field">
+      <label>Heating COP (rated, A7/W35)</label>
+      <div class="row"><input id="COP_heat" type="number" value="3.5" step="0.1" oninput="recalc()"><span class="unit">—</span></div>
+    </div>
+    <div class="field">
+      <label>Cooling EER (rated)</label>
+      <div class="row"><input id="COP_cool" type="number" value="3.5" step="0.1" oninput="recalc()"><span class="unit">—</span></div>
+    </div>
+    <div class="field">
+      <label>Safety / Oversizing Factor</label>
+      <div class="row"><input id="safety" type="number" value="1.15" step="0.05" oninput="recalc()"><span class="unit">×</span></div>
+      <div class="hint">Covers defrost, part-load, future load growth. Typical 1.10–1.20.</div>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: RESULTS ============ -->
+  <div>
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi heat"><div class="v" id="k_heat">—</div><div class="l">Heating kW (thermal)</div></div>
+      <div class="kpi cool"><div class="v" id="k_cool">—</div><div class="l">Cooling kW (thermal)</div></div>
+      <div class="kpi dhw"><div class="v" id="k_dhw">—</div><div class="l">DHW Peak kW</div></div>
+      <div class="kpi elec"><div class="v" id="k_elec">—</div><div class="l">Electrical Input kW</div></div>
+      <div class="kpi recommend">
+        <div class="l p-heat_pump_sizing_tool_html-s1">⭐ Recommended Heat Pump Capacity</div>
+        <div class="v" id="k_rec">—</div>
+      </div>
+    </div>
+
+    <div class="col2">
+      <div class="panel">
+        <h2>Load Breakdown</h2>
+        <table class="results-table" id="loadtable"></table>
+      </div>
+      <div class="chartbox">
+        <canvas id="chart"></canvas>
+      </div>
+    </div>
+
+    <div class="col2 p-heat_pump_sizing_tool_html-s2">
+      <div class="panel">
+        <h2>Equipment Selection</h2>
+        <table class="results-table" id="eqtable"></table>
+      </div>
+      <div class="panel">
+        <h2>Calculation Trace (formulas) <button class="copybtn" onclick="copyReport()">Copy Report</button></h2>
+        <div class="formula" id="trace"></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>Method note:</b> Heating load = transmission + ventilation + infiltration − internal gains + DHW peak.
+      Cooling load uses enthalpy-based ventilation (sensible + latent), solar gain through glazing, people gains, and internal gains.
+      Envelope areas are derived from built-up area, floor count (square footprint assumption), and glazing ratio.
+      All figures are <b>peak design</b> values at the selected climate's design temperatures. This tool supports early-stage sizing — final design must be validated with detailed load software (HAP/Carrier, Trace 700) and local code compliance.
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ============================================================
+   ENGINEERING DATA TABLES
+   ============================================================ */
+const BUILDINGS = {
+  "Hospital":        {occ_density:25, dhw_lpd:120, vent_lps:10, internal_wm2:25, height:3.0, glazing_ratio:0.20, inf_ach:0.5, dhw_rec_h:2.0, people_sens_w:80, people_lat_w:50, U_wall:0.40, U_roof:0.33, U_floor:0.50, U_glass:2.80, default_area:5000},
+  "Hotel":           {occ_density:30, dhw_lpd:150, vent_lps:8,  internal_wm2:15, height:3.0, glazing_ratio:0.35, inf_ach:0.5, dhw_rec_h:4.0, people_sens_w:70, people_lat_w:50, U_wall:0.40, U_roof:0.33, U_floor:0.50, U_glass:2.80, default_area:8000},
+  "Hostel":          {occ_density:12, dhw_lpd:80,  vent_lps:5,  internal_wm2:10, height:3.0, glazing_ratio:0.15, inf_ach:0.7, dhw_rec_h:3.0, people_sens_w:70, people_lat_w:50, U_wall:0.44, U_roof:0.40, U_floor:0.55, U_glass:3.00, default_area:2000},
+  "School":          {occ_density:4,  dhw_lpd:20,  vent_lps:8,  internal_wm2:12, height:3.3, glazing_ratio:0.25, inf_ach:0.7, dhw_rec_h:4.0, people_sens_w:60, people_lat_w:50, U_wall:0.44, U_roof:0.40, U_floor:0.55, U_glass:3.00, default_area:3000},
+  "Airport":         {occ_density:10, dhw_lpd:5,   vent_lps:7,  internal_wm2:20, height:6.0, glazing_ratio:0.50, inf_ach:0.5, dhw_rec_h:6.0, people_sens_w:75, people_lat_w:55, U_wall:0.40, U_roof:0.33, U_floor:0.50, U_glass:2.50, default_area:25000},
+  "Railway Station": {occ_density:5,  dhw_lpd:5,   vent_lps:7,  internal_wm2:15, height:5.0, glazing_ratio:0.30, inf_ach:1.0, dhw_rec_h:6.0, people_sens_w:75, people_lat_w:55, U_wall:0.44, U_roof:0.40, U_floor:0.55, U_glass:3.00, default_area:8000},
+  "Residential":     {occ_density:20, dhw_lpd:100, vent_lps:5,  internal_wm2:8,  height:3.0, glazing_ratio:0.20, inf_ach:0.5, dhw_rec_h:3.0, people_sens_w:70, people_lat_w:50, U_wall:0.40, U_roof:0.33, U_floor:0.50, U_glass:2.80, default_area:1500}
+};
+
+const CLIMATES = {
+  "Composite (Delhi/NCR)":    {t_out_winter:-3, t_out_summer:43, rh_out_summer:0.45, mains:15},
+  "Hot-Dry (Jodhpur/Ahmedabad)":{t_out_winter:5, t_out_summer:45, rh_out_summer:0.30, mains:18},
+  "Warm-Humid (Mumbai/Chennai)":{t_out_winter:18,t_out_summer:36, rh_out_summer:0.70, mains:24},
+  "Temperate (Bengaluru/Pune)": {t_out_winter:10,t_out_summer:34, rh_out_summer:0.55, mains:20},
+  "Cold (Shimla/Srinagar)":     {t_out_winter:-8, t_out_summer:30, rh_out_summer:0.50, mains:8}
+};
+
+/* constants */
+const RHO_AIR=1.2, CP_AIR=1.005, C_WATER=4.186, RHO_WATER=1000;
+
+/* psychrometrics */
+function pws(T){return 0.61094*Math.exp(17.625*T/(T+243.04));} // kPa
+function humRatio(T,RH){let Pw=RH*pws(T);return 0.621945*Pw/(101.325-Pw);}
+function enthalpy(T,w){return 1.006*T+w*(2501+1.86*T);}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentTab = "Hospital";
+let chart=null;
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init(){
+  // building tabs
+  const tb=document.getElementById('tabbar');
+  tb.innerHTML='';
+  Object.keys(BUILDINGS).forEach(k=>{
+    const b=document.createElement('button');
+    b.textContent=k; b.dataset.k=k;
+    b.onclick=()=>{currentTab=k; document.getElementById('btype').value=k; loadDefaults(); highlightTab();};
+    tb.appendChild(b);
+  });
+  // btype select (hidden but synced)
+  const sel=document.getElementById('btype');
+  sel.innerHTML='';
+  Object.keys(BUILDINGS).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o);});
+  // climate
+  const cl=document.getElementById('climate');
+  cl.innerHTML='';
+  Object.keys(CLIMATES).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;cl.appendChild(o);});
+  loadDefaults();
+}
+
+function highlightTab(){
+  document.querySelectorAll('#tabbar button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.k===document.getElementById('btype').value);
+  });
+}
+
+function loadDefaults(){
+  const k=document.getElementById('btype').value;
+  const d=BUILDINGS[k];
+  setVal('area',d.default_area);
+  setVal('occ_density',d.occ_density);
+  setVal('dhw_lpd',d.dhw_lpd);
+  setVal('vent_lps',d.vent_lps);
+  setVal('internal_wm2',d.internal_wm2);
+  setVal('glazing_ratio',d.glazing_ratio);
+  setVal('U_wall',d.U_wall);
+  setVal('U_roof',d.U_roof);
+  setVal('U_floor',d.U_floor);
+  setVal('U_glass',d.U_glass);
+  setVal('inf_ach',d.inf_ach);
+  setVal('dhw_rec_h',d.dhw_rec_h);
+  highlightTab();
+  recalc();
+}
+
+function loadClimate(){
+  const k=document.getElementById('climate').value;
+  const c=CLIMATES[k];
+  setVal('dhw_t_cold',c.mains);
+  recalc();
+}
+
+function setVal(id,v){document.getElementById(id).value=v;}
+function num(id){return parseFloat(document.getElementById(id).value)||0;}
+
+/* ============================================================
+   CORE CALCULATION ENGINE
+   ============================================================ */
+function calculate(){
+  const k=document.getElementById('btype').value;
+  const d=BUILDINGS[k];
+  const ck=document.getElementById('climate').value;
+  const c=CLIMATES[ck];
+
+  const area=num('area');
+  const floors=Math.max(1,num('floors'));
+  const height=d.height;
+  const occ_density=num('occ_density');
+  const people=area/occ_density;
+  const vent_lps=num('vent_lps');
+  const internal_wm2=num('internal_wm2');
+  const glazing_ratio=num('glazing_ratio');
+  const U_wall=num('U_wall'), U_roof=num('U_roof'), U_floor=num('U_floor'), U_glass=num('U_glass');
+  const inf_ach=num('inf_ach');
+  const dhw_lpd=num('dhw_lpd');
+  const dhw_rec_h=num('dhw_rec_h');
+  const t_hot=num('dhw_t_hot');
+  const t_cold=num('dhw_t_cold');
+  const COP_h=num('COP_heat'), COP_c=num('COP_cool');
+  const safety=num('safety');
+
+  const t_out_w=c.t_out_winter, t_out_s=c.t_out_summer, rh_out=c.rh_out_summer;
+  const t_in_heat=21, t_in_cool=24, rh_in=0.50;
+
+  /* envelope geometry: footprint = area/floors, square plan */
+  const footprint=area/floors;
+  const side=Math.sqrt(footprint);
+  const perimeter=4*side;
+  const wall_gross=perimeter*height*floors;        // total above-grade wall
+  const glass_area=wall_gross*glazing_ratio;
+  const wall_area=wall_gross-glass_area;
+  const roof_area=footprint;                        // top floor only
+  const floor_area=footprint;                        // ground floor only
+  const volume=area*height;
+
+  /* UA */
+  const UA=U_wall*wall_area+U_roof*roof_area+U_floor*floor_area+U_glass*glass_area;
+
+  /* airflow */
+  const Vdot_vent=people*vent_lps/1000;              // m3/s
+  const Vdot_inf=inf_ach*volume/3600;                // m3/s
+
+  /* ============ HEATING ============ */
+  const dT_heat=t_in_heat-t_out_w;
+  const Q_trans_h=UA*dT_heat/1000;                    // kW
+  const Q_vent_h=Vdot_vent*RHO_AIR*CP_AIR*dT_heat;    // kW
+  const Q_inf_h=Vdot_inf*RHO_AIR*CP_AIR*dT_heat;     // kW
+  const Q_internal=internal_wm2*area/1000;            // kW (credit)
+  const Q_gain_h=Q_internal;                          // reduce heating
+
+  /* DHW peak */
+  const V_dhw_day=people*dhw_lpd;                     // L/day
+  const m_dot_dhw=V_dhw_day/(dhw_rec_h*3600);         // kg/s
+  const Q_dhw=m_dot_dhw*C_WATER*(t_hot-t_cold);       // kW
+
+  const Q_heat_total=Q_trans_h+Q_vent_h+Q_inf_h-Q_gain_h+Q_dhw;
+  const Q_heat_safe=Q_heat_total*safety;
+  const elec_h=Q_heat_safe/COP_h;
+
+  /* ============ COOLING ============ */
+  const dT_cool=t_out_s-t_in_cool;
+  const Q_trans_c=UA*dT_cool/1000;                    // kW
+
+  /* solar gain through glass (approx SHGC×I) */
+  const solar_glass=glass_area*200/1000;              // kW (200 W/m2 effective)
+
+  /* ventilation cooling - enthalpy method */
+  const w_in=humRatio(t_in_cool,rh_in);
+  const w_out=humRatio(t_out_s,rh_out);
+  const h_in=enthalpy(t_in_cool,w_in);
+  const h_out=enthalpy(t_out_s,w_out);
+  const Q_vent_c=Vdot_vent*RHO_AIR*(h_out-h_in);       // kW total
+  const Q_vent_c_sens=Vdot_vent*RHO_AIR*CP_AIR*dT_cool;
+  const Q_vent_c_lat=Q_vent_c-Q_vent_c_sens;
+
+  /* people */
+  const Q_people_s=people*d.people_sens_w/1000;
+  const Q_people_l=people*d.people_lat_w/1000;
+
+  const Q_cool_sens=Q_trans_c+solar_glass+Q_vent_c_sens+Q_people_s+Q_internal;
+  const Q_cool_lat=Q_vent_c_lat+Q_people_l;
+  const Q_cool_total=Q_cool_sens+Q_cool_lat;
+  const Q_cool_safe=Q_cool_total*safety;
+  const elec_c=Q_cool_safe/COP_c;
+
+  /* selection */
+  const thermal_peak=Math.max(Q_heat_safe,Q_cool_safe);
+  const elec_peak=Math.max(elec_h,elec_c);
+  const governing_mode = Q_heat_safe>=Q_cool_safe ? 'Heating' : 'Cooling';
+
+  /* SHF */
+  const SHF=Q_cool_sens/Q_cool_total;
+
+  return {
+    meta:{k,ck,area,floors,height,people,footprint,side,perimeter,wall_area,glass_area,roof_area,floor_area,volume,UA,
+          t_out_w,t_out_s,t_in_heat,t_in_cool,rh_in,rh_out,
+          Vdot_vent,Vdot_inf,V_dhw_day,m_dot_dhw,dT_heat,dT_cool,w_in,w_out,h_in,h_out},
+    heat:{Q_trans_h,Q_vent_h,Q_inf_h,Q_internal,Q_dhw,Q_heat_total,Q_heat_safe,elec_h},
+    cool:{Q_trans_c,solar_glass,Q_vent_c_sens,Q_vent_c_lat,Q_people_s,Q_people_l,Q_cool_sens,Q_cool_lat,Q_cool_total,Q_cool_safe,elec_c,SHF},
+    sel:{thermal_peak,elec_peak,governing_mode,COP_h,COP_c,safety,Q_heat_safe,Q_cool_safe}
+  };
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function fmt(n,d=1){return Number.isFinite(n)?n.toFixed(d):'—';}
+function fmtK(n){return fmt(n,0)+' kW';}
+
+function render(){
+  const r=calculate();
+  const m=r.meta;
+
+  /* KPIs */
+  document.getElementById('k_heat').textContent=fmt(r.heat.Q_heat_safe,0)+' kW';
+  document.getElementById('k_cool').textContent=fmt(r.cool.Q_cool_safe,0)+' kW';
+  document.getElementById('k_dhw').textContent=fmt(r.heat.Q_dhw,0)+' kW';
+  document.getElementById('k_elec').textContent=fmt(r.sel.elec_peak,0)+' kW';
+  document.getElementById('k_rec').textContent=
+    `Select ${fmt(r.sel.thermal_peak,0)} kW thermal @ ${r.sel.governing_mode}-governed · `
+    + `${fmt(r.sel.elec_peak,0)} kW electrical input (peak)`;
+
+  /* occupancy display */
+  document.getElementById('occ_disp').value=Math.round(m.people);
+
+  /* load table */
+  const lt=document.getElementById('loadtable');
+  let h=`<tr><th>Component</th><th class="num">Heating (kW)</th><th class="num">Cooling (kW)</th></tr>`;
+  h+=row('Transmission (envelope)', r.heat.Q_trans_h, r.cool.Q_trans_c);
+  h+=row('Ventilation (sensible)', r.heat.Q_vent_h, r.cool.Q_vent_c_sens);
+  h+=row('Ventilation (latent)', 0, r.cool.Q_vent_c_lat);
+  h+=row('Infiltration', r.heat.Q_inf_h, 0);
+  h+=row('Solar gain (glass)', 0, r.cool.solar_glass);
+  h+=row('People (sensible)', 0, r.cool.Q_people_s);
+  h+=row('People (latent)', 0, r.cool.Q_people_l);
+  h+=row('Internal gains', -r.heat.Q_internal, r.meta.UA?r.heat.Q_internal:0);
+  h+=row('DHW peak', r.heat.Q_dhw, 0);
+  h+=`<tr class="subtotal"><td>Net Subtotal</td><td class="num">${fmt(r.heat.Q_heat_total,1)}</td><td class="num">${fmt(r.cool.Q_cool_total,1)}</td></tr>`;
+  h+=`<tr class="subtotal"><td>× Safety ${r.sel.safety}</td><td class="num">${fmt(r.heat.Q_heat_safe,1)}</td><td class="num">${fmt(r.cool.Q_cool_safe,1)}</td></tr>`;
+  h+=`<tr class="total"><td>GOVERNING PEAK</td><td class="num">${fmt(r.sel.thermal_peak,0)}</td><td class="num">${r.sel.governing_mode}-governed</td></tr>`;
+  lt.innerHTML=h;
+
+  /* equipment table */
+  const eq=document.getElementById('eqtable');
+  eq.innerHTML=`
+    <tr><th>Parameter</th><th class="num">Value</th></tr>
+    <tr><td>Governing mode</td><td class="num">${r.sel.governing_mode}</td></tr>
+    <tr><td>Thermal capacity reqd</td><td class="num">${fmt(r.sel.thermal_peak,1)} kW</td></tr>
+    <tr><td>&nbsp;&nbsp;in TR (refrigeration)</td><td class="num">${fmt(r.sel.thermal_peak/3.517,1)} TR</td></tr>
+    <tr><td>Electrical input (peak)</td><td class="num">${fmt(r.sel.elec_peak,1)} kW</td></tr>
+    <tr><td>Heating COP</td><td class="num">${fmt(r.sel.COP_h,2)}</td></tr>
+    <tr><td>Cooling EER</td><td class="num">${fmt(r.sel.COP_c,2)}</td></tr>
+    <tr><td>Sensible Heat Factor (cool)</td><td class="num">${fmt(r.cool.SHF,2)}</td></tr>
+    <tr><td>DHW daily volume</td><td class="num">${fmt(m.V_dhw_day,0)} L/day</td></tr>
+    <tr><td>Occupancy</td><td class="num">${Math.round(m.people)} persons</td></tr>
+    <tr><td>Conditioned volume</td><td class="num">${fmt(m.volume,0)} m³</td></tr>
+    <tr><td>Total UA</td><td class="num">${fmt(m.UA,0)} W/K</td></tr>
+  `;
+
+  /* formula trace */
+  renderTrace(r);
+
+  /* chart */
+  renderChart(r);
+}
+
+function row(name,h,c){
+  const hv=h===0?'—':(h<0?`<span class="pos">${fmt(h,1)}</span>`:fmt(h,1));
+  const cv=c===0?'—':fmt(c,1);
+  return `<tr><td>${name}</td><td class="num">${hv}</td><td class="num">${cv}</td></tr>`;
+}
+
+function renderTrace(r){
+  const m=r.meta;
+  const t=document.getElementById('trace');
+  t.innerHTML=`
+<b>1. GEOMETRY</b><br>
+Built-up area = ${fmt(m.area,0)} m² · Floors = ${m.floors}<br>
+Footprint = ${fmt(m.footprint,0)} m² (= area ÷ floors)<br>
+Plan side (square) = ${fmt(m.side,1)} m · Perimeter = ${fmt(m.perimeter,1)} m<br>
+Wall gross = perimeter × height × floors = ${fmt(m.wall_area+m.glass_area,0)} m²<br>
+Glazing = ${fmt(m.glass_area,0)} m² (${fmt(num('glazing_ratio'),2)}) · Net wall = ${fmt(m.wall_area,0)} m²<br>
+Roof = ${fmt(m.roof_area,0)} m² · Floor = ${fmt(m.floor_area,0)} m²<br>
+Volume = area × height = ${fmt(m.volume,0)} m³<br>
+People = ${Math.round(m.people)} = ${fmt(m.area,0)} ÷ ${num('occ_density')} m²/person<br><br>
+
+<b>2. ENVELOPE UA</b><br>
+<code>UA = U_wall×A_wall + U_roof×A_roof + U_floor×A_floor + U_glass×A_glass</code><br>
+UA = ${num('U_wall')}×${fmt(m.wall_area,0)} + ${num('U_roof')}×${fmt(m.roof_area,0)} + ${num('U_floor')}×${fmt(m.floor_area,0)} + ${num('U_glass')}×${fmt(m.glass_area,0)}<br>
+= <b class="hl">${fmt(m.UA,0)} W/K</b><br><br>
+
+<b>3. AIRFLOWS</b><br>
+Ventilation = ${num('vent_lps')} L/s × ${Math.round(m.people)} people ÷ 1000 = ${fmt(m.Vdot_vent,2)} m³/s<br>
+Infiltration = ${num('inf_ach')} ACH × ${fmt(m.volume,0)} m³ ÷ 3600 = ${fmt(m.Vdot_inf,2)} m³/s<br><br>
+
+<b>4. HEATING LOAD (winter design ${m.t_out_w}°C → indoor ${m.t_in_heat}°C, ΔT=${fmt(m.dT_heat,0)}K)</b><br>
+Transmission = UA × ΔT = ${fmt(m.UA,0)}×${fmt(m.dT_heat,0)} ÷ 1000 = <b>${fmt(r.heat.Q_trans_h,1)} kW</b><br>
+Ventilation = V̇ × ρ × cp × ΔT = ${fmt(m.Vdot_vent,2)}×1.2×1.005×${fmt(m.dT_heat,0)} = <b>${fmt(r.heat.Q_vent_h,1)} kW</b><br>
+Infiltration = ${fmt(m.Vdot_inf,2)}×1.2×1.005×${fmt(m.dT_heat,0)} = <b>${fmt(r.heat.Q_inf_h,1)} kW</b><br>
+Internal gains (credit) = ${num('internal_wm2')}×${fmt(m.area,0)} ÷ 1000 = <span class="pos">−${fmt(r.heat.Q_internal,1)} kW</span><br>
+DHW peak = (people × L/day) ÷ recovery_h × c_w × ΔT<br>
+&nbsp;&nbsp;= (${Math.round(m.people)}×${num('dhw_lpd')}) ÷ ${num('dhw_rec_h')}h × 4.186 × (${num('dhw_t_hot')}−${num('dhw_t_cold')})<br>
+&nbsp;&nbsp;= ${fmt(m.V_dhw_day,0)} L/day → <b class="hl">${fmt(r.heat.Q_dhw,1)} kW</b> peak over ${num('dhw_rec_h')}h<br>
+<b>Heating subtotal = ${fmt(r.heat.Q_heat_total,1)} kW</b><br>
+× Safety ${r.sel.safety} = <b class="hl">${fmt(r.heat.Q_heat_safe,1)} kW thermal</b><br>
+÷ COP ${r.sel.COP_h} = ${fmt(r.heat.elec_h,1)} kW electrical<br><br>
+
+<b>5. COOLING LOAD (summer design ${m.t_out_s}°C, RH ${fmt(m.rh_out*100,0)}% → indoor ${m.t_in_cool}°C, RH 50%)</b><br>
+Transmission = UA × ΔT = ${fmt(m.UA,0)}×${fmt(m.dT_cool,0)} ÷ 1000 = <b>${fmt(r.cool.Q_trans_c,1)} kW</b><br>
+Solar gain = glass × 200 W/m² = ${fmt(m.glass_area,0)}×200 ÷ 1000 = <b>${fmt(r.cool.solar_glass,1)} kW</b><br>
+Ventilation (enthalpy): h_out=${fmt(m.h_out,1)} h_in=${fmt(m.h_in,1)} kJ/kg<br>
+&nbsp;&nbsp;V̇×ρ×(h_out−h_in) = ${fmt(m.Vdot_vent,2)}×1.2×${fmt(m.h_out-m.h_in,1)} = <b>${fmt(r.cool.Q_vent_c_sens+r.cool.Q_vent_c_lat,1)} kW</b><br>
+&nbsp;&nbsp;sensible ${fmt(r.cool.Q_vent_c_sens,1)} · latent ${fmt(r.cool.Q_vent_c_lat,1)} kW<br>
+People = ${Math.round(m.people)} × (${BUILDINGS[document.getElementById('btype').value].people_sens_w}+${BUILDINGS[document.getElementById('btype').value].people_lat_w}) W = sens ${fmt(r.cool.Q_people_s,1)} + lat ${fmt(r.cool.Q_people_l,1)} kW<br>
+Internal gains = ${fmt(r.heat.Q_internal,1)} kW<br>
+<b>Cooling sensible = ${fmt(r.cool.Q_cool_sens,1)} kW · latent = ${fmt(r.cool.Q_cool_lat,1)} kW</b><br>
+<b>Cooling total = ${fmt(r.cool.Q_cool_total,1)} kW</b> (SHF=${fmt(r.cool.SHF,2)})<br>
+× Safety ${r.sel.safety} = <b class="hl">${fmt(r.cool.Q_cool_safe,1)} kW thermal</b><br>
+÷ EER ${r.sel.COP_c} = ${fmt(r.cool.elec_c,1)} kW electrical<br><br>
+
+<b>6. SELECTION</b><br>
+Heating (sized) = ${fmt(r.heat.Q_heat_safe,0)} kW · Cooling (sized) = ${fmt(r.cool.Q_cool_safe,0)} kW<br>
+<b class="hl">GOVERNING: ${r.sel.governing_mode} → ${fmt(r.sel.thermal_peak,0)} kW thermal (${fmt(r.sel.thermal_peak/3.517,1)} TR)</b><br>
+Electrical input peak = ${fmt(r.sel.elec_peak,0)} kW
+`;
+}
+
+function renderChart(r){
+  const ctx=document.getElementById('chart').getContext('2d');
+  const data={
+    labels:['Transmission','Ventilation','Infiltration','Solar','People','Internal','DHW'],
+    datasets:[
+      {label:'Heating (kW)',data:[r.heat.Q_trans_h,r.heat.Q_vent_h,r.heat.Q_inf_h,0,0,-r.heat.Q_internal,r.heat.Q_dhw],
+        backgroundColor:'#ffb454',borderColor:'#ffb454'},
+      {label:'Cooling (kW)',data:[r.cool.Q_trans_c,r.cool.Q_vent_c_sens+r.cool.Q_vent_c_lat,0,r.cool.solar_glass,
+        r.cool.Q_people_s+r.cool.Q_people_l,r.heat.Q_internal,0],
+        backgroundColor:'#4aa3ff',borderColor:'#4aa3ff'}
+    ]
+  };
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{type:'bar',data:data,
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{title:{display:true,text:'Load Component Breakdown (kW)',color:'#93a4c4',font:{size:13}},
+        legend:{labels:{color:'#93a4c4'}}},
+      scales:{x:{stacked:false,ticks:{color:'#93a4c4'},grid:{color:'#2a3a57'}},
+              y:{ticks:{color:'#93a4c4'},grid:{color:'#2a3a57'},title:{display:true,text:'kW',color:'#93a4c4'}}}}});
+}
+
+/* ============================================================
+   REPORT (for copy)
+   ============================================================ */
+function copyReport(){
+  const r=calculate();const m=r.meta;
+  const btype=document.getElementById('btype').value;
+  const pname=document.getElementById('pname').value;
+  const cl=document.getElementById('climate').value;
+  let txt=`HEAT PUMP SIZING REPORT\n========================\n`;
+  txt+=`Project: ${pname}\nBuilding: ${btype}\nClimate: ${cl}\n\n`;
+  txt+=`Area: ${fmt(m.area,0)} m² | Floors: ${m.floors} | People: ${Math.round(m.people)}\n`;
+  txt+=`Volume: ${fmt(m.volume,0)} m³ | UA: ${fmt(m.UA,0)} W/K\n\n`;
+  txt+=`HEATING (sized): ${fmt(r.heat.Q_heat_safe,0)} kW thermal\n`;
+  txt+=`  Transmission: ${fmt(r.heat.Q_trans_h,1)} | Vent: ${fmt(r.heat.Q_vent_h,1)} | Infilt: ${fmt(r.heat.Q_inf_h,1)}\n`;
+  txt+=`  Internal credit: -${fmt(r.heat.Q_internal,1)} | DHW peak: ${fmt(r.heat.Q_dhw,1)} kW\n`;
+  txt+=`  Electrical input: ${fmt(r.heat.elec_h,0)} kW @ COP ${r.sel.COP_h}\n\n`;
+  txt+=`COOLING (sized): ${fmt(r.cool.Q_cool_safe,0)} kW thermal\n`;
+  txt+=`  Sensible: ${fmt(r.cool.Q_cool_sens,1)} | Latent: ${fmt(r.cool.Q_cool_lat,1)} (SHF ${fmt(r.cool.SHF,2)})\n`;
+  txt+=`  Electrical input: ${fmt(r.cool.elec_c,0)} kW @ EER ${r.sel.COP_c}\n\n`;
+  txt+=`=== RECOMMENDED ===\n`;
+  txt+=`Governing: ${r.sel.governing_mode}\n`;
+  txt+=`Thermal capacity: ${fmt(r.sel.thermal_peak,0)} kW (${fmt(r.sel.thermal_peak/3.517,1)} TR)\n`;
+  txt+=`Electrical input (peak): ${fmt(r.sel.elec_peak,0)} kW\n`;
+  navigator.clipboard.writeText(txt).then(()=>{alert('Report copied to clipboard ✓');});
+}
+
+/* recalc trigger */
+function recalc(){render();}
+
+/* boot */
+init();
+</script>
+</body>
+</html>

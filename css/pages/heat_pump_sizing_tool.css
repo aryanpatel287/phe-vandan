@@ -1,0 +1,364 @@
+/**
+ * Atomep Enteam — Heat Pump Sizing Tool Stylesheet
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. Header & Container Layout
+   ========================================================================== */
+.wrap {
+  max-width: var(--page-max-width, 1200px);
+  margin: 0 auto;
+  padding: 0 var(--spacing-16, 16px) var(--spacing-48, 48px);
+}
+
+header.top {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-16, 16px);
+  flex-wrap: wrap;
+  padding: var(--spacing-20, 20px) var(--spacing-24, 24px);
+  background-color: var(--color-pure-white, #ffffff);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  margin-bottom: var(--spacing-20, 20px);
+  box-shadow: var(--shadow-sm);
+}
+
+header.top h1 {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  letter-spacing: -0.4px;
+}
+
+header.top .sub {
+  color: var(--color-graphite, #525252);
+  font-size: var(--text-body, 15px);
+}
+
+/* ==========================================================================
+   2. Tab Bar & Sub-Navigation
+   ========================================================================== */
+.tabbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8, 8px);
+  margin: var(--spacing-16, 16px) 0;
+}
+
+.tabbar button {
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-graphite, #525252);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  padding: 8px 16px;
+  border-radius: var(--radius-buttons, 9999px);
+  cursor: pointer;
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  transition: all 0.15s ease;
+}
+
+.tabbar button:hover {
+  color: var(--color-ink, #171717);
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+.tabbar button.active {
+  background-color: var(--color-ink, #171717);
+  color: var(--color-pure-white, #ffffff);
+  border-color: var(--color-ink, #171717);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* ==========================================================================
+   3. Main Grid & Form Panels
+   ========================================================================== */
+.grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: var(--spacing-20, 20px);
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-20, 20px);
+  box-shadow: var(--shadow-sm);
+}
+
+.panel h2 {
+  margin: 0 0 var(--spacing-12, 12px);
+  font-size: var(--text-caption, 11px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.field {
+  margin-bottom: var(--spacing-12, 12px);
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--color-graphite, #525252);
+  margin-bottom: var(--spacing-4, 4px);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.field .row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8, 8px);
+}
+
+.field input, .field select {
+  width: 100%;
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-ink, #171717);
+  padding: 8px 12px;
+  border-radius: var(--radius-inputs, 8px);
+  font-size: 14px;
+  font-family: var(--font-inter);
+  transition: border-color 0.15s ease;
+}
+
+.field input:focus, .field select:focus {
+  outline: none;
+  border-color: var(--color-ink, #171717);
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.08);
+}
+
+.field .unit {
+  color: var(--color-steel, #737373);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+  font-weight: var(--font-weight-semibold, 600);
+  margin: var(--spacing-16, 16px) 0 var(--spacing-8, 8px);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+/* ==========================================================================
+   4. KPIs & COP Output Cards
+   ========================================================================== */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-12, 12px);
+  margin-bottom: var(--spacing-18, 18px);
+}
+
+@media (max-width: 720px) {
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kpi {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi .v {
+  font-size: var(--text-heading, 26px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+
+.kpi .l {
+  font-size: var(--text-caption, 11px);
+  color: var(--color-steel, #737373);
+  margin-top: var(--spacing-4, 4px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.kpi.heat .v { color: #ea580c; }
+.kpi.cool .v { color: #0284c7; }
+.kpi.dhw .v  { color: #059669; }
+.kpi.elec .v { color: #7c3aed; }
+
+.kpi.recommend {
+  grid-column: 1 / -1;
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  border-color: var(--color-soft-fog, #f0f0f0);
+}
+
+.kpi.recommend .v {
+  font-size: var(--text-subheading, 22px);
+  color: var(--color-sienna-brand, #451a03);
+}
+
+.col2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-18, 18px);
+}
+
+@media (max-width: 980px) {
+  .col2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   5. Dynamic Thermodynamic Canvas (Chartbox) — Dimensions Preserved
+   ========================================================================== */
+.chartbox {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-16, 16px);
+  height: 330px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   6. Calculation Results Table & Formulas
+   ========================================================================== */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.results-table th, .results-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.results-table th {
+  color: var(--color-steel, #737373);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: var(--font-weight-semibold, 600);
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+.results-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.results-table tr.subtotal td {
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+}
+
+.results-table tr.total td {
+  font-weight: var(--font-weight-semibold, 600);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  color: var(--color-ink, #171717);
+  font-size: 14px;
+}
+
+.results-table .pos { color: #16a34a; }
+.results-table .neg { color: #dc2626; }
+
+.formula {
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: var(--spacing-12, 12px) var(--spacing-16, 16px);
+  font-size: 12px;
+  color: var(--color-graphite, #525252);
+  line-height: 1.6;
+  max-height: 560px;
+  overflow: auto;
+}
+
+.formula b { color: var(--color-ink, #171717); }
+.formula code {
+  background: var(--color-ash-mist, #f5f5f5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--color-sienna-brand, #451a03);
+  font-size: 11.5px;
+}
+.formula .hl { color: #ea580c; font-weight: 600; }
+
+.note {
+  font-size: 12px;
+  color: var(--color-graphite, #525252);
+  margin-top: 12px;
+  padding: 10px 14px;
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  border-left: 3px solid var(--color-sienna-brand, #451a03);
+  border-radius: 0 var(--radius-inputs, 8px) var(--radius-inputs, 8px) 0;
+  line-height: 1.5;
+}
+
+.copybtn {
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-ink, #171717);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  padding: 6px 12px;
+  border-radius: var(--radius-buttons, 9999px);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: var(--font-weight-medium, 500);
+  float: right;
+  transition: all 0.15s ease;
+}
+
+.copybtn:hover {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  border-color: var(--color-steel, #737373);
+}
+
+.gauge {
+  height: 6px;
+  background-color: var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.gauge > div {
+  height: 100%;
+  border-radius: var(--radius-full, 9999px);
+  transition: width 0.3s ease;
+}
+
+/* Migrated Page-Specific Inline Styles */
+.p-heat_pump_sizing_tool_html-s1 { margin-bottom: 6px; }
+.p-heat_pump_sizing_tool_html-s2 { margin-top: 18px; }

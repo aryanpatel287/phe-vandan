@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pump Head Calculator</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/pump-head-calculator.css">
+
+<script src="assets/vendor/chart.umd.min.js"></script>
+<script src="assets/vendor/jspdf.umd.min.js"></script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+
+<header class="app-header">
+  <div class="container">
+
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+
+    <div class="app-header__eyebrow">Fluid Mechanics &middot; MEP Tool</div>
+    <h1 class="app-header__title">Pump Head Calculator</h1>
+    <p class="app-header__subtitle">Sizing water booster pumps for residential, commercial, hospital, and industrial buildings. Enter your system parameters below; friction losses, total dynamic head, pump/system curves, and NPSH are computed live.</p>
+  </div>
+</header>
+
+<div class="container">
+  <div class="download-bar" id="downloadBar">
+    <span class="download-bar__label">Export Report</span>
+    <button class="dl-btn dl-btn--pdf" id="btnPDF" onclick="exportPDF()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13v4M9 13h2a1 1 0 0 1 0 2H9M15 13v4"/></svg>
+      PDF
+    </button>
+    <button class="dl-btn dl-btn--word" id="btnWord" onclick="exportWord()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13l-1 4-1-2-1 2-1-4"/></svg>
+      Word
+    </button>
+    <button class="dl-btn dl-btn--excel" id="btnExcel" onclick="exportExcel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13l4 4M12 13l-4 4"/></svg>
+      Excel
+    </button>
+    <button class="dl-btn" id="btnPrint" onclick="window.print()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print
+    </button>
+  </div>
+</div>
+
+<main class="container">
+
+  <!-- ============ SECTION 1: DESIGN FLOW ============ -->
+  <section class="section" id="sec-flow">
+    <div class="section__head">
+      <div class="section__num">1</div>
+      <h2 class="section__title">Design Flow Rate</h2>
+    </div>
+    <div class="card card--hero">
+      <div class="grid-split">
+        <div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Design flow rate</span><span class="field__unit">m&sup3;/hr</span></div>
+            <input class="input" type="number" id="designFlow" value="25" min="0.1" step="0.5">
+            <div class="field__hint">Enter the required pump capacity directly. This is the flow the pump must deliver at the operating point &mdash; the peak or design demand for your system.</div>
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Equivalent flow units</span></div>
+            <div class="grid-2">
+              <div class="kpi kpi--teal">
+                <div class="kpi__value" id="flowLps">6.94</div>
+                <div class="kpi__label">L/s</div>
+              </div>
+              <div class="kpi kpi--teal">
+                <div class="kpi__value" id="flowGpm">110.1</div>
+                <div class="kpi__label">US GPM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="p-pump_head_calculator_html-s1">Operating Flow</div>
+          <div id="flowResult">25.0</div>
+          <div class="p-pump_head_calculator_html-s2">m&sup3;/hr design capacity</div>
+          <div class="callout mt-16">
+            <strong>Tip:</strong> If you don't yet know the design flow, estimate it from your building's daily demand and a peak factor: Design Flow (m&sup3;/hr) = Daily Demand (L) &divide; Operating Hours &times; Peak Factor &divide; 1000. For example, 480 people &times; 135 L/day &divide; 24 hr &times; 2.5 &divide; 1000 = 6.75 m&sup3;/hr.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 2: STATIC HEAD ============ -->
+  <section class="section" id="sec-static">
+    <div class="section__head">
+      <div class="section__num">2</div>
+      <h2 class="section__title">Static Head & Layout</h2>
+    </div>
+    <div class="card">
+      <div class="grid-3">
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">Static suction head</span><span class="field__unit">m</span></div>
+          <input class="input" type="number" id="staticSuction" value="2" step="0.1">
+          <div class="field__hint">Height of liquid surface above pump centerline. Negative if pump is above water level (suction lift).</div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">Static discharge head</span><span class="field__unit">m</span></div>
+          <input class="input" type="number" id="staticDischarge" value="45" step="0.5">
+          <div class="field__hint">Elevation difference from pump to highest discharge point (e.g. top floor + tank height).</div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">Residual / delivery pressure at outlet</span><span class="field__unit">m</span></div>
+          <input class="input" type="number" id="residualHead" value="10" step="0.5">
+          <div class="field__hint">Pressure needed at the delivery point (e.g. 10 m for a rooftop tank inlet, 15&ndash;20 m for fixture pressure).</div>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">Suction tank liquid surface above pump</span><span class="field__unit">m</span></div>
+          <input class="input" type="number" id="suctionLiquidLevel" value="2" step="0.1">
+        </div>
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">Vapor pressure of water at temp</span><span class="field__unit">m (abs)</span></div>
+          <input class="input" type="number" id="vaporPressure" value="0.32" step="0.01">
+          <div class="field__hint">At 30&deg;C water = 0.32 m; 25&deg;C = 0.24 m; 50&deg;C = 1.23 m. Used for NPSH.</div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">Site altitude above sea level</span><span class="field__unit">m</span></div>
+          <input class="input" type="number" id="altitude" value="300" step="50">
+          <div class="field__hint">Affects atmospheric pressure available for NPSH.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 3: PIPE & FRICTION ============ -->
+  <section class="section" id="sec-pipe">
+    <div class="section__head">
+      <div class="section__num">3</div>
+      <h2 class="section__title">Pipe Sizing & Friction Loss</h2>
+      <span class="section__hint">Separate suction & discharge runs</span>
+    </div>
+
+    <div class="tabs" id="pipeTabs">
+      <button class="tab active" data-tab="suction">Suction Pipe</button>
+      <button class="tab" data-tab="discharge">Discharge Pipe</button>
+    </div>
+
+    <!-- Suction pipe panel -->
+    <div class="tab-panel active" id="panel-suction">
+      <div class="card">
+        <div class="grid-4">
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Nominal diameter</span><span class="field__unit">mm</span></div>
+            <select class="select" id="sucDN">
+              <option value="40">DN40</option>
+              <option value="50">DN50</option>
+              <option value="65">DN65</option>
+              <option value="80">DN80</option>
+              <option value="100" selected>DN100</option>
+              <option value="125">DN125</option>
+              <option value="150">DN150</option>
+              <option value="200">DN200</option>
+              <option value="250">DN250</option>
+              <option value="300">DN300</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Actual inside diameter</span><span class="field__unit">mm</span></div>
+            <input class="input" type="number" id="sucID" value="104" step="0.1">
+            <div class="field__hint">Override if known; default matches schedule.</div>
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Pipe length (straight)</span><span class="field__unit">m</span></div>
+            <input class="input" type="number" id="sucLength" value="8" step="0.5">
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Pipe material</span></div>
+            <select class="select" id="sucMaterial">
+              <option value="GI">GI / Steel (new)</option>
+              <option value="DI">Ductile Iron (cement-lined)</option>
+              <option value="HDPE" selected>HDPE / PE</option>
+              <option value="uPVC">uPVC</option>
+              <option value="CPVC">CPVC</option>
+              <option value="SS">Stainless Steel</option>
+              <option value="Cu">Copper</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Pipe roughness (&epsilon;)</span><span class="field__unit">mm</span></div>
+            <input class="input" type="number" id="sucRoughness" value="0.007" step="0.001">
+            <div class="field__hint">Auto-set from material. Override if needed.</div>
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Hazen-Williams C factor</span><span class="field__unit">&ndash;</span></div>
+            <input class="input" type="number" id="sucCfactor" value="140" step="5">
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Fluid temperature</span><span class="field__unit">&deg;C</span></div>
+            <input class="input" type="number" id="sucTemp" value="30" step="1">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discharge pipe panel -->
+    <div class="tab-panel" id="panel-discharge">
+      <div class="card">
+        <div class="grid-4">
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Nominal diameter</span><span class="field__unit">mm</span></div>
+            <select class="select" id="disDN">
+              <option value="40">DN40</option>
+              <option value="50">DN50</option>
+              <option value="65">DN65</option>
+              <option value="80">DN80</option>
+              <option value="100">DN100</option>
+              <option value="125" selected>DN125</option>
+              <option value="150">DN150</option>
+              <option value="200">DN200</option>
+              <option value="250">DN250</option>
+              <option value="300">DN300</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Actual inside diameter</span><span class="field__unit">mm</span></div>
+            <input class="input" type="number" id="disID" value="130" step="0.1">
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Pipe length (straight)</span><span class="field__unit">m</span></div>
+            <input class="input" type="number" id="disLength" value="60" step="1">
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Pipe material</span></div>
+            <select class="select" id="disMaterial">
+              <option value="GI">GI / Steel (new)</option>
+              <option value="DI">Ductile Iron (cement-lined)</option>
+              <option value="HDPE" selected>HDPE / PE</option>
+              <option value="uPVC">uPVC</option>
+              <option value="CPVC">CPVC</option>
+              <option value="SS">Stainless Steel</option>
+              <option value="Cu">Copper</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Pipe roughness (&epsilon;)</span><span class="field__unit">mm</span></div>
+            <input class="input" type="number" id="disRoughness" value="0.007" step="0.001">
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Hazen-Williams C factor</span><span class="field__unit">&ndash;</span></div>
+            <input class="input" type="number" id="disCfactor" value="140" step="5">
+          </div>
+          <div class="field">
+            <div class="field__label"><span class="field__label-text">Fluid temperature</span><span class="field__unit">&deg;C</span></div>
+            <input class="input" type="number" id="disTemp" value="30" step="1">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" id="velocityCallout">Velocity check will appear here.</div>
+  </section>
+
+  <!-- ============ SECTION 4: MINOR LOSSES ============ -->
+  <section class="section" id="sec-minor">
+    <div class="section__head">
+      <div class="section__num">4</div>
+      <h2 class="section__title">Minor Losses (Fittings & Valves)</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="p-pump_head_calculator_html-s3">Suction Side Fittings</div>
+        <div id="sucFittings"></div>
+        <div class="grid-2 p-pump_head_calculator_html-s4">
+          <div class="kpi kpi--accent">
+            <div class="kpi__value" id="sucKtotal">0.0</div>
+            <div class="kpi__label">&Sigma;K (suction)</div>
+          </div>
+          <div class="kpi kpi--accent">
+            <div class="kpi__value" id="sucMinorLoss">0.0 <span class="unit">m</span></div>
+            <div class="kpi__label">Suction minor loss</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="p-pump_head_calculator_html-s5">Discharge Side Fittings</div>
+        <div id="disFittings"></div>
+        <div class="grid-2 p-pump_head_calculator_html-s6">
+          <div class="kpi kpi--teal">
+            <div class="kpi__value" id="disKtotal">0.0</div>
+            <div class="kpi__label">&Sigma;K (discharge)</div>
+          </div>
+          <div class="kpi kpi--teal">
+            <div class="kpi__value" id="disMinorLoss">0.0 <span class="unit">m</span></div>
+            <div class="kpi__label">Discharge minor loss</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 5: TOTAL HEAD & RESULTS ============ -->
+  <section class="section" id="sec-results">
+    <div class="section__head">
+      <div class="section__num">5</div>
+      <h2 class="section__title">Total Dynamic Head & Pump Sizing</h2>
+    </div>
+    <div class="card card--hero">
+      <div class="grid-2">
+        <div>
+          <div class="p-pump_head_calculator_html-s7">Total Dynamic Head</div>
+          <div id="tdhResult">57.4</div>
+          <div class="p-pump_head_calculator_html-s8">meters of water column</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi kpi--accent">
+            <div class="kpi__value" id="pumpPower">2.49 <span class="unit">kW</span></div>
+            <div class="kpi__label">Shaft Power (&eta; 65%)</div>
+          </div>
+          <div class="kpi kpi--accent">
+            <div class="kpi__value" id="motorPower">3.11 <span class="unit">kW</span></div>
+            <div class="kpi__label">Motor Power (1.25&times;SF)</div>
+          </div>
+        </div>
+      </div>
+
+      <table class="breakdown p-pump_head_calculator_html-s9">
+        <thead>
+          <tr><th>Head Component</th><th class="num">Method</th><th class="num">Value (m)</th></tr>
+        </thead>
+        <tbody id="headBreakdown"></tbody>
+      </table>
+
+      <div class="grid-2 p-pump_head_calculator_html-s10">
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">Pump efficiency</span><span class="field__unit">%</span></div>
+          <input class="input" type="number" id="pumpEff" value="65" min="20" max="95" step="1">
+        </div>
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">Motor efficiency</span><span class="field__unit">%</span></div>
+          <input class="input" type="number" id="motorEff" value="90" min="50" max="98" step="1">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 6: NPSH ============ -->
+  <section class="section" id="sec-npsh">
+    <div class="section__head">
+      <div class="section__num">6</div>
+      <h2 class="section__title">NPSH Analysis</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="p-pump_head_calculator_html-s11">NPSH Available (system side)</div>
+        <table class="breakdown">
+          <tbody id="npshBreakdown"></tbody>
+        </table>
+        <div class="kpi kpi--accent p-pump_head_calculator_html-s12">
+          <div class="kpi__value" id="npshaResult">10.3 <span class="unit">m</span></div>
+          <div class="kpi__label">NPSH Available</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="p-pump_head_calculator_html-s13">NPSH Required (from pump curve)</div>
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">NPSHr at design flow (from pump catalogue)</span><span class="field__unit">m</span></div>
+          <input class="input" type="number" id="npshr" value="3.5" step="0.1">
+          <div class="field__hint">Read from the pump performance curve at your design flow. Typically 2&ndash;6 m for centrifugal pumps.</div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span class="field__label-text">Safety margin</span><span class="field__unit">m</span></div>
+          <input class="input" type="number" id="npshMargin" value="0.5" step="0.1">
+          <div class="field__hint">Minimum 0.5 m above NPSHr. HI/EUropump recommends 0.5&ndash;1.0 m, or use NPSHa &ge; 1.3 &times; NPSHr.</div>
+        </div>
+        <div id="npshBanner"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 7: CURVES ============ -->
+  <section class="section" id="sec-curves">
+    <div class="section__head">
+      <div class="section__num">7</div>
+      <h2 class="section__title">Pump & System Curve</h2>
+    </div>
+    <div class="grid-2">
+      <div class="chart-wrap">
+        <div class="chart-wrap__title">System Curve & Operating Point</div>
+        <canvas id="systemChart"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-wrap__title">Estimated Pump Performance Curve</div>
+        <canvas id="pumpChart"></canvas>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>How to read this:</strong> The system curve (blue) shows the head the system demands at each flow rate &mdash; it rises with flow because friction increases with the square of flow. The pump curve (amber) shows the head the pump can deliver, which drops as flow increases. Their intersection is the operating point. For pump selection, choose a pump whose curve passes through or just above your required (flow, head) point at its best efficiency point (BEP).
+    </div>
+  </section>
+
+  <!-- ============ SECTION 8: PIPE MATERIAL GUIDANCE ============ -->
+  <section class="section" id="sec-material">
+    <div class="section__head">
+      <div class="section__num">8</div>
+      <h2 class="section__title">Pipe Material Recommendation</h2>
+    </div>
+    <div class="grid-2" id="materialGrid"></div>
+    <div class="grid-2 p-pump_head_calculator_html-s14">
+      <div class="card--recessed card">
+        <div class="p-pump_head_calculator_html-s15">Recommended Pipe Schedule (Steel)</div>
+        <div class="sched-table-wrap">
+          <table class="sched-table" id="schedTable"></table>
+        </div>
+      </div>
+      <div class="card--recessed card">
+        <div class="p-pump_head_calculator_html-s16">Velocity & Sizing Guidelines</div>
+        <table class="breakdown">
+          <thead><tr><th>Pipe Location</th><th class="num">Rec. Velocity</th><th class="num">Max</th></tr></thead>
+          <tbody>
+            <tr><td>Suction line</td><td class="num">0.8&ndash;1.2 m/s</td><td class="num">1.5 m/s</td></tr>
+            <tr><td>Discharge line</td><td class="num">1.5&ndash;2.5 m/s</td><td class="num">3.0 m/s</td></tr>
+            <tr><td>Building riser</td><td class="num">1.0&ndash;2.0 m/s</td><td class="num">2.5 m/s</td></tr>
+            <tr><td>Service / distribution</td><td class="num">0.9&ndash;1.8 m/s</td><td class="num">2.4 m/s</td></tr>
+          </tbody>
+        </table>
+        <div class="callout callout--warn p-pump_head_calculator_html-s17"><strong>Rule of thumb:</strong> Keep suction velocity below 1.2 m/s to limit NPSHr and avoid cavitation. Higher discharge velocities save pipe cost but increase friction head and pumping energy.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    Pump Head Calculator &middot; Based on Darcy-Weisbach, Hazen-Williams, and IS 1172 / IS 2065 demand norms.<br>
+    Results are for preliminary sizing only. Verify with manufacturer pump curves and a qualified MEP consultant before procurement.
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   PUMP HEAD CALCULATOR - core engine
+   All units: flow m3/hr, length m, diameter mm, head m
+   ============================================================ */
+
+const MATERIALS = {
+  GI:   { name: 'GI / Steel (new)', roughness: 0.046, C: 120, maxVel: 3.0, notes: 'Traditional, durable, but rougher interior raises friction. Corrosion over time increases roughness. Use for risers and fire lines.' },
+  DI:   { name: 'Ductile Iron (cement-lined)', roughness: 0.012, C: 140, maxVel: 3.0, notes: 'Strong, durable, cement lining keeps friction low. Preferred for buried mains and raw water.' },
+  HDPE: { name: 'HDPE / PE', roughness: 0.007, C: 140, maxVel: 3.0, notes: 'Very smooth, corrosion-proof, flexible, lightweight. Excellent for cold water supply, buried lines, and chemically aggressive water.' },
+  uPVC: { name: 'uPVC', roughness: 0.0015, C: 150, maxVel: 3.0, notes: 'Smoothest common pipe, cheap, easy to install. Ideal for cold water indoors. Not for hot water (>60&deg;C) or direct sunlight.' },
+  CPVC: { name: 'CPVC', roughness: 0.0015, C: 150, maxVel: 3.0, notes: 'Like uPVC but handles hot water to 93&deg;C. Use for hot water lines and solar systems.' },
+  SS:   { name: 'Stainless Steel', roughness: 0.015, C: 140, maxVel: 3.0, notes: 'Hygienic, corrosion-resistant, low maintenance. Hospitals, pharmaceuticals, food industry. Higher cost.' },
+  Cu:   { name: 'Copper', roughness: 0.0015, C: 150, maxVel: 2.5, notes: 'Very smooth, antimicrobial, handles hot/cold. Premium cost. Used in plumbing for hospitals and luxury buildings.' },
+};
+
+const FITTINGS = [
+  { key: 'gate',    name: 'Gate valve (full open)',  k: 0.15 },
+  { key: 'check',   name: 'Swing check valve',        k: 2.50 },
+  { key: 'globe',   name: 'Globe valve (full open)',   k: 10.0 },
+  { key: 'ball',    name: 'Ball valve (full open)',    k: 0.05 },
+  { key: 'butterfly', name: 'Butterfly valve',         k: 0.30 },
+  { key: 'foot',    name: 'Foot valve (with strainer)', k: 1.5 },
+  { key: 'strainer', name: 'Y-strainer',               k: 0.9 },
+  { key: 'elbow90', name: '90&deg; elbow',              k: 0.90 },
+  { key: 'elbow45', name: '45&deg; elbow',              k: 0.40 },
+  { key: 'elbowLR', name: '90&deg; long-radius elbow', k: 0.60 },
+  { key: 'teeThru', name: 'Tee (run-through)',         k: 0.60 },
+  { key: 'teeBranch', name: 'Tee (branch flow)',       k: 1.80 },
+  { key: 'entry',   name: 'Sharp-edged entrance',      k: 0.50 },
+  { key: 'exit',    name: 'Sharp-edged exit',          k: 1.00 },
+  { key: 'reducer', name: 'Sudden reducer',            k: 0.50 },
+  { key: 'enlarger', name: 'Sudden enlargement',       k: 1.00 },
+];
+
+// Default fitting counts
+const DEFAULT_SUC_FITTINGS = { foot: 1, gate: 1, elbow90: 2, strainer: 1 };
+const DEFAULT_DIS_FITTINGS = { check: 1, gate: 1, elbow90: 6, teeBranch: 2, exit: 1 };
+
+// state
+let state = {
+  npshr: 3.5,
+  npshMargin: 0.5,
+  pumpEff: 65,
+  motorEff: 90,
+  sucFittings: {...DEFAULT_SUC_FITTINGS},
+  disFittings: {...DEFAULT_DIS_FITTINGS},
+};
+
+let systemChart = null;
+let pumpChart = null;
+
+/* ---- Helpers ---- */
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id).value) || 0;
+const fmt = (v, d=2) => isFinite(v) ? Number(v).toFixed(d) : '–';
+
+// Water properties by temperature
+function waterProps(T) {
+  // Density (kg/m3) and kinematic viscosity (m2/s) from temperature
+  // Valid 5-90 C
+  const density = 1000.6 - (T-4)*(T-4)*0.0067 - T*0.4;
+  // dynamic viscosity (Pa.s)
+  const mu = 0.001 * Math.pow(10, (1301/(T+273.15) - 998.333/(T+273.15) + 0.0123123*(T+273.15) - 3.30356));
+  const nu = mu / density; // kinematic
+  return { density: Math.max(density, 950), nu: Math.max(nu, 0.3e-6) };
+}
+
+// Colebrook-White via Swamee-Jain explicit formula (good approximation)
+function frictionFactor(roughness, D, V, nu) {
+  const Re = V * D / nu;
+  if (Re < 2300) return 64 / Math.max(Re, 1);
+  const relR = roughness / D;
+  // Swamee-Jain
+  const f = 0.25 / Math.pow(Math.log10(relR/3.7 + 5.74/Math.pow(Re,0.9)), 2);
+  return f;
+}
+
+// Darcy-Weisbach head loss over length L
+function darcyHeadLoss(f, L, D, V, g) {
+  return f * (L/D) * (V*V)/(2*g);
+}
+
+// Hazen-Williams head loss
+function hazenWilliams(Q, D, C, L) {
+  // Q in m3/s, D in m, L in m -> head in m
+  // hf = 10.67 * L * Q^1.852 / (C^1.852 * D^4.87)
+  return 10.67 * L * Math.pow(Q, 1.852) / (Math.pow(C, 1.852) * Math.pow(D, 4.87));
+}
+
+// Minor loss from K sum
+function minorHeadLoss(Ksum, V, g) {
+  return Ksum * (V*V) / (2*g);
+}
+
+// Atmospheric pressure head from altitude
+function atmHead(altitude) {
+  // returns meters of water column absolute
+  return 10.33 * Math.pow(1 - 2.2557e-5 * altitude, 5.2559);
+}
+
+/* ---- Flow computation ---- */
+function computeFlow() {
+  const peakFlow = num('designFlow'); // direct m3/hr input
+  return {
+    peakFlow: peakFlow,
+    peakLps: peakFlow / 3.6,
+    peakGpm: peakFlow * 4.403,
+  };
+}
+
+/* ---- Pipe computation for a side ---- */
+function computePipe(side) {
+  const prefix = side === 'suction' ? 'suc' : 'dis';
+  const Q = currentFlow.peakFlow; // m3/hr
+  const Qm3s = Q / 3600;
+  const D = num(prefix + 'ID') / 1000; // m
+  const L = num(prefix + 'Length');
+  const roughness = num(prefix + 'Roughness') / 1000; // mm->m
+  const C = num(prefix + 'Cfactor');
+  const T = num(prefix + 'Temp');
+
+  const area = Math.PI * D * D / 4;
+  const V = Qm3s / area;
+  const { nu } = waterProps(T);
+  const g = 9.81;
+  const f = frictionFactor(roughness, D, V, nu);
+  const hfDarcy = darcyHeadLoss(f, L, D, V, g);
+  const hfHW = hazenWilliams(Qm3s, D, C, L);
+
+  // minor losses
+  const Ksum = computeKsum(side);
+  const hMinor = minorHeadLoss(Ksum, V, g);
+
+  return {
+    Q, Qm3s, D, L, V, Re: V*D/nu, f, hfDarcy, hfHW, Ksum, hMinor,
+    velocityOK: side === 'suction' ? V <= 1.5 : V <= 3.0
+  };
+}
+
+function computeKsum(side) {
+  const fittings = side === 'suction' ? state.sucFittings : state.disFittings;
+  let K = 0;
+  for (const [key, count] of Object.entries(fittings)) {
+    const fit = FITTINGS.find(f => f.key === key);
+    if (fit) K += fit.k * count;
+  }
+  return K;
+}
+
+/* ---- Total head ---- */
+function computeTotalHead(suc, dis) {
+  const staticSuction = num('staticSuction');
+  const staticDischarge = num('staticDischarge');
+  const residual = num('residualHead');
+
+  const staticHead = staticDischarge - staticSuction; // elevation lift
+  const frictionSuction = suc.hfDarcy; // use Darcy by default
+  const frictionDischarge = dis.hfDarcy;
+  const minorSuction = suc.hMinor;
+  const minorDischarge = dis.hMinor;
+
+  const tdh = staticHead + residual + frictionSuction + frictionDischarge + minorSuction + minorDischarge;
+
+  return {
+    staticHead, staticSuction, staticDischarge, residual,
+    frictionSuction, frictionDischarge, minorSuction, minorDischarge,
+    tdh
+  };
+}
+
+/* ---- NPSH available ---- */
+function computeNPSHa(suc) {
+  const atm = atmHead(num('altitude'));
+  const vaporP = num('vaporPressure');
+  const staticSuction = num('suctionLiquidLevel'); // liquid surface above pump
+  const suctionFriction = suc.hfDarcy + suc.hMinor;
+  return atm - vaporP + staticSuction - suctionFriction;
+}
+
+/* ---- Power ---- */
+function computePower(tdh, flow) {
+  const Q = flow / 3600; // m3/s
+  const g = 9.81;
+  const rho = 1000;
+  const hydraulicPower = rho * g * Q * tdh / 1000; // kW
+  const pumpEff = state.pumpEff / 100;
+  const motorEff = state.motorEff / 100;
+  const shaftPower = hydraulicPower / pumpEff;
+  const motorPower = shaftPower / motorEff * 1.25; // 25% safety factor
+  return { hydraulicPower, shaftPower, motorPower };
+}
+
+/* ---- Main update ---- */
+let currentFlow = { peakFlow: 25, peakLps: 6.94, peakGpm: 110.1 };
+
+function update() {
+  state.npshr = num('npshr');
+  state.npshMargin = num('npshMargin');
+  state.pumpEff = num('pumpEff');
+  state.motorEff = num('motorEff');
+
+  currentFlow = computeFlow();
+
+  // Flow display
+  $('flowResult').textContent = fmt(currentFlow.peakFlow, 1);
+  $('flowLps').textContent = fmt(currentFlow.peakLps, 2);
+  $('flowGpm').textContent = fmt(currentFlow.peakGpm, 1);
+
+  const suc = computePipe('suction');
+  const dis = computePipe('discharge');
+  const head = computeTotalHead(suc, dis);
+  const npsha = computeNPSHa(suc);
+  const power = computePower(head.tdh, currentFlow.peakFlow);
+
+  // TDH & power
+  $('tdhResult').textContent = fmt(head.tdh, 1);
+  $('pumpPower').innerHTML = fmt(power.shaftPower, 2) + ' <span class="unit">kW</span>';
+  $('motorPower').innerHTML = fmt(power.motorPower, 2) + ' <span class="unit">kW</span>';
+
+  // Head breakdown table
+  const bd = $('headBreakdown');
+  bd.innerHTML = `
+    <tr><td>Static head (discharge &minus; suction elevation)</td><td class="num">geometry</td><td class="num">${fmt(head.staticHead, 2)}</td></tr>
+    <tr><td>Residual / delivery pressure at outlet</td><td class="num">specified</td><td class="num">${fmt(head.residual, 2)}</td></tr>
+    <tr class="subtotal"><td>Suction friction (Darcy-Weisbach)</td><td class="num">f=${fmt(suc.f,4)}</td><td class="num">${fmt(head.frictionSuction, 3)}</td></tr>
+    <tr><td>Suction friction (Hazen-Williams, ref.)</td><td class="num">C=${num('sucCfactor')}</td><td class="num">${fmt(suc.hfHW, 3)}</td></tr>
+    <tr><td>Suction minor losses (&Sigma;K=${fmt(suc.Ksum,2)})</td><td class="num">K&middot;V&sup2;/2g</td><td class="num">${fmt(head.minorSuction, 3)}</td></tr>
+    <tr class="subtotal"><td>Discharge friction (Darcy-Weisbach)</td><td class="num">f=${fmt(dis.f,4)}</td><td class="num">${fmt(head.frictionDischarge, 3)}</td></tr>
+    <tr><td>Discharge friction (Hazen-Williams, ref.)</td><td class="num">C=${num('disCfactor')}</td><td class="num">${fmt(dis.hfHW, 3)}</td></tr>
+    <tr><td>Discharge minor losses (&Sigma;K=${fmt(dis.Ksum,2)})</td><td class="num">K&middot;V&sup2;/2g</td><td class="num">${fmt(head.minorDischarge, 3)}</td></tr>
+    <tr class="total"><td>Total Dynamic Head (TDH)</td><td class="num">&mdash;</td><td class="num">${fmt(head.tdh, 2)}</td></tr>
+  `;
+
+  // Velocity callout
+  updateVelocityCallout(suc, dis);
+
+  // Minor losses K display
+  $('sucKtotal').textContent = fmt(suc.Ksum, 2);
+  $('sucMinorLoss').innerHTML = fmt(suc.hMinor, 3) + ' <span class="unit">m</span>';
+  $('disKtotal').textContent = fmt(dis.Ksum, 2);
+  $('disMinorLoss').innerHTML = fmt(dis.hMinor, 3) + ' <span class="unit">m</span>';
+
+  // NPSH
+  const atm = atmHead(num('altitude'));
+  const vaporP = num('vaporPressure');
+  const staticSuctionLevel = num('suctionLiquidLevel');
+  $('npshBreakdown').innerHTML = `
+    <tr><td>Atmospheric pressure head</td><td class="num">${fmt(atm, 3)}</td></tr>
+    <tr><td>(&minus;) Vapour pressure of water</td><td class="num">${fmt(vaporP, 3)}</td></tr>
+    <tr><td>(+) Static suction head (liquid level)</td><td class="num">${fmt(staticSuctionLevel, 3)}</td></tr>
+    <tr><td>(&minus;) Suction friction + minor losses</td><td class="num">${fmt(suc.hfDarcy + suc.hMinor, 3)}</td></tr>
+    <tr class="total"><td>NPSH Available</td><td class="num">${fmt(npsha, 3)}</td></tr>
+  `;
+  $('npshaResult').innerHTML = fmt(npsha, 2) + ' <span class="unit">m</span>';
+
+  // NPSH banner
+  const required = state.npshr + state.npshMargin;
+  const ratio = npsha / Math.max(state.npshr, 0.1);
+  const banner = $('npshBanner');
+  if (npsha >= required && ratio >= 1.3) {
+    banner.innerHTML = `<div class="result-banner result-banner--ok"><div class="result-banner__icon">&#10003;</div><div class="result-banner__text"><strong>NPSH OK.</strong> NPSHa (${fmt(npsha,2)} m) &ge; NPSHr + margin (${fmt(required,2)} m) and ratio &ge; 1.3&times;. No cavitation risk expected.</div></div>`;
+  } else if (npsha >= required) {
+    banner.innerHTML = `<div class="result-banner result-banner--warn"><div class="result-banner__icon">!</div><div class="result-banner__text"><strong>Marginally OK.</strong> NPSHa &ge; NPSHr + margin, but ratio < 1.3&times;. Consider increasing suction pipe size or lowering pump position.</div></div>`;
+  } else {
+    banner.innerHTML = `<div class="result-banner result-banner--fail"><div class="result-banner__icon">&times;</div><div class="result-banner__text"><strong>Cavitation risk.</strong> NPSHa (${fmt(npsha,2)} m) < NPSHr + margin (${fmt(required,2)} m). Increase suction diameter, raise suction tank level, lower pump, or select a pump with lower NPSHr.</div></div>`;
+  }
+
+  // Charts
+  updateCharts(head, suc, dis, npsha);
+
+  // Pipe material recommendations
+  updateMaterials(suc, dis);
+  updateScheduleTable(dis);
+}
+
+function updateVelocityCallout(suc, dis) {
+  const el = $('velocityCallout');
+  const sucStatus = suc.V <= 1.5 ? 'ok' : (suc.V <= 2.0 ? 'warn' : 'fail');
+  const disStatus = dis.V <= 3.0 ? 'ok' : (dis.V <= 3.5 ? 'warn' : 'fail');
+  const sucColor = sucStatus === 'ok' ? 'var(--green)' : (sucStatus === 'warn' ? 'var(--amber)' : 'var(--red)');
+  const disColor = disStatus === 'ok' ? 'var(--green)' : (disStatus === 'warn' ? 'var(--amber)' : 'var(--red)');
+  el.innerHTML = `
+    <strong>Velocity check:</strong>
+    Suction: <span style="color:${sucColor};font-family:var(--font-mono);font-weight:600;">${fmt(suc.V,2)} m/s</span> (target &le; 1.5)
+    &nbsp;&middot;&nbsp;
+    Discharge: <span style="color:${disColor};font-family:var(--font-mono);font-weight:600;">${fmt(dis.V,2)} m/s</span> (target &le; 3.0)
+    &nbsp;&middot;&nbsp;
+    Re(suction)=${fmt(suc.Re,0)}, Re(discharge)=${fmt(dis.Re,0)}
+  `;
+}
+
+/* ---- Charts ---- */
+function systemCurve(flow, head) {
+  // H = Hstatic + residual + (friction+minor)*Q^2
+  // Use coefficient from current operating point
+  const fixedHead = head.staticHead + head.residual;
+  const frictionHead = head.tdh - fixedHead;
+  const designQ = currentFlow.peakFlow;
+  const k = designQ > 0 ? frictionHead / (designQ * designQ) : 0;
+  return { fixedHead, k };
+}
+
+function updateCharts(head, suc, dis, npsha) {
+  const designQ = currentFlow.peakFlow;
+  const designH = head.tdh;
+
+  // System curve: H = H0 + k*Q^2
+  const { fixedHead, k } = systemCurve(designQ, head);
+  const qMax = Math.max(designQ * 1.6, 20);
+  const labels = [];
+  const sysData = [];
+  const pumpData = [];
+  const bepLine = [];
+  for (let q = 0; q <= qMax; q += qMax/20) {
+    labels.push(fmt(q, 1));
+    sysData.push(fixedHead + k * q * q);
+    // Estimated pump curve: parabola passing through (0, shutoff) and (designQ, designH) with droop
+    const shutoff = designH * 1.3;
+    const pumpH = shutoff - (shutoff - designH) * Math.pow(q/designQ, 1.6);
+    pumpData.push(Math.max(pumpH, 0));
+    bepLine.push(null);
+  }
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const fontFamily = "'IBM Plex Sans', sans-serif";
+
+  const baseOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: textColor, font: { family: fontFamily, size: 12 } } },
+      tooltip: { mode: 'index', intersect: false }
+    },
+    scales: {
+      x: { title: { display: true, text: 'Flow (m³/hr)', color: textColor, font: { family: fontFamily } },
+           ticks: { color: textColor, font: { family: fontFamily, size: 11 } }, grid: { color: gridColor } },
+      y: { title: { display: true, text: 'Head (m)', color: textColor, font: { family: fontFamily } },
+           ticks: { color: textColor, font: { family: fontFamily, size: 11 } }, grid: { color: gridColor } }
+    }
+  };
+
+  // System chart
+  if (systemChart) systemChart.destroy();
+  systemChart = new Chart($('systemChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'System curve', data: sysData, borderColor: isDark ? '#38bdf8' : '#0369a1',
+          backgroundColor: isDark ? 'rgba(56,189,248,0.1)' : 'rgba(3,105,161,0.1)', fill: true, tension: 0.2, pointRadius: 0, borderWidth: 2.5 },
+        { label: 'Estimated pump curve', data: pumpData, borderColor: isDark ? '#fbbf24' : '#d97706',
+          backgroundColor: 'transparent', tension: 0.2, pointRadius: 0, borderWidth: 2.5, borderDash: [6,4] },
+        { label: 'Operating point', data: labels.map((_,i) => null), borderColor: '#dc2626', pointRadius: 0 },
+      ]
+    },
+    options: baseOpts
+  });
+  // mark operating point
+  const opIdx = Math.round(designQ / (qMax/20));
+  systemChart.data.datasets[2].data = labels.map((_, i) => i === opIdx ? designH : null);
+  systemChart.data.datasets[2].showLine = false;
+  systemChart.data.datasets[2].pointRadius = 6;
+  systemChart.data.datasets[2].pointBackgroundColor = '#dc2626';
+  systemChart.update();
+
+  // Pump performance chart (head, efficiency, power)
+  if (pumpChart) pumpChart.destroy();
+  const effData = [];
+  const powerData = [];
+  for (let q = 0; q <= qMax; q += qMax/20) {
+    const shutoff = designH * 1.3;
+    const pumpH = shutoff - (shutoff - designH) * Math.pow(q/designQ, 1.6);
+    // efficiency peaks at BEP ~ designQ
+    const eff = q === 0 ? 0 : Math.max(0, 70 * Math.sin(Math.PI * q / (designQ * 1.8)));
+    effData.push(eff);
+    const Qm3s = q / 3600;
+    const hydP = 1000 * 9.81 * Qm3s * Math.max(pumpH,0) / 1000;
+    powerData.push(hydP / Math.max(eff/100, 0.3));
+  }
+  pumpChart = new Chart($('pumpChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Head (m)', data: pumpData, borderColor: isDark ? '#fbbf24' : '#d97706',
+          backgroundColor: 'transparent', tension: 0.2, pointRadius: 0, borderWidth: 2.5, yAxisID: 'y' },
+        { label: 'Efficiency (%)', data: effData, borderColor: isDark ? '#34d399' : '#059669',
+          backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2, yAxisID: 'y1' },
+        { label: 'Power (kW)', data: powerData, borderColor: isDark ? '#38bdf8' : '#0284c7',
+          backgroundColor: 'transparent', tension: 0.2, pointRadius: 0, borderWidth: 2, yAxisID: 'y1', borderDash: [5,3] },
+      ]
+    },
+    options: {
+      ...baseOpts,
+      scales: {
+        x: baseOpts.scales.x,
+        y: { position: 'left', title: { display: true, text: 'Head (m)', color: textColor, font:{family:fontFamily} },
+             ticks: { color: textColor, font:{family:fontFamily,size:11} }, grid: { color: gridColor } },
+        y1: { position: 'right', title: { display: true, text: 'Eff % / Power kW', color: textColor, font:{family:fontFamily} },
+              ticks: { color: textColor, font:{family:fontFamily,size:11} }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+/* ---- Pipe material recommendations ---- */
+function updateMaterials(suc, dis) {
+  const grid = $('materialGrid');
+  const flow = currentFlow.peakFlow;
+  const materials = Object.entries(MATERIALS);
+  grid.innerHTML = materials.map(([key, m]) => {
+    let rating = 'ok', ratingLabel = 'Suitable';
+    let reason = '';
+    if (key === 'uPVC' || key === 'CPVC' || key === 'Cu') { rating = 'rec'; ratingLabel = 'Recommended'; }
+    if (key === 'HDPE') { rating = 'rec'; ratingLabel = 'Recommended'; }
+    // Material ratings are now based purely on hydraulic properties,
+    // not building type — all building types use the same pipe materials.
+    if (key === 'GI' && flow > 30) { rating = 'caution'; ratingLabel = 'Caution'; reason = 'Higher roughness increases friction cost over time at this flow.'; }
+    if (key === 'Cu' && flow > 80) { rating = 'caution'; ratingLabel = 'Cost caution'; reason = 'Premium cost; consider uPVC/HDPE for large diameters.'; }
+    return `
+      <div class="mat-card">
+        <div class="mat-card__head">
+          <span class="mat-card__name">${m.name}</span>
+          <span class="mat-card__rating mat-card__rating--${rating}">${ratingLabel}</span>
+        </div>
+        <div class="mat-card__body">
+          <strong>Roughness:</strong> ${m.roughness*1000}&micro;m &nbsp; <strong>C:</strong> ${m.C}<br>
+          ${m.notes}
+          ${reason ? `<br><strong>Note:</strong> ${reason}` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// Steel pipe schedule table (common DN sizes, Sch-40-ish)
+const STEEL_SCHEDULE = [
+  { DN: 40, OD: 48.3, ID: 40.9 },
+  { DN: 50, OD: 60.3, ID: 52.5 },
+  { DN: 65, OD: 76.1, ID: 62.7 },
+  { DN: 80, OD: 88.9, ID: 77.9 },
+  { DN: 100, OD: 114.3, ID: 102.3 },
+  { DN: 125, OD: 139.7, ID: 128.2 },
+  { DN: 150, OD: 168.3, ID: 154.1 },
+  { DN: 200, OD: 219.1, ID: 202.7 },
+  { DN: 250, OD: 273.0, ID: 254.4 },
+  { DN: 300, OD: 323.9, ID: 304.8 },
+];
+
+function updateScheduleTable(dis) {
+  const selectedDN = parseInt($('disDN').value);
+  const t = $('schedTable');
+  t.innerHTML = `<thead><tr><th>DN</th><th>OD (mm)</th><th>ID Sch-40 (mm)</th><th>Velocity at ${fmt(currentFlow.peakFlow,1)} m³/hr (m/s)</th></tr></thead>` +
+    STEEL_SCHEDULE.map(s => {
+      const Q = currentFlow.peakFlow / 3600;
+      const D = s.ID / 1000;
+      const area = Math.PI * D * D / 4;
+      const V = Q / area;
+      const hl = s.DN === selectedDN ? 'highlight' : '';
+      return `<tr class="${hl}"><td>DN${s.DN}</td><td>${s.OD}</td><td>${s.ID}</td><td>${fmt(V,2)}</td></tr>`;
+    }).join('');
+}
+
+/* ---- Fittings UI ---- */
+function renderFittings() {
+  const buildList = (containerId, side) => {
+    const fittings = side === 'suction' ? state.sucFittings : state.disFittings;
+    const el = $(containerId);
+    el.innerHTML = FITTINGS.map(f => {
+      const count = fittings[f.key] || 0;
+      return `
+        <div class="field" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
+          <span style="font-size:13px;">${f.name} <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">K=${f.k}</span></span>
+          <input type="number" min="0" step="1" value="${count}" data-side="${side}" data-fit="${f.key}"
+            class="input fit-input" style="width:64px;text-align:center;padding:6px;">
+        </div>`;
+    }).join('');
+  };
+  buildList('sucFittings', 'suction');
+  buildList('disFittings', 'discharge');
+
+  document.querySelectorAll('.fit-input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const side = e.target.dataset.side;
+      const key = e.target.dataset.fit;
+      const val = parseInt(e.target.value) || 0;
+      if (side === 'suction') state.sucFittings[key] = val;
+      else state.disFittings[key] = val;
+      update();
+    });
+  });
+}
+
+/* ---- Material auto-set ---- */
+function autoMaterial(side) {
+  const sel = $(side === 'suction' ? 'sucMaterial' : 'disMaterial');
+  const mat = MATERIALS[sel.value];
+  if (mat) {
+    $(side === 'suction' ? 'sucRoughness' : 'disRoughness').value = mat.roughness * 1000; // store as mm
+    $(side === 'suction' ? 'sucCfactor' : 'disCfactor').value = mat.C;
+  }
+}
+
+/* ---- Tab switching ---- */
+function setupTabs() {
+  document.querySelectorAll('#pipeTabs .tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('#pipeTabs .tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      $('panel-' + t.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+/* ---- DN -> ID auto-update ---- */
+const DN_ID_MAP = {};
+STEEL_SCHEDULE.forEach(s => DN_ID_MAP[s.DN] = s.ID);
+
+function syncID(prefix) {
+  const dn = parseInt($(prefix + 'DN').value);
+  const idField = $(prefix + 'ID');
+  // only auto-update if user hasn't manually overridden (we just always sync on DN change)
+  if (DN_ID_MAP[dn]) idField.value = DN_ID_MAP[dn];
+}
+
+/* ---- Export: collect all results into a structured object ---- */
+function collectReportData() {
+  const suc = computePipe('suction');
+  const dis = computePipe('discharge');
+  const head = computeTotalHead(suc, dis);
+  const npsha = computeNPSHa(suc);
+  const power = computePower(head.tdh, currentFlow.peakFlow);
+  const atm = atmHead(num('altitude'));
+
+  return {
+    date: new Date().toLocaleString('en-IN'),
+    flow: {
+      designFlow: currentFlow.peakFlow,
+      lps: currentFlow.peakLps,
+      gpm: currentFlow.peakGpm,
+    },
+    static: {
+      staticSuction: num('staticSuction'),
+      staticDischarge: num('staticDischarge'),
+      residual: num('residualHead'),
+      suctionLiquidLevel: num('suctionLiquidLevel'),
+      vaporPressure: num('vaporPressure'),
+      altitude: num('altitude'),
+      atmHead: atm,
+    },
+    suction: {
+      dn: $('sucDN').value,
+      id: num('sucID'),
+      length: num('sucLength'),
+      material: MATERIALS[$('sucMaterial').value]?.name || $('sucMaterial').value,
+      roughness: num('sucRoughness'),
+      cFactor: num('sucCfactor'),
+      velocity: suc.V,
+      reynolds: suc.Re,
+      frictionFactor: suc.f,
+      hfDarcy: suc.hfDarcy,
+      hfHW: suc.hfHW,
+      kSum: suc.Ksum,
+      minorLoss: suc.hMinor,
+    },
+    discharge: {
+      dn: $('disDN').value,
+      id: num('disID'),
+      length: num('disLength'),
+      material: MATERIALS[$('disMaterial').value]?.name || $('disMaterial').value,
+      roughness: num('disRoughness'),
+      cFactor: num('disCfactor'),
+      velocity: dis.V,
+      reynolds: dis.Re,
+      frictionFactor: dis.f,
+      hfDarcy: dis.hfDarcy,
+      hfHW: dis.hfHW,
+      kSum: dis.Ksum,
+      minorLoss: dis.hMinor,
+    },
+    tdh: head.tdh,
+    headBreakdown: [
+      ['Static head (discharge - suction)', fmt(head.staticHead, 3)],
+      ['Residual / delivery pressure', fmt(head.residual, 3)],
+      ['Suction friction (Darcy-Weisbach)', fmt(head.frictionSuction, 3)],
+      ['Suction friction (Hazen-Williams ref.)', fmt(suc.hfHW, 3)],
+      ['Suction minor losses', fmt(head.minorSuction, 3)],
+      ['Discharge friction (Darcy-Weisbach)', fmt(head.frictionDischarge, 3)],
+      ['Discharge friction (Hazen-Williams ref.)', fmt(dis.hfHW, 3)],
+      ['Discharge minor losses', fmt(head.minorDischarge, 3)],
+      ['TOTAL DYNAMIC HEAD (TDH)', fmt(head.tdh, 2)],
+    ],
+    power: {
+      hydraulic: power.hydraulicPower,
+      shaft: power.shaftPower,
+      motor: power.motorPower,
+      pumpEff: state.pumpEff,
+      motorEff: state.motorEff,
+    },
+    npsh: {
+      atm: atm,
+      vaporPressure: num('vaporPressure'),
+      suctionLevel: num('suctionLiquidLevel'),
+      suctionLoss: suc.hfDarcy + suc.hMinor,
+      npsha: npsha,
+      npshr: state.npshr,
+      margin: state.npshMargin,
+      required: state.npshr + state.npshMargin,
+      ratio: npsha / Math.max(state.npshr, 0.1),
+      status: npsha >= (state.npshr + state.npshMargin) && (npsha / Math.max(state.npshr, 0.1)) >= 1.3 ? 'OK - No cavitation risk' :
+              npsha >= (state.npshr + state.npshMargin) ? 'Marginal - ratio < 1.3x' : 'FAIL - Cavitation risk',
+    },
+  };
+}
+
+/* ---- PDF helper: draw a section table with native jsPDF API ---- */
+function pdfTable(doc, x, y, w, headText, rows, headColor, col2W) {
+  const pw = 210, ph = 297, margin = 15, bottomLimit = ph - 18;
+  const col1W = w - col2W;
+  const rowH = 6;
+  const headH = 7;
+
+  // Check page break
+  if (y + headH + rows.length * rowH > bottomLimit) {
+    doc.addPage();
+    y = 20;
+  }
+
+  // Header row
+  doc.setFillColor.apply(doc, headColor);
+  doc.rect(x, y, w, headH, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text(headText, x + 2, y + 5);
+  y += headH;
+
+  // Body rows
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(40, 40, 40);
+  let isTotalRow = false;
+
+  rows.forEach((row, i) => {
+    isTotalRow = row[0].includes('TOTAL') || row[0].includes('NPSH Available') || row[0].includes('Motor power');
+
+    // Page break check
+    if (y + rowH > bottomLimit) {
+      doc.addPage();
+      y = 20;
+    }
+
+    // Alternating row background
+    if (i % 2 === 0) {
+      doc.setFillColor(248, 249, 250);
+      doc.rect(x, y, w, rowH, 'F');
+    }
+
+    // Total row highlighting
+    if (isTotalRow) {
+      doc.setFillColor(219, 234, 254);
+      doc.rect(x, y, w, rowH, 'F');
+      doc.setFont('helvetica', 'bold');
+    } else {
+      doc.setFont('helvetica', 'normal');
+    }
+
+    // Column borders
+    doc.setDrawColor(214, 217, 220);
+    doc.setLineWidth(0.2);
+    doc.rect(x, y, w, rowH);
+
+    // Text - col 1 (label)
+    doc.setTextColor(30, 30, 30);
+    doc.text(String(row[0]).substring(0, 55), x + 2, y + 4.5);
+
+    // Text - col 2 (value)
+    doc.text(String(row[1]), x + w - 2, y + 4.5, { align: 'right' });
+
+    y += rowH;
+  });
+
+  // Reset
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  return y + 5;
+}
+
+/* ---- Export to PDF (jsPDF native — no autoTable dependency) ---- */
+function exportPDF() {
+  const d = collectReportData();
+  const { jsPDF } = window.jspdf;
+  if (!jsPDF) { alert('PDF library failed to load. Check your internet connection.'); return; }
+  const doc = new jsPDF('p', 'mm', 'a4');
+  const pw = 210, ph = 297, margin = 15;
+  const tableW = pw - margin * 2;
+  const col2W = 50;
+  let y = 20;
+
+  // Title
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(3, 105, 161);
+  doc.text('Pump Head Calculation Report', margin, y);
+  y += 6;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 120, 120);
+  doc.text('Generated: ' + d.date, margin, y);
+  y += 7;
+  doc.setTextColor(0, 0, 0);
+
+  // Section 1: Design Flow
+  y = pdfTable(doc, margin, y, tableW, 'Design Flow Rate', [
+    ['Design flow', fmt(d.flow.designFlow, 2) + ' m3/hr'],
+    ['Equivalent', fmt(d.flow.lps, 2) + ' L/s  |  ' + fmt(d.flow.gpm, 1) + ' GPM'],
+  ], [3, 105, 161], col2W);
+
+  // Section 2: Static Head & Layout
+  y = pdfTable(doc, margin, y, tableW, 'Static Head & Layout', [
+    ['Static suction head', fmt(d.static.staticSuction, 2) + ' m'],
+    ['Static discharge head', fmt(d.static.staticDischarge, 2) + ' m'],
+    ['Residual / delivery pressure', fmt(d.static.residual, 2) + ' m'],
+    ['Suction liquid level above pump', fmt(d.static.suctionLiquidLevel, 2) + ' m'],
+    ['Vapor pressure of water', fmt(d.static.vaporPressure, 3) + ' m (abs)'],
+    ['Site altitude', fmt(d.static.altitude, 0) + ' m AMSL'],
+    ['Atmospheric pressure head', fmt(d.static.atmHead, 3) + ' m'],
+  ], [3, 105, 161], col2W);
+
+  // Section 3: Suction Pipe
+  y = pdfTable(doc, margin, y, tableW, 'Suction Pipe', [
+    ['Nominal diameter', d.suction.dn + ' mm'],
+    ['Inside diameter', fmt(d.suction.id, 1) + ' mm'],
+    ['Length', fmt(d.suction.length, 1) + ' m'],
+    ['Material', d.suction.material],
+    ['Roughness (e)', fmt(d.suction.roughness, 4) + ' mm'],
+    ['Hazen-Williams C', fmt(d.suction.cFactor, 0)],
+    ['Velocity', fmt(d.suction.velocity, 2) + ' m/s'],
+    ['Reynolds number', fmt(d.suction.reynolds, 0)],
+    ['Friction factor (f)', fmt(d.suction.frictionFactor, 5)],
+    ['Friction loss (Darcy)', fmt(d.suction.hfDarcy, 3) + ' m'],
+    ['Friction loss (Hazen-Williams)', fmt(d.suction.hfHW, 3) + ' m'],
+    ['Minor loss coeff (Sigma K)', fmt(d.suction.kSum, 2)],
+    ['Minor head loss', fmt(d.suction.minorLoss, 3) + ' m'],
+  ], [13, 148, 136], col2W);
+
+  // Section 4: Discharge Pipe
+  y = pdfTable(doc, margin, y, tableW, 'Discharge Pipe', [
+    ['Nominal diameter', d.discharge.dn + ' mm'],
+    ['Inside diameter', fmt(d.discharge.id, 1) + ' mm'],
+    ['Length', fmt(d.discharge.length, 1) + ' m'],
+    ['Material', d.discharge.material],
+    ['Roughness (e)', fmt(d.discharge.roughness, 4) + ' mm'],
+    ['Hazen-Williams C', fmt(d.discharge.cFactor, 0)],
+    ['Velocity', fmt(d.discharge.velocity, 2) + ' m/s'],
+    ['Reynolds number', fmt(d.discharge.reynolds, 0)],
+    ['Friction factor (f)', fmt(d.discharge.frictionFactor, 5)],
+    ['Friction loss (Darcy)', fmt(d.discharge.hfDarcy, 3) + ' m'],
+    ['Friction loss (Hazen-Williams)', fmt(d.discharge.hfHW, 3) + ' m'],
+    ['Minor loss coeff (Sigma K)', fmt(d.discharge.kSum, 2)],
+    ['Minor head loss', fmt(d.discharge.minorLoss, 3) + ' m'],
+  ], [13, 148, 136], col2W);
+
+  // Section 5: TDH Breakdown
+  y = pdfTable(doc, margin, y, tableW, 'Total Dynamic Head Breakdown',
+    d.headBreakdown.map(r => [r[0], r[1] + ' m']),
+    [3, 105, 161], col2W);
+
+  // Section 6: Power
+  y = pdfTable(doc, margin, y, tableW, 'Pump Power Sizing', [
+    ['Hydraulic power', fmt(d.power.hydraulic, 2) + ' kW'],
+    ['Pump efficiency', fmt(d.power.pumpEff, 0) + ' %'],
+    ['Shaft power', fmt(d.power.shaft, 2) + ' kW'],
+    ['Motor efficiency', fmt(d.power.motorEff, 0) + ' %'],
+    ['Motor power (with 1.25x SF)', fmt(d.power.motor, 2) + ' kW'],
+  ], [3, 105, 161], col2W);
+
+  // Section 7: NPSH
+  y = pdfTable(doc, margin, y, tableW, 'NPSH Analysis', [
+    ['Atmospheric pressure head', fmt(d.npsh.atm, 3) + ' m'],
+    ['(-) Vapour pressure', fmt(d.npsh.vaporPressure, 3) + ' m'],
+    ['(+) Static suction head', fmt(d.npsh.suctionLevel, 3) + ' m'],
+    ['(-) Suction friction + minor', fmt(d.npsh.suctionLoss, 3) + ' m'],
+    ['NPSH Available (NPSHa)', fmt(d.npsh.npsha, 3) + ' m'],
+    ['NPSH Required (NPSHr)', fmt(d.npsh.npshr, 2) + ' m'],
+    ['Safety margin', fmt(d.npsh.margin, 2) + ' m'],
+    ['NPSHr + margin', fmt(d.npsh.required, 2) + ' m'],
+    ['Ratio NPSHa/NPSHr', fmt(d.npsh.ratio, 2) + 'x'],
+    ['Status', d.npsh.status],
+  ], [217, 119, 6], col2W);
+
+  // Footer on all pages
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(150, 150, 150);
+    doc.text('Pump Head Calculator | Preliminary sizing - verify with manufacturer pump curves', margin, ph - 8);
+    doc.text('Page ' + i + ' / ' + pageCount, pw - margin - 15, ph - 8);
+  }
+
+  doc.save('Pump_Head_Report.pdf');
+}
+
+/* ---- Export to Word (.doc) ---- */
+function exportWord() {
+  const d = collectReportData();
+  const f = (v, dec = 2) => fmt(v, dec);
+
+  let html = `<!DOCTYPE html><html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset="utf-8"><title>Pump Head Report</title>
+<style>
+  body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1a1a2e; }
+  h1 { font-size: 20pt; color: #0369a1; margin-bottom: 2pt; }
+  .meta { font-size: 9pt; color: #64748b; margin-bottom: 16pt; }
+  h2 { font-size: 13pt; color: #0369a1; border-bottom: 2px solid #0369a1; padding-bottom: 3pt; margin-top: 18pt; }
+  h2.teal { color: #0d9488; border-color: #0d9488; }
+  h2.amber { color: #d97706; border-color: #d97706; }
+  table { border-collapse: collapse; width: 100%; margin-top: 6pt; }
+  th { background: #0369a1; color: #fff; font-size: 9pt; padding: 5pt 8pt; text-align: left; border: 1px solid #bbb; }
+  td { padding: 4pt 8pt; border: 1px solid #ddd; font-size: 10pt; }
+  td.val { text-align: right; font-family: 'Courier New', monospace; }
+  tr.total td { font-weight: bold; background: #dbeafe; }
+  tr.total-row td { font-weight: bold; background: #e0f2fe; font-size: 11pt; }
+  .status-ok { color: #059669; font-weight: bold; }
+  .status-warn { color: #d97706; font-weight: bold; }
+  .status-fail { color: #dc2626; font-weight: bold; }
+  .summary-box { background: #f0f9ff; border: 1px solid #0369a1; border-radius: 6px; padding: 10pt 14pt; margin: 10pt 0; }
+  .summary-box .big { font-size: 22pt; font-weight: bold; color: #0369a1; }
+  .footer { margin-top: 24pt; font-size: 8pt; color: #94a3b8; border-top: 1px solid #ddd; padding-top: 6pt; }
+</style></head><body>`;
+
+  html += `<h1>Pump Head Calculation Report</h1>
+    <div class="meta">Generated: ${d.date}</div>
+
+    <div class="summary-box">
+      <strong>Design Flow:</strong> <span class="big">${f(d.flow.designFlow,1)}</span> m3/hr
+      &nbsp;|&nbsp; ${f(d.flow.lps,2)} L/s &nbsp;|&nbsp; ${f(d.flow.gpm,1)} GPM<br>
+      <strong>Total Dynamic Head:</strong> <span class="big">${f(d.tdh,1)}</span> m
+      &nbsp;|&nbsp; <strong>Motor Power:</strong> ${f(d.power.motor,2)} kW
+      &nbsp;|&nbsp; <strong>NPSHa:</strong> ${f(d.npsh.npsha,2)} m
+    </div>
+
+    <h2>1. Design Flow Rate</h2>
+    <table><tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>Design flow rate</td><td class="val">${f(d.flow.designFlow,2)} m3/hr</td></tr>
+    <tr><td>Equivalent (L/s)</td><td class="val">${f(d.flow.lps,2)} L/s</td></tr>
+    <tr><td>Equivalent (GPM)</td><td class="val">${f(d.flow.gpm,1)} GPM</td></tr>
+    </table>
+
+    <h2>2. Static Head & Layout</h2>
+    <table><tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>Static suction head</td><td class="val">${f(d.static.staticSuction,2)} m</td></tr>
+    <tr><td>Static discharge head</td><td class="val">${f(d.static.staticDischarge,2)} m</td></tr>
+    <tr><td>Residual / delivery pressure</td><td class="val">${f(d.static.residual,2)} m</td></tr>
+    <tr><td>Suction liquid level above pump</td><td class="val">${f(d.static.suctionLiquidLevel,2)} m</td></tr>
+    <tr><td>Vapor pressure of water</td><td class="val">${f(d.static.vaporPressure,3)} m (abs)</td></tr>
+    <tr><td>Site altitude</td><td class="val">${f(d.static.altitude,0)} m AMSL</td></tr>
+    <tr><td>Atmospheric pressure head</td><td class="val">${f(d.static.atmHead,3)} m</td></tr>
+    </table>
+
+    <h2 class="teal">3. Suction Pipe</h2>
+    <table><tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>Nominal diameter</td><td class="val">${d.suction.dn} mm</td></tr>
+    <tr><td>Inside diameter</td><td class="val">${f(d.suction.id,1)} mm</td></tr>
+    <tr><td>Length</td><td class="val">${f(d.suction.length,1)} m</td></tr>
+    <tr><td>Material</td><td>${d.suction.material}</td></tr>
+    <tr><td>Roughness</td><td class="val">${f(d.suction.roughness,4)} mm</td></tr>
+    <tr><td>Hazen-Williams C</td><td class="val">${f(d.suction.cFactor,0)}</td></tr>
+    <tr><td>Velocity</td><td class="val">${f(d.suction.velocity,2)} m/s</td></tr>
+    <tr><td>Reynolds number</td><td class="val">${f(d.suction.reynolds,0)}</td></tr>
+    <tr><td>Friction factor (f)</td><td class="val">${f(d.suction.frictionFactor,5)}</td></tr>
+    <tr><td>Friction loss (Darcy)</td><td class="val">${f(d.suction.hfDarcy,3)} m</td></tr>
+    <tr><td>Friction loss (Hazen-Williams)</td><td class="val">${f(d.suction.hfHW,3)} m</td></tr>
+    <tr><td>Minor loss coeff (Sum K)</td><td class="val">${f(d.suction.kSum,2)}</td></tr>
+    <tr><td>Minor head loss</td><td class="val">${f(d.suction.minorLoss,3)} m</td></tr>
+    </table>
+
+    <h2 class="teal">4. Discharge Pipe</h2>
+    <table><tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>Nominal diameter</td><td class="val">${d.discharge.dn} mm</td></tr>
+    <tr><td>Inside diameter</td><td class="val">${f(d.discharge.id,1)} mm</td></tr>
+    <tr><td>Length</td><td class="val">${f(d.discharge.length,1)} m</td></tr>
+    <tr><td>Material</td><td>${d.discharge.material}</td></tr>
+    <tr><td>Roughness</td><td class="val">${f(d.discharge.roughness,4)} mm</td></tr>
+    <tr><td>Hazen-Williams C</td><td class="val">${f(d.discharge.cFactor,0)}</td></tr>
+    <tr><td>Velocity</td><td class="val">${f(d.discharge.velocity,2)} m/s</td></tr>
+    <tr><td>Reynolds number</td><td class="val">${f(d.discharge.reynolds,0)}</td></tr>
+    <tr><td>Friction factor (f)</td><td class="val">${f(d.discharge.frictionFactor,5)}</td></tr>
+    <tr><td>Friction loss (Darcy)</td><td class="val">${f(d.discharge.hfDarcy,3)} m</td></tr>
+    <tr><td>Friction loss (Hazen-Williams)</td><td class="val">${f(d.discharge.hfHW,3)} m</td></tr>
+    <tr><td>Minor loss coeff (Sum K)</td><td class="val">${f(d.discharge.kSum,2)}</td></tr>
+    <tr><td>Minor head loss</td><td class="val">${f(d.discharge.minorLoss,3)} m</td></tr>
+    </table>
+
+    <h2>5. Total Dynamic Head Breakdown</h2>
+    <table><tr><th>Head Component</th><th>Head (m)</th></tr>`;
+
+  d.headBreakdown.forEach((row, i) => {
+    const isTotal = i === d.headBreakdown.length - 1;
+    html += `<tr class="${isTotal ? 'total-row' : ''}"><td>${row[0]}</td><td class="val">${row[1]}</td></tr>`;
+  });
+  html += `</table>
+
+    <h2>6. Pump Power Sizing</h2>
+    <table><tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>Hydraulic power</td><td class="val">${f(d.power.hydraulic,2)} kW</td></tr>
+    <tr><td>Pump efficiency</td><td class="val">${f(d.power.pumpEff,0)} %</td></tr>
+    <tr><td>Shaft power</td><td class="val">${f(d.power.shaft,2)} kW</td></tr>
+    <tr><td>Motor efficiency</td><td class="val">${f(d.power.motorEff,0)} %</td></tr>
+    <tr class="total"><td>Motor power (with 1.25x SF)</td><td class="val">${f(d.power.motor,2)} kW</td></tr>
+    </table>
+
+    <h2 class="amber">7. NPSH Analysis</h2>
+    <table><tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>Atmospheric pressure head</td><td class="val">${f(d.npsh.atm,3)} m</td></tr>
+    <tr><td>(-) Vapour pressure</td><td class="val">${f(d.npsh.vaporPressure,3)} m</td></tr>
+    <tr><td>(+) Static suction head</td><td class="val">${f(d.npsh.suctionLevel,3)} m</td></tr>
+    <tr><td>(-) Suction friction + minor</td><td class="val">${f(d.npsh.suctionLoss,3)} m</td></tr>
+    <tr class="total-row"><td>NPSH Available (NPSHa)</td><td class="val">${f(d.npsh.npsha,3)} m</td></tr>
+    <tr><td>NPSH Required (NPSHr)</td><td class="val">${f(d.npsh.npshr,2)} m</td></tr>
+    <tr><td>Safety margin</td><td class="val">${f(d.npsh.margin,2)} m</td></tr>
+    <tr><td>NPSHr + margin</td><td class="val">${f(d.npsh.required,2)} m</td></tr>
+    <tr><td>Ratio NPSHa / NPSHr</td><td class="val">${f(d.npsh.ratio,2)}x</td></tr>`;
+
+  const statusClass = d.npsh.status.startsWith('OK') ? 'status-ok' : (d.npsh.status.startsWith('Marginal') ? 'status-warn' : 'status-fail');
+  html += `<tr><td>Status</td><td class="${statusClass}">${d.npsh.status}</td></tr>
+    </table>
+
+    <div class="footer">Pump Head Calculator | Preliminary sizing - verify with manufacturer pump curves and a qualified MEP consultant before procurement.</div>
+    </body></html>`;
+
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Pump_Head_Report.doc';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ---- Export to Excel (.xlsx via SheetJS) ---- */
+function exportExcel() {
+  const d = collectReportData();
+  const wb = XLSX.utils.book_new();
+
+  // --- Sheet 1: Summary & Inputs ---
+  const summaryData = [
+    ['PUMP HEAD CALCULATION REPORT'],
+    ['Generated:', d.date],
+    [],
+    ['--- DESIGN FLOW ---', ''],
+    ['Design flow rate (m3/hr)', d.flow.designFlow],
+    ['Flow (L/s)', d.flow.lps],
+    ['Flow (GPM)', d.flow.gpm],
+    [],
+    ['--- STATIC HEAD & LAYOUT ---', ''],
+    ['Static suction head (m)', d.static.staticSuction],
+    ['Static discharge head (m)', d.static.staticDischarge],
+    ['Residual / delivery pressure (m)', d.static.residual],
+    ['Suction liquid level above pump (m)', d.static.suctionLiquidLevel],
+    ['Vapor pressure (m abs)', d.static.vaporPressure],
+    ['Site altitude (m AMSL)', d.static.altitude],
+    ['Atmospheric pressure head (m)', d.static.atmHead],
+    [],
+    ['--- TOTAL DYNAMIC HEAD ---', ''],
+    ['TDH (m)', d.tdh],
+    [],
+    ['--- PUMP POWER ---', ''],
+    ['Hydraulic power (kW)', d.power.hydraulic],
+    ['Pump efficiency (%)', d.power.pumpEff],
+    ['Shaft power (kW)', d.power.shaft],
+    ['Motor efficiency (%)', d.power.motorEff],
+    ['Motor power with 1.25x SF (kW)', d.power.motor],
+    [],
+    ['--- NPSH ---', ''],
+    ['NPSH Available (m)', d.npsh.npsha],
+    ['NPSH Required (m)', d.npsh.npshr],
+    ['Safety margin (m)', d.npsh.margin],
+    ['NPSHr + margin (m)', d.npsh.required],
+    ['Ratio NPSHa/NPSHr', d.npsh.ratio],
+    ['Status', d.npsh.status],
+  ];
+  const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+  ws1['!cols'] = [{ wch: 38 }, { wch: 18 }];
+  ws1['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
+
+  // --- Sheet 2: Suction Pipe ---
+  const sucData = [
+    ['SUCTION PIPE PARAMETERS'],
+    [],
+    ['Parameter', 'Value', 'Unit'],
+    ['Nominal diameter', d.suction.dn, 'mm'],
+    ['Inside diameter', d.suction.id, 'mm'],
+    ['Length', d.suction.length, 'm'],
+    ['Material', d.suction.material, ''],
+    ['Roughness', d.suction.roughness, 'mm'],
+    ['Hazen-Williams C', d.suction.cFactor, ''],
+    ['Velocity', d.suction.velocity, 'm/s'],
+    ['Reynolds number', d.suction.reynolds, ''],
+    ['Friction factor (f)', d.suction.frictionFactor, ''],
+    ['Friction loss (Darcy)', d.suction.hfDarcy, 'm'],
+    ['Friction loss (Hazen-Williams)', d.suction.hfHW, 'm'],
+    ['Minor loss coeff (Sum K)', d.suction.kSum, ''],
+    ['Minor head loss', d.suction.minorLoss, 'm'],
+  ];
+  const ws2 = XLSX.utils.aoa_to_sheet(sucData);
+  ws2['!cols'] = [{ wch: 32 }, { wch: 16 }, { wch: 10 }];
+  ws2['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Suction Pipe');
+
+  // --- Sheet 3: Discharge Pipe ---
+  const disData = [
+    ['DISCHARGE PIPE PARAMETERS'],
+    [],
+    ['Parameter', 'Value', 'Unit'],
+    ['Nominal diameter', d.discharge.dn, 'mm'],
+    ['Inside diameter', d.discharge.id, 'mm'],
+    ['Length', d.discharge.length, 'm'],
+    ['Material', d.discharge.material, ''],
+    ['Roughness', d.discharge.roughness, 'mm'],
+    ['Hazen-Williams C', d.discharge.cFactor, ''],
+    ['Velocity', d.discharge.velocity, 'm/s'],
+    ['Reynolds number', d.discharge.reynolds, ''],
+    ['Friction factor (f)', d.discharge.frictionFactor, ''],
+    ['Friction loss (Darcy)', d.discharge.hfDarcy, 'm'],
+    ['Friction loss (Hazen-Williams)', d.discharge.hfHW, 'm'],
+    ['Minor loss coeff (Sum K)', d.discharge.kSum, ''],
+    ['Minor head loss', d.discharge.minorLoss, 'm'],
+  ];
+  const ws3 = XLSX.utils.aoa_to_sheet(disData);
+  ws3['!cols'] = [{ wch: 32 }, { wch: 16 }, { wch: 10 }];
+  ws3['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+  XLSX.utils.book_append_sheet(wb, ws3, 'Discharge Pipe');
+
+  // --- Sheet 4: Head Breakdown ---
+  const headData = [
+    ['TOTAL DYNAMIC HEAD BREAKDOWN'],
+    [],
+    ['Head Component', 'Head (m)'],
+  ];
+  d.headBreakdown.forEach(row => headData.push([row[0], parseFloat(row[1]) || row[1]]));
+  const ws4 = XLSX.utils.aoa_to_sheet(headData);
+  ws4['!cols'] = [{ wch: 40 }, { wch: 14 }];
+  ws4['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
+  XLSX.utils.book_append_sheet(wb, ws4, 'Head Breakdown');
+
+  // --- Sheet 5: System Curve Data ---
+  const { fixedHead, k } = systemCurve(d.flow.designFlow, computeTotalHead(computePipe('suction'), computePipe('discharge')));
+  const qMax = Math.max(d.flow.designFlow * 1.6, 20);
+  const curveData = [
+    ['PUMP & SYSTEM CURVE DATA'],
+    [],
+    ['Flow (m3/hr)', 'System Head (m)', 'Est. Pump Head (m)', 'Est. Efficiency (%)', 'Est. Power (kW)'],
+  ];
+  const designH = d.tdh;
+  for (let q = 0; q <= qMax + 0.1; q += qMax / 20) {
+    const sysH = fixedHead + k * q * q;
+    const shutoff = designH * 1.3;
+    const pumpH = Math.max(shutoff - (shutoff - designH) * Math.pow(q / d.flow.designFlow, 1.6), 0);
+    const eff = q === 0 ? 0 : Math.max(0, 70 * Math.sin(Math.PI * q / (d.flow.designFlow * 1.8)));
+    const Qm3s = q / 3600;
+    const hydP = 1000 * 9.81 * Qm3s * pumpH / 1000;
+    const power = hydP / Math.max(eff / 100, 0.3);
+    curveData.push([Math.round(q * 100) / 100, Math.round(sysH * 100) / 100, Math.round(pumpH * 100) / 100, Math.round(eff * 10) / 10, Math.round(power * 100) / 100]);
+  }
+  const ws5 = XLSX.utils.aoa_to_sheet(curveData);
+  ws5['!cols'] = [{ wch: 14 }, { wch: 18 }, { wch: 20 }, { wch: 18 }, { wch: 16 }];
+  ws5['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
+  XLSX.utils.book_append_sheet(wb, ws5, 'Curve Data');
+
+  XLSX.writeFile(wb, 'Pump_Head_Report.xlsx');
+}
+
+/* ---- Init ---- */
+function init() {
+  renderFittings();
+  setupTabs();
+
+  // material selects
+  $('sucMaterial').addEventListener('change', () => { autoMaterial('suction'); update(); });
+  $('disMaterial').addEventListener('change', () => { autoMaterial('discharge'); update(); });
+
+  // DN changes
+  $('sucDN').addEventListener('change', () => { syncID('suc'); update(); });
+  $('disDN').addEventListener('change', () => { syncID('dis'); update(); });
+
+  // all inputs trigger update
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', update);
+  });
+
+  // init materials
+  autoMaterial('suction');
+  autoMaterial('discharge');
+  syncID('suc');
+  syncID('dis');
+
+  update();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

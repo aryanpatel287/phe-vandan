@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Softener Plant Designer — Public Utility Engineering Tool</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/Water_Softener_Plant_Designer.css">
+
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+<div class="container-1400">
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+</div>
+
+
+<div class="wrap">
+
+<header class="hero">
+  <h1>Water Softener Plant Designer</h1>
+  <div class="sub">Public-utility grade ion-exchange softener sizing for hospitals, hotels, residential complexes, commercial buildings, airports and railway stations. Engine built on IS 8406, IS 7400, IS 10500, IS 1172 and WHO drinking-water guidelines — with process flow, P&ID and a 3D plant model.</div>
+  <div class="meta">
+    <b>IS 8406 : 1977</b><b>IS 7400 : 1994</b><b>IS 10500 : 2012</b><b>IS 1172 : 1993</b><b>WHO GDWQ 4th ed.</b>
+  </div>
+</header>
+
+<div class="grid-2">
+
+<!-- ============ INPUTS ============ -->
+<div class="card">
+  <h2><span class="dot"></span>Design Inputs</h2>
+  <div class="hint">Select the application, set demand and raw-water hardness.</div>
+
+  <label>Application Type</label>
+  <div class="app-grid" id="appGrid">
+    <button class="app-btn active" data-app="hospital"><span class="ic">⊞</span>Hospital</button>
+    <button class="app-btn" data-app="hotel"><span class="ic">ITableView</span>Hotel</button>
+    <button class="app-btn" data-app="residential"><span class="ic">⌂</span>Residential</button>
+    <button class="app-btn" data-app="commercial"><span class="ic">▦</span>Commercial</button>
+    <button class="app-btn" data-app="airport"><span class="ic">✈</span>Airport</button>
+    <button class="app-btn" data-app="railway"><span class="ic">⚙</span>Railway Stn</button>
+  </div>
+
+  <div class="row2">
+    <div>
+      <label id="lblUnit1">Number of Beds</label>
+      <input type="number" id="inpUnits" value="300" min="1">
+    </div>
+    <div>
+      <label>Demand / unit (L/day)</label>
+      <input type="number" id="inpDemand" value="450" min="1">
+      <div class="note" id="demandNote">IS 1172 / CPHEEO: hospital 450 L/bed/day</div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div>
+      <label>Peak Factor</label>
+      <input type="number" id="inpPeak" value="2.5" step="0.1" min="1">
+      <div class="note">Ratio of peak hourly to average flow</div>
+    </div>
+    <div>
+      <label>Operating Hours / day</label>
+      <input type="number" id="inpHours" value="16" min="1" max="24">
+    </div>
+  </div>
+
+  <label>Raw Water Total Hardness (mg/L as CaCO₃)</label>
+  <input type="number" id="inpHardness" value="450" min="50">
+  <div class="note">IS 10500 desirable ≤200, permissible ≤600 mg/L. WHO: no health-based limit.</div>
+
+  <div class="row2">
+    <div>
+      <label>Target Effluent Hardness (mg/L)</label>
+      <input type="number" id="inpTarget" value="30" min="0">
+    </div>
+    <div>
+      <label>Resin Operating Capacity (eq/L)</label>
+      <input type="number" id="inpCapacity" value="1.0" step="0.05" min="0.5">
+      <div class="note">SAC (Na) resin IS 7400, typ. 1.0–1.2</div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div>
+      <label>Salt Dose (kg NaCl / m³ resin)</label>
+      <input type="number" id="inpSalt" value="120" min="60">
+      <div class="note">Co-current ~100–150 kg/m³</div>
+    </div>
+    <div>
+      <label>Service Flow Velocity (m/h)</label>
+      <input type="number" id="inpVel" value="20" min="5" max="40">
+      <div class="note">IS 8406: 15–25 m/h linear</div>
+    </div>
+  </div>
+
+  <label>Redundancy / Standby</label>
+  <select id="inpStandby">
+    <option value="2">2 × units (1 working + 1 standby) — recommended</option>
+    <option value="1" selected>1 × unit + 1 standby (N+1) — public utility</option>
+    <option value="0">Single unit (small / non-critical)</option>
+  </select>
+
+  <button class="primary" id="btnCalc">Calculate & Generate Design</button>
+</div>
+
+<!-- ============ RESULTS ============ -->
+<div class="results">
+
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi acc"><div class="lbl">Daily Demand</div><div class="val" id="kDemand">—<span class="unit">kL/day</span></div></div>
+    <div class="kpi amb"><div class="lbl">Peak Flow</div><div class="val" id="kPeak">—<span class="unit">m³/h</span></div></div>
+    <div class="kpi eme"><div class="lbl">Resin Volume</div><div class="val" id="kResin">—<span class="unit">L</span></div></div>
+    <div class="kpi ros"><div class="lbl">Regen Cycles</div><div class="val" id="kCycles">—<span class="unit">/day</span></div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot"></span>Sizing & Performance Summary</h2>
+    <div class="hint">Computed per IS 8406 : 1977 and ion-exchange resin design practice.</div>
+    <div class="section-tab">Duty & Resin Bed</div>
+    <table class="specs" id="tblDuty">
+      <tr><td>Average daily water demand</td><td class="v" id="sAvg">—</td></tr>
+      <tr><td>Peak instantaneous flow</td><td class="v" id="sPeak">—</td></tr>
+      <tr><td>Hardness removed per m³ treated</td><td class="v" id="sHardRemoved">—</td></tr>
+      <tr><td>Hardness load per day</td><td class="v" id="sHardDay">—</td></tr>
+      <tr><td>Resin operating capacity</td><td class="v" id="sCap">—</td></tr>
+      <tr><td>Resin volume per vessel</td><td class="v" id="sResinV">—</td></tr>
+      <tr><td>Cycle throughput (m³/vessel)</td><td class="v" id="sCycleVol">—</td></tr>
+      <tr><td>Operating time between regens</td><td class="v" id="sCycleTime">—</td></tr>
+    </table>
+    <div class="section-tab mt-16">Vessel Geometry</div>
+    <table class="specs">
+      <tr><td>Resin bed depth</td><td class="v" id="sBed">1.00 m</td></tr>
+      <tr><td>Vessel internal diameter</td><td class="v" id="sDia">—</td></tr>
+      <tr><td>Straight-side height (SH)</td><td class="v" id="sSH">—</td></tr>
+      <tr><td>Freeboard (50% bed expansion)</td><td class="v" id="sFree">—</td></tr>
+      <tr><td>Total vessel tangent length</td><td class="v" id="sLen">—</td></tr>
+      <tr><td>Number of operating vessels</td><td class="v" id="sNum">—</td></tr>
+      <tr><td>Standby vessel(s)</td><td class="v" id="sStandby">—</td></tr>
+    </table>
+    <div class="section-tab mt-16">Regeneration</div>
+    <table class="specs">
+      <tr><td>Salt per regeneration (per vessel)</td><td class="v" id="sSaltRegen">—</td></tr>
+      <tr><td>Salt consumption per day</td><td class="v" id="sSaltDay">—</td></tr>
+      <tr><td>Brine tank volume (saturated soln.)</td><td class="v" id="sBrine">—</td></tr>
+      <tr><td>Rinse water per regen</td><td class="v" id="sRinse">—</td></tr>
+      <tr><td>Regen duration (typical)</td><td class="v">~75–90 min</td></tr>
+    </table>
+    <div class="warn" id="warnBox" style="display:none"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot"></span>Process Flow & P&ID Diagrams</h2>
+    <div class="hint">Standard water-softening treatment train with dual-vessel duty/standby arrangement.</div>
+    <div class="tabs">
+      <button class="tab active" data-tab="pfd">Process Flow (PFD)</button>
+      <button class="tab" data-tab="pid">P&ID</button>
+    </div>
+    <div class="tab-panel active" id="panel-pfd">
+      <div class="diagram-box" id="pfdBox"></div>
+      <div class="legend">
+        <span><i class="p-water_softener_plant_designer_html-s1"></i>Raw / feed water</span>
+        <span><i class="p-water_softener_plant_designer_html-s2"></i>Softened water</span>
+        <span><i class="p-water_softener_plant_designer_html-s3"></i>Brine / regen</span>
+        <span><i class="p-water_softener_plant_designer_html-s4"></i>Waste / rinse</span>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-pid">
+      <div class="diagram-box" id="pidBox"></div>
+      <div class="legend">
+        <span><i class="p-water_softener_plant_designer_html-s5"></i>Instrumented line</span>
+        <span><i class="p-water_softener_plant_designer_html-s6"></i>Control valve</span>
+        <span><i class="p-water_softener_plant_designer_html-s7"></i>Brine</span>
+        <span><i class="p-water_softener_plant_designer_html-s8"></i>Drain</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot"></span>3D Plant Model</h2>
+    <div class="hint">Interactive three-dimensional view of the softener plant arrangement. Drag to rotate, scroll to zoom.</div>
+    <div id="threeD">
+      <div class="three-overlay"><b>Plant Layout</b><br>Dual softener vessels (FRP/MSRL) with common brine tank, feed header and softened-water collector. Piping shown schematic.</div>
+      <div class="three-hint">drag · scroll · right-click pan</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot"></span>Applicable Standards & Codes</h2>
+    <div class="hint">Indian Standards and WHO guidelines governing water softener design for public utilities.</div>
+    <div class="codes">
+      <div class="code-item"><div class="code">IS 8406 : 1977</div><div class="title">Code of practice for installation of water softeners</div><div class="desc">Vessel sizing, flow velocities (15–25 m/h), bed depth, regeneration and piping arrangement.</div></div>
+      <div class="code-item amb"><div class="code">IS 7400 : 1994</div><div class="title">Ion-exchange resins — specifications</div><div class="desc">Strong-acid cation (Na-form) resin capacity, physical properties and test methods.</div></div>
+      <div class="code-item eme"><div class="code">IS 10500 : 2012</div><div class="title">Drinking water specification</div><div class="desc">Total hardness: desirable ≤200, permissible ≤600 mg/L as CaCO₃ in absence of alternate source.</div></div>
+      <div class="code-item"><div class="code">IS 1172 : 1993</div><div class="title">Water requirements for buildings</div><div class="desc">Per-capita/per-unit demand norms used for daily flow estimation (reaffirmed 2021).</div></div>
+      <div class="code-item amb"><div class="code">IS 2065 : 1983</div><div class="title">Water supply, drainage & sanitation in buildings</div><div class="desc">Code of practice for building water-supply distribution and treatment.</div></div>
+      <div class="code-item eme"><div class="code">WHO GDWQ (4th ed. + 1st add.)</div><div class="title">Guidelines for Drinking-water Quality</div><div class="desc">No health-based limit for hardness; aesthetic/operational acceptability governs softening.</div></div>
+      <div class="code-item"><div class="code">IS 3025 (Parts)</div><div class="title">Methods of sampling & test for water</div><div class="desc">Hardness (Part 21), calcium, pH and TDS determination for feed and product water.</div></div>
+      <div class="code-item amb"><div class="code">NBC 2016 / CPHEEO Manual</div><div class="title">Building & water-supply norms</div><div class="desc">Demand estimation, peak factors and redundancy for public water-supply systems.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot"></span>Download Design Report</h2>
+    <div class="hint">Export the full design — inputs, sizing, calculations, codes and notes.</div>
+    <div class="dl-row">
+      <button class="dl-btn pdf" data-fmt="pdf"><div class="icon">PDF</div><div><b>PDF Report</b><small>jsPDF · formatted calculation sheet</small></div></button>
+      <button class="dl-btn xls" data-fmt="xls"><div class="icon">XLS</div><div><b>Excel Workbook</b><small>SheetJS · inputs + sizing tables</small></div></button>
+      <button class="dl-btn doc" data-fmt="doc"><div class="icon">DOC</div><div><b>Word Document</b><small>.doc · editable design note</small></div></button>
+    </div>
+    <div class="note mt-14">Calculations follow IS 8406:1977 sizing methodology. Verify against site-specific water analysis and a licensed water-treatment consultant before execution — this tool is a design aid, not a stamped engineering deliverable.</div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ============ LIBRARIES ============ -->
+<script src="assets/vendor/jspdf.umd.min.js"></script>
+<script src="assets/vendor/jspdf.plugin.autotable.min.js"></script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<script src="assets/vendor/three.min.js"></script>
+<script src="assets/vendor/html2canvas.min.js"></script>
+
+<script>
+/* =====================================================================
+   WATER SOFTENER PLANT DESIGNER
+   Engineering basis: IS 8406:1977, IS 7400:1994, IS 10500:2012,
+   IS 1172:1993, NBC 2016, CPHEEO Manual, WHO GDWQ 4th ed.
+   ===================================================================== */
+
+const APPS = {
+  hospital:   { label:'Hospital',         unit:'Beds',       demand:450, peak:2.5, hours:16, note:'IS 1172 / CPHEEO: hospital 450 L/bed/day (general ward). ICU ~700.' },
+  hotel:       { label:'Hotel',            unit:'Rooms',      demand:180, peak:2.5, hours:18, note:'CPHEEO/IS 1172: 5-star ~180 L/room/day; budget ~135.' },
+  residential: { label:'Residential',      unit:'Persons',    demand:135, peak:2.5, hours:20, note:'IS 1172: 135 L/person/day (with flushing). Full-flush 200.' },
+  commercial:  { label:'Commercial',        unit:'Occupants',  demand:45,  peak:2.5, hours:10, note:'IS 1172: 45 L/person/day office/commercial.' },
+  airport:     { label:'Airport',          unit:'Passengers', demand:50,  peak:3.0, hours:18, note:'AAI/CPHEEO: ~15–50 L/passenger/day (peak).' },
+  railway:     { label:'Railway Station',   unit:'Passengers', demand:25,  peak:3.0, hours:18, note:'IRC/CPHEEO: ~25 L/passenger/day terminal.' }
+};
+
+let STATE = { app:'hospital', last:null };
+
+/* ---------- UI wiring ---------- */
+document.querySelectorAll('#appGrid .app-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#appGrid .app-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    STATE.app = b.dataset.app;
+    const a = APPS[STATE.app];
+    document.getElementById('lblUnit1').textContent = 'Number of '+a.unit;
+    document.getElementById('inpDemand').value = a.demand;
+    document.getElementById('inpPeak').value = a.peak;
+    document.getElementById('inpHours').value = a.hours;
+    document.getElementById('demandNote').textContent = a.note;
+  });
+});
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('btnCalc').addEventListener('click', calculate);
+document.querySelectorAll('.dl-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{ if(!STATE.last){ calculate(); } exportDoc(b.dataset.fmt); });
+});
+
+/* ---------- num helpers ---------- */
+const $ = id => document.getElementById(id);
+const f = (n,d=1) => Number.isFinite(n) ? (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toFixed(d) : '—';
+const f2 = n => f(n,2);
+const r = n => Math.round(n);
+function niceDia(A){
+  // standard vessel diameters (mm) — choose nearest standard >= required
+  const std = [300,400,500,600,800,1000,1200,1500,1800,2000,2250,2500,2800,3000,3200,3500,3800,4000];
+  const need = Math.sqrt(4*A/Math.PI)*1000;
+  for(const d of std){ if(d>=need) return d; }
+  return Math.ceil(need/100)*100;
+}
+
+/* =====================================================================
+   CORE CALCULATION ENGINE
+   ===================================================================== */
+function calculate(){
+  const app = STATE.app;
+  const cfg = APPS[app];
+  const units   = parseFloat($('inpUnits').value);
+  const demand  = parseFloat($('inpDemand').value);   // L/unit/day
+  const peak    = parseFloat($('inpPeak').value);
+  const hours   = parseFloat($('inpHours').value);
+  const TH      = parseFloat($('inpHardness').value); // mg/L as CaCO3
+  const target  = parseFloat($('inpTarget').value);
+  const cap     = parseFloat($('inpCapacity').value);// eq/L
+  const saltDose= parseFloat($('inpSalt').value);     // kg/m3 resin
+  const vel     = parseFloat($('inpVel').value);      // m/h
+  const standbySel = $('inpStandby').value;
+
+  // --- Demand ---
+  const avgDaily = units * demand;               // L/day
+  const avgFlow  = avgDaily / hours / 1000;       // m3/h average operating flow
+  const peakFlow = avgFlow * peak;                // m3/h peak instantaneous
+
+  // --- Hardness load ---
+  const hardRemoved = TH - target;                // mg/L as CaCO3 to remove
+  const hardPerDay  = avgDaily * hardRemoved / 1e6; // kg CaCO3/day  (L*mg/L /1e6 = kg)
+
+  // --- Resin capacity ---
+  // 1 eq/L = 50 g CaCO3/L = 50 kg CaCO3/m3.  Operating cap (eq/L) * 50 = kg/m3
+  const capKgPerM3 = cap * 50;
+
+  // --- Number of operating vessels based on standby choice ---
+  let numOp, numStandby;
+  if(standbySel==='2'){ numOp=2; numStandby=1; }       // 2 working +1 standby (3 total)
+  else if(standbySel==='1'){ numOp=1; numStandby=1; }  // 1 working +1 standby (N+1)
+  else { numOp=1; numStandby=0; }                      // single unit
+
+  // --- Design for ONE operating cycle per vessel to handle peak flow ---
+  // Peak flow split across operating vessels
+  const flowPerVessel = peakFlow / numOp;        // m3/h each vessel at peak
+  // Vessel area from velocity
+  const areaReq = flowPerVessel / vel;            // m2
+  const diaMm = niceDia(areaReq);
+  const diaM = diaMm/1000;
+  const areaAct = Math.PI*diaM*diaM/4;
+
+  // Resin bed depth: keep 1.0 m (IS 8406 typical), recalc to hold enough resin
+  // We size resin volume to meet daily hardness load across operating vessels,
+  // with a target cycle time.
+  // Hardness load per operating vessel per day:
+  const hardPerVesselDay = hardPerDay / numOp;    // kg CaCO3/day/vessel
+  // Resin needed if one regen per day per vessel:
+  const resinNeededForDay = hardPerVesselDay / capKgPerM3 * 1000; // L  (kg/(kg/m3)*1000 L/m3)
+  // choose bed depth so vessel holds >= resinNeededForDay, min 0.9 m, max 1.6 m
+  let bedDepth = 1.0;
+  let resinVol = areaAct * bedDepth * 1000;       // L
+  if(resinVol < resinNeededForDay){
+    bedDepth = Math.min(1.6, resinNeededForDay/areaAct/1000);
+    resinVol = areaAct * bedDepth * 1000;
+  }
+  // cycle capacity of this resin volume (kg CaCO3)
+  const cycleCapKg = resinVol * capKgPerM3 / 1000;
+  // throughput per cycle at avg operating flow per vessel (m3)
+  const cycleVol = cycleCapKg / hardRemoved * 1000; // kg /(mg/L) ... kg/(mg/L)= kg*L/mg = 1e6 mg... 
+  // careful: hardRemoved mg/L. cycleCapKg kg = cycleCapKg*1e6 mg. /hardRemoved mg/L = L. /1000 = m3
+  const cycleVolM3 = cycleCapKg*1e6/hardRemoved/1000;
+  // operating time between regenerations at avg flow per vessel
+  const avgFlowPerVessel = avgFlow;  // single working vessel handles avg flow; if 2 working split
+  const flowPerVesselAvg = avgFlow / numOp;
+  const cycleHours = cycleVolM3 / flowPerVesselAvg;
+  const regenPerDay = 24 / cycleHours; // regens per vessel per day
+
+  // --- Vessel geometry ---
+  const freeboard = bedDepth * 0.5;        // 50% expansion
+  const SH = bedDepth + freeboard;         // straight height (m), bed + freeboard
+  const topSpace = 0.25;                   // headspace
+  const totalLen = SH + topSpace;          // tangent-to-tangent approx (m)
+  // vessel total height incl dished ends ~ totalLen + 0.3*dia
+  const totalHt = totalLen + 0.3*diaM;
+
+  // --- Regeneration ---
+  const saltPerRegen = saltDose * resinVol/1000;  // kg per vessel (kg/m3 * m3)
+  const saltPerDay = saltPerRegen * regenPerDay * numOp; // kg/day total
+  // brine: saturated NaCl ~26.4% w/w, density ~1.2 kg/L. brine vol = salt/(0.264*1.2) L
+  const brineVolPerRegen = saltPerRegen/(0.264*1.2); // L
+  // brine tank: hold 1 regen + reserve, sized for ~1.5x
+  const brineTankVol = brineVolPerRegen*1.5; // L
+  // rinse water: ~3-5 bed volumes
+  const rinseVol = resinVol*4/1000; // m3
+
+  // --- warnings ---
+  const warns = [];
+  if(TH>600) warns.push('Raw water hardness exceeds IS 10500 permissible limit (600 mg/L). Confirm potability of source.');
+  if(vel>25) warns.push('Service flow velocity above IS 8406 typical range (15–25 m/h) — increase vessel diameter.');
+  if(cycleHours<4) warns.push('Cycle time <4 h — consider larger resin bed or additional operating vessel.');
+  if(bedDepth>1.5) warns.push('Resin bed depth >1.5 m — verify vessel can accommodate; consider larger diameter.');
+  if(regenPerDay>3) warns.push('More than 3 regenerations/day per vessel — salt/water consumption high; review capacity.');
+
+  STATE.last = {
+    app:cfg.label, appKey:app,
+    units, demandUnit:cfg.unit, demand, peak, hours, TH, target, cap, saltDose, vel,
+    standbySel, numOp, numStandby,
+    avgDaily, avgFlow, peakFlow, hardRemoved, hardPerDay, capKgPerM3,
+    flowPerVessel, areaReq, diaMm, diaM, areaAct, bedDepth, resinVol,
+    cycleCapKg, cycleVolM3, cycleHours, regenPerDay,
+    freeboard, SH, topSpace, totalLen, totalHt,
+    saltPerRegen, saltPerDay, brineVolPerRegen, brineTankVol, rinseVol,
+    warns
+  };
+  render(STATE.last);
+}
+
+/* =====================================================================
+   RENDER RESULTS
+   ===================================================================== */
+function render(d){
+  $('kDemand').innerHTML = f(d.avgDaily/1000,1)+'<span class="unit">kL/day</span>';
+  $('kPeak').innerHTML = f(d.peakFlow,1)+'<span class="unit">m³/h</span>';
+  $('kResin').innerHTML = f(d.resinVol*d.numOp,0)+'<span class="unit">L</span>';
+  $('kCycles').innerHTML = f(d.regenPerDay,1)+'<span class="unit">/day</span>';
+
+  $('sAvg').textContent = f(d.avgDaily/1000,1)+' kL/day  ('+f(d.avgFlow,2)+' m³/h avg)';
+  $('sPeak').textContent = f(d.peakFlow,2)+' m³/h';
+  $('sHardRemoved').textContent = f(d.hardRemoved,0)+' mg/L as CaCO₃';
+  $('sHardDay').textContent = f(d.hardPerDay,1)+' kg CaCO₃/day';
+  $('sCap').textContent = f(d.cap,2)+' eq/L  ('+f(d.capKgPerM3,0)+' kg/m³)';
+  $('sResinV').textContent = f(d.resinVol,0)+' L/vessel';
+  $('sCycleVol').textContent = f(d.cycleVolM3,1)+' m³/vessel';
+  $('sCycleTime').textContent = f(d.cycleHours,1)+' h';
+
+  $('sBed').textContent = f(d.bedDepth,2)+' m';
+  $('sDia').textContent = d.diaMm+' mm  ('+f(d.diaM,2)+' m)';
+  $('sSH').textContent = f(d.SH,2)+' m';
+  $('sFree').textContent = f(d.freeboard,2)+' m';
+  $('sLen').textContent = f(d.totalLen,2)+' m  (T-T)';
+  $('sNum').textContent = d.numOp+' operating';
+  $('sStandby').textContent = d.numStandby+' standby';
+
+  $('sSaltRegen').textContent = f(d.saltPerRegen,1)+' kg/vessel';
+  $('sSaltDay').textContent = f(d.saltPerDay,1)+' kg/day (total)';
+  $('sBrine').textContent = f(d.brineTankVol,0)+' L  ('+f(d.brineTankVol/1000,2)+' m³)';
+  $('sRinse').textContent = f(d.rinseVol,1)+' m³/regen';
+
+  const wb = $('warnBox');
+  if(d.warns.length){ wb.style.display='block'; wb.innerHTML = d.warns.map(w=>'• '+w).join('<br>'); }
+  else wb.style.display='none';
+
+  drawPFD(d);
+  drawPID(d);
+  build3D(d);
+}
+
+/* =====================================================================
+   PROCESS FLOW DIAGRAM (PFD) — SVG
+   ===================================================================== */
+function drawPFD(d){
+  const dia = Math.min(70, Math.max(40, d.diaM*45));
+  const vH = 150, vGap = 50;
+  const W = 820, H = 470;
+  const x1 = 250, x2 = 250+dia+vGap;
+  const vTop = 180;
+  const svg = `
+  <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="font-family:'IBM Plex Mono',monospace;font-size:11px">
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#9fb0c4"/></marker>
+      <linearGradient id="vgrad" x1="0" x2="1"><stop offset="0" stop-color="#1f2a3c"/><stop offset="0.5" stop-color="#3a4a63"/><stop offset="1" stop-color="#1f2a3c"/></linearGradient>
+      <pattern id="resin" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.4" fill="#e0a23a" opacity="0.6"/></pattern>
+    </defs>
+    <!-- Raw water source -->
+    <rect x="20" y="240" width="90" height="50" rx="6" fill="#17202e" stroke="#3b82c4" stroke-width="1.5"/>
+    <text x="65" y="262" text-anchor="middle" fill="#3b82c4" font-weight="600">RAW WATER</text>
+    <text x="65" y="278" text-anchor="middle" fill="#9fb0c4">TH ${f(d.TH,0)} mg/L</text>
+    <!-- Feed header -->
+    <line x1="110" y1="265" x2="180" y2="265" stroke="#3b82c4" stroke-width="3"/>
+    <polygon points="175,260 185,265 175,270" fill="#3b82c4"/>
+    <text x="145" y="255" text-anchor="middle" fill="#9fb0c4" font-size="9">FEED HEADER</text>
+    <!-- Branch to V1 -->
+    <line x1="180" y1="265" x2="180" y2="${vTop+vH/2}" stroke="#3b82c4" stroke-width="3"/>
+    <line x1="180" y1="${vTop+vH/2}" x2="${x1-10}" y2="${vTop+vH/2}" stroke="#3b82c4" stroke-width="3"/>
+    <!-- Branch to V2 -->
+    <line x1="180" y1="265" x2="180" y2="380" stroke="#3b82c4" stroke-width="2" opacity="0.5"/>
+    <line x1="180" y1="380" x2="${x2-10}" y2="380" stroke="#3b82c4" stroke-width="2" opacity="0.5"/>
+    <text x="160" y="395" fill="#9fb0c4" font-size="9">standby / duty-2</text>
+
+    ${vesselSVG(x1, vTop, dia, vH, 'V-1', 'DUTY')}
+    ${vesselSVG(x2, vTop, dia, vH, 'V-2', d.numStandby? 'STANDBY':'DUTY-2')}
+
+    <!-- Outlet header -->
+    <line x1="${x1+dia}" y1="${vTop+vH/2}" x2="${W-180}" y2="${vTop+vH/2}" stroke="#3fbf7f" stroke-width="3"/>
+    <line x1="${x2+dia}" y1="380" x2="${x2+dia+40}" y2="380" stroke="#3fbf7f" stroke-width="2" opacity="0.5"/>
+    <line x1="${x2+dia+40}" y1="380" x2="${x2+dia+40}" y2="${vTop+vH/2}" stroke="#3fbf7f" stroke-width="2" opacity="0.5"/>
+    <polygon points="${W-185},${vTop+vH/2-5} ${W-175},${vTop+vH/2} ${W-185},${vTop+vH/2+5}" fill="#3fbf7f"/>
+    <text x="${W-120}" y="${vTop+vH/2-8}" text-anchor="middle" fill="#3fbf7f" font-weight="600">SOFTENED</text>
+    <text x="${W-120}" y="${vTop+vH/2+14}" text-anchor="middle" fill="#9fb0c4">TH ${f(d.target,0)} mg/L</text>
+    <!-- To service -->
+    <rect x="${W-95}" y="${vTop+vH/2-22}" width="80" height="44" rx="6" fill="#17202e" stroke="#3fbf7f" stroke-width="1.5"/>
+    <text x="${W-55}" y="${vTop+vH/2-2}" text-anchor="middle" fill="#3fbf7f" font-weight="600">TO SERVICE</text>
+    <text x="${W-55}" y="${vTop+vH/2+14}" text-anchor="middle" fill="#9fb0c4">${f(d.peakFlow,1)} m³/h</text>
+
+    <!-- Brine tank -->
+    <rect x="${x1-20}" y="${H-60}" width="${(x2+dia)-(x1-20)}" height="34" rx="6" fill="#17202e" stroke="#e0a23a" stroke-width="1.5"/>
+    <text x="${(x1+x2+dia)/2}" y="${H-38}" text-anchor="middle" fill="#e0a23a" font-weight="600">BRINE TANK  (${f(d.brineTankVol/1000,2)} m³)</text>
+    <!-- Brine lines up to each vessel -->
+    <line x1="${x1+dia/2}" y1="${H-60}" x2="${x1+dia/2}" y2="${vTop+vH}" stroke="#e0a23a" stroke-width="2" stroke-dasharray="4 3"/>
+    <line x1="${x2+dia/2}" y1="${H-60}" x2="${x2+dia/2}" y2="${vTop+vH}" stroke="#e0a23a" stroke-width="2" stroke-dasharray="4 3"/>
+    <!-- Drain -->
+    <line x1="${x1+dia/2+15}" y1="${vTop+vH+10}" x2="${x1+dia/2+15}" y2="${H-60}" stroke="#9fb0c4" stroke-width="2"/>
+    <line x1="${x2+dia/2+15}" y1="${vTop+vH+10}" x2="${x2+dia/2+15}" y2="${H-60}" stroke="#9fb0c4" stroke-width="2"/>
+    <text x="${x1+dia/2+25}" y="${H-65}" fill="#9fb0c4" font-size="9">drain</text>
+  </svg>`;
+  $('pfdBox').innerHTML = svg;
+}
+function vesselSVG(x, top, dia, h, id, role){
+  return `
+    <g>
+      <ellipse cx="${x+dia/2}" cy="${top}" rx="${dia/2}" ry="10" fill="#2a3548" stroke="#3a4a63"/>
+      <rect x="${x}" y="${top}" width="${dia}" height="${h}" fill="url(#vgrad)" stroke="#3a4a63" stroke-width="1.5"/>
+      <rect x="${x}" y="${top+h*0.45}" width="${dia}" height="${h*0.5}" fill="url(#resin)"/>
+      <ellipse cx="${x+dia/2}" cy="${top+h}" rx="${dia/2}" ry="10" fill="#1f2a3c" stroke="#3a4a63"/>
+      <text x="${x+dia/2}" y="${top-6}" text-anchor="middle" fill="#e6edf5" font-weight="600">${id}</text>
+      <text x="${x+dia/2}" y="${top+h+24}" text-anchor="middle" fill="#2bb3c0" font-size="9">${role}</text>
+      <text x="${x+dia/2}" y="${top+h+38}" text-anchor="middle" fill="#9fb0c4" font-size="9">Ø${f(dia/45,2)}m</text>
+    </g>`;
+}
+
+/* =====================================================================
+   P&ID DIAGRAM — SVG with instrument tags
+   ===================================================================== */
+function drawPID(d){
+  const W=860, H=480;
+  const svg = `
+  <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="font-family:'IBM Plex Mono',monospace;font-size:10px">
+    <defs>
+      <marker id="parr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#2bb3c0"/></marker>
+    </defs>
+    <!-- source -->
+    <line x1="20" y1="240" x2="120" y2="240" stroke="#2bb3c0" stroke-width="2"/>
+    <text x="20" y="230" fill="#9fb0c4">RAW WATER</text>
+    <!-- FE-1 flow element (circle in line) -->
+    ${instCircle(120,240,'FE-1','#3b82c4')}
+    <line x1="138" y1="240" x2="200" y2="240" stroke="#2bb3c0" stroke-width="2"/>
+    <!-- control valve CV-1 -->
+    ${controlValve(200,240,'CV-1')}
+    <line x1="220" y1="240" x2="260" y2="240" stroke="#2bb3c0" stroke-width="2"/>
+    <!-- PI-1 pressure -->
+    ${instCircle(260,240,'PI-1','#e0a23a')}
+    <!-- splitter to vessels -->
+    <line x1="278" y1="240" x2="300" y2="240" stroke="#2bb3c0" stroke-width="2"/>
+    <line x1="300" y1="160" x2="300" y2="320" stroke="#2bb3c0" stroke-width="2"/>
+    <line x1="300" y1="200" x2="340" y2="200" stroke="#2bb3c0" stroke-width="2"/>
+    <line x1="300" y1="280" x2="340" y2="280" stroke="#2bb3c0" stroke-width="2"/>
+    <!-- isolation valves -->
+    ${gateValve(325,200)} ${gateValve(325,280)}
+    <!-- VESSEL 1 -->
+    ${pidVessel(345,140,90,150,'V-1','SV-1')}
+    <!-- VESSEL 2 -->
+    ${pidVessel(345,230,90,150,'V-2','SV-2')}
+    <!-- outlet isolation -->
+    ${gateValve(450,200)} ${gateValve(450,280)}
+    <!-- outlet header -->
+    <line x1="470" y1="200" x2="540" y2="200" stroke="#3fbf7f" stroke-width="2"/>
+    <line x1="470" y1="280" x2="540" y2="280" stroke="#3fbf7f" stroke-width="2"/>
+    <line x1="540" y1="200" x2="540" y2="280" stroke="#3fbf7f" stroke-width="2"/>
+    <line x1="540" y1="240" x2="620" y2="240" stroke="#3fbf7f" stroke-width="2"/>
+    <!-- AE-1 analyzer (hardness) -->
+    ${instCircle(620,240,'AE-1','#3fbf7f')}
+    <line x1="638" y1="240" x2="700" y2="240" stroke="#3fbf7f" stroke-width="2"/>
+    ${controlValve(700,240,'CV-2')}
+    <line x1="720" y1="240" x2="800" y2="240" stroke="#3fbf7f" stroke-width="2"/>
+    <text x="800" y="232" fill="#3fbf7f" font-weight="600">SOFT WATER</text>
+    <text x="800" y="252" fill="#9fb0c4">TO SERVICE</text>
+    <!-- brine lines (dashed amber) -->
+    <line x1="390" y1="430" x2="390" y2="290" stroke="#e0a23a" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <line x1="390" y1="430" x2="410" y2="430" stroke="#e0a23a" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <line x1="410" y1="430" x2="410" y2="380" stroke="#e0a23a" stroke-width="1.5" stroke-dasharray="4 3"/>
+    ${controlValve(400,310,'BV-1','#e0a23a')}
+    <!-- drain -->
+    <line x1="430" y1="290" x2="430" y2="430" stroke="#9fb0c4" stroke-width="1.5"/>
+    <line x1="430" y1="430" x2="470" y2="430" stroke="#9fb0c4" stroke-width="1.5"/>
+    <text x="475" y="434" fill="#9fb0c4">DRAIN</text>
+    <!-- brine tank -->
+    <rect x="330" y="430" width="120" height="30" rx="4" fill="none" stroke="#e0a23a" stroke-width="1.5"/>
+    <text x="390" y="450" text-anchor="middle" fill="#e0a23a">BRINE TANK</text>
+    <!-- controller (dashed signal) -->
+    ${instCircle(560,110,'PLC','#e0597a')}
+    <line x1="540" y1="118" x2="390" y2="200" stroke="#e0597a" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
+    <line x1="552" y1="125" x2="210" y2="232" stroke="#e0597a" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
+    <text x="540" y="100" fill="#e0597a" font-size="9">auto-regen logic</text>
+  </svg>`;
+  $('pidBox').innerHTML = svg;
+}
+function instCircle(cx,cy,label,color){
+  return `<g>
+    <circle cx="${cx+8}" cy="${cy}" r="11" fill="#0a1118" stroke="${color}" stroke-width="1.5"/>
+    <line x1="${cx}" y1="${cy}" x2="${cx+8}" y2="${cy}" stroke="${color}" stroke-width="1.5"/>
+    <line x1="${cx+16}" y1="${cy}" x2="${cx+24}" y2="${cy}" stroke="#2bb3c0" stroke-width="0" />
+    <text x="${cx+8}" y="${cy-14}" text-anchor="middle" fill="${color}" font-size="8.5" font-weight="600">${label}</text>
+  </g>`;
+}
+function controlValve(x,y,label,color='#e0597a'){
+  return `<g>
+    <polygon points="${x},${y-8} ${x+16},${y} ${x},${y+8}" fill="none" stroke="${color}" stroke-width="1.5"/>
+    <line x1="${x}" y1="${y}" x2="${x-5}" y2="${y-10}" stroke="${color}" stroke-width="1.5"/>
+    <text x="${x+8}" y="${y-13}" text-anchor="middle" fill="${color}" font-size="8">${label||''}</text>
+  </g>`;
+}
+function gateValve(x,y){
+  return `<g><line x1="${x}" y1="${y-7}" x2="${x+10}" y2="${y+7}" stroke="#9fb0c4" stroke-width="2"/><line x1="${x-4}" y1="${y}" x2="${x}" y2="${y}" stroke="#9fb0c4" stroke-width="1.5"/></g>`;
+}
+function pidVessel(x,y,w,h,id,svid){
+  return `<g>
+    <ellipse cx="${x+w/2}" cy="${y}" rx="${w/2}" ry="8" fill="none" stroke="#3a4a63" stroke-width="1.5"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#3a4a63" stroke-width="1.5"/>
+    <line x1="${x}" y1="${y+h*0.55}" x2="${x+w}" y2="${y+h*0.55}" stroke="#e0a23a" stroke-width="1" stroke-dasharray="3 2"/>
+    <ellipse cx="${x+w/2}" cy="${y+h}" rx="${w/2}" ry="8" fill="none" stroke="#3a4a63" stroke-width="1.5"/>
+    <text x="${x+w/2}" y="${y-4}" text-anchor="middle" fill="#e6edf5" font-weight="600">${id}</text>
+    <text x="${x+w/2}" y="${y+h+14}" text-anchor="middle" fill="#2bb3c0" font-size="8">${svid}</text>
+  </g>`;
+}
+
+/* =====================================================================
+   3D MODEL — THREE.JS
+   ===================================================================== */
+let scene,camera,renderer,controls3d,plantGroup;
+function build3D(d){
+  const container = document.getElementById('threeD');
+  if(renderer){ container.removeChild(renderer.domElement); }
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a1118);
+  scene.fog = new THREE.Fog(0x0a1118, 12, 30);
+  camera = new THREE.PerspectiveCamera(45, container.clientWidth/440, 0.1, 100);
+  camera.position.set(6, 4, 7);
+  renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(container.clientWidth, 440);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.appendChild(renderer.domElement);
+
+  // lights
+  scene.add(new THREE.AmbientLight(0x6688aa, 0.6));
+  const dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(5,8,5); scene.add(dl);
+  const dl2 = new THREE.DirectionalLight(0x2bb3c0, 0.3); dl2.position.set(-5,3,-4); scene.add(dl2);
+
+  plantGroup = new THREE.Group();
+  // platform
+  const plat = new THREE.Mesh(
+    new THREE.BoxGeometry(10, 0.15, 6),
+    new THREE.MeshStandardMaterial({color:0x1a2333, roughness:0.9}));
+  plat.position.y = -0.08;
+  plantGroup.add(plat);
+
+  // vessel dimensions (scaled; 1 unit ~ 1m)
+  const dia = Math.max(0.6, Math.min(1.6, d.diaM));
+  const h = Math.max(1.8, Math.min(3.2, d.totalHt));
+  const vesselMat = new THREE.MeshStandardMaterial({color:0x3a6e8a, metalness:0.6, roughness:0.35});
+  const resinMat = new THREE.MeshStandardMaterial({color:0xe0a23a, roughness:0.8, transparent:true, opacity:0.85});
+
+  // two vessels
+  const positions = [[-1.4, dia], [1.4, dia]];
+  positions.forEach((p,i)=>{
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(dia/2, dia/2, h, 32), vesselMat);
+    body.position.y = h/2;
+    g.add(body);
+    // top dish
+    const top = new THREE.Mesh(new THREE.SphereGeometry(dia/2, 24, 16, 0, Math.PI*2, 0, Math.PI/2),
+      new THREE.MeshStandardMaterial({color:0x4a8aa8, metalness:0.6, roughness:0.35}));
+    top.position.y = h; g.add(top);
+    // bottom dish
+    const bot = new THREE.Mesh(new THREE.SphereGeometry(dia/2, 24, 16, 0, Math.PI*2, Math.PI/2, Math.PI/2),
+      new THREE.MeshStandardMaterial({color:0x2a5068, metalness:0.6, roughness:0.35}));
+    bot.position.y = 0; g.add(bot);
+    // resin (visible band)
+    const bedH = h*0.45;
+    const bed = new THREE.Mesh(new THREE.CylinderGeometry(dia/2*0.94, dia/2*0.94, bedH, 28), resinMat);
+    bed.position.set(0, h*0.28, 0); g.add(bed);
+    // inlet/outlet nozzles
+    const noz = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,0.5,12),
+      new THREE.MeshStandardMaterial({color:0x6b7c93, metalness:0.7}));
+    noz.rotation.z = Math.PI/2; noz.position.set(dia/2+0.25, h*0.85, 0); g.add(noz);
+    const noz2 = noz.clone(); noz2.position.set(dia/2+0.25, h*0.15, 0); g.add(noz2);
+    g.position.set(p[0], 0, 0);
+    plantGroup.add(g);
+
+    // label sprite
+    const lab = makeLabel('V-'+(i+1));
+    lab.position.set(p[0], h+0.7, 0);
+    plantGroup.add(lab);
+  });
+
+  // brine tank (box behind)
+  const bw = Math.max(0.8, Math.min(1.8, d.brineTankVol/1000*1.2));
+  const bh = 1.0;
+  const brine = new THREE.Mesh(new THREE.CylinderGeometry(bw/2, bw/2, bh, 24),
+    new THREE.MeshStandardMaterial({color:0x6a5a2a, metalness:0.3, roughness:0.7}));
+  brine.position.set(0, bh/2, -1.8);
+  plantGroup.add(brine);
+  const blab = makeLabel('BRINE TANK'); blab.position.set(0, bh+0.5, -1.8); plantGroup.add(blab);
+
+  // feed header pipe (left to vessels)
+  addPipe(plantGroup, new THREE.Vector3(-3.5, 2.4, 0), new THREE.Vector3(-0.2, 2.4, 0), 0x2bb3c0);
+  addPipe(plantGroup, new THREE.Vector3(-0.2, 2.4, 0), new THREE.Vector3(-1.4, 2.4, 0), 0x2bb3c0);
+  addPipe(plantGroup, new THREE.Vector3(-1.4, 2.4, 0), new THREE.Vector3(-1.4, h*0.85, 0), 0x2bb3c0);
+  addPipe(plantGroup, new THREE.Vector3(0.2, 2.4, 0), new THREE.Vector3(1.4, 2.4, 0), 0x2bb3c0);
+  addPipe(plantGroup, new THREE.Vector3(1.4, 2.4, 0), new THREE.Vector3(1.4, h*0.85, 0), 0x2bb3c0);
+  // outlet header (green)
+  addPipe(plantGroup, new THREE.Vector3(-1.4, h*0.15, 0), new THREE.Vector3(-1.4, 0.6, 0), 0x3fbf7f);
+  addPipe(plantGroup, new THREE.Vector3(-1.4, 0.6, 0.6), new THREE.Vector3(1.4, 0.6, 0.6), 0x3fbf7f);
+  addPipe(plantGroup, new THREE.Vector3(1.4, h*0.15, 0), new THREE.Vector3(1.4, 0.6, 0), 0x3fbf7f);
+  addPipe(plantGroup, new THREE.Vector3(0, 0.6, 0.6), new THREE.Vector3(3.5, 0.6, 0.6), 0x3fbf7f);
+  // brine lines (amber)
+  addPipe(plantGroup, new THREE.Vector3(-1.4, 0.4, -0.8), new THREE.Vector3(-1.4, bh, -0.8), 0xe0a23a);
+  addPipe(plantGroup, new THREE.Vector3(1.4, 0.4, -0.8), new THREE.Vector3(1.4, bh, -0.8), 0xe0a23a);
+
+  scene.add(plantGroup);
+
+  // simple orbit controls (manual)
+  let isDown=false, mx=0,my=0, yaw=0.6, pitch=0.4;
+  const dom = renderer.domElement;
+  dom.onmousedown = e=>{isDown=true; mx=e.clientX; my=e.clientY;};
+  window.addEventListener('mousemove', e=>{
+    if(!isDown) return;
+    yaw  += (e.clientX-mx)*0.01;
+    pitch += (e.clientY-my)*0.01;
+    pitch = Math.max(-1.2, Math.min(1.2, pitch));
+    mx=e.clientX; my=e.clientY;
+    updateCam();
+  });
+  window.addEventListener('mouseup', ()=>isDown=false);
+  dom.addEventListener('wheel', e=>{ e.preventDefault();
+    const d=e.deltaY>0?1.1:0.9; const r=camera.position.length()*d;
+    camera.position.setLength(Math.max(3, Math.min(20, r))); }, {passive:false});
+  let dist=8;
+  function updateCam(){
+    camera.position.x = Math.cos(pitch)*Math.sin(yaw)*dist;
+    camera.position.z = Math.cos(pitch)*Math.cos(yaw)*dist;
+    camera.position.y = Math.sin(pitch)*dist + 2;
+    camera.lookAt(0,1.2,0);
+  }
+  // set initial distance
+  dist = camera.position.length();
+  updateCam();
+  // resize
+  window.addEventListener('resize', ()=>{
+    camera.aspect = container.clientWidth/440; camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, 440);
+  });
+  function animate(){
+    requestAnimationFrame(animate);
+    if(!isDown) plantGroup.rotation.y += 0.0015;
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+function addPipe(group, a, b, color){
+  const dir = new THREE.Vector3().subVectors(b,a);
+  const len = dir.length();
+  if(len<0.01) return;
+  const geo = new THREE.CylinderGeometry(0.045, 0.045, len, 10);
+  const mat = new THREE.MeshStandardMaterial({color, metalness:0.6, roughness:0.4});
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.copy(a).add(b).multiplyScalar(0.5);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
+  group.add(mesh);
+}
+function makeLabel(text){
+  const c = document.createElement('canvas');
+  c.width=256; c.height=64;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle='rgba(10,17,24,0.85)'; ctx.fillRect(0,0,256,64);
+  ctx.strokeStyle='#2bb3c0'; ctx.lineWidth=2; ctx.strokeRect(2,2,252,60);
+  ctx.fillStyle='#e6edf5'; ctx.font='600 26px IBM Plex Mono, monospace';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(text, 128, 32);
+  const tex = new THREE.CanvasTexture(c);
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true}));
+  spr.scale.set(1.4, 0.35, 1);
+  return spr;
+}
+
+/* =====================================================================
+   EXPORT — PDF / EXCEL / WORD
+   ===================================================================== */
+function exportDoc(fmt){
+  const d = STATE.last; if(!d) return;
+  const stamp = new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+  const proj = `${d.app} Water Softener Plant`;
+  const rows = [
+    ['Application', d.app],
+    ['Capacity basis', `${f(d.units,0)} ${d.demandUnit} × ${f(d.demand,0)} L/${d.demandUnit.toLowerCase()}/day`],
+    ['Average daily demand', `${f(d.avgDaily/1000,1)} kL/day`],
+    ['Average operating flow', `${f(d.avgFlow,2)} m³/h`],
+    ['Peak factor', f(d.peak,1)],
+    ['Peak instantaneous flow', `${f(d.peakFlow,2)} m³/h`],
+    ['Operating hours/day', f(d.hours,0)],
+    ['Raw water hardness (TH)', `${f(d.TH,0)} mg/L as CaCO₃`],
+    ['Target effluent hardness', `${f(d.target,0)} mg/L as CaCO₃`],
+    ['Hardness removed per m³', `${f(d.hardRemoved,0)} mg/L`],
+    ['Hardness load per day', `${f(d.hardPerDay,1)} kg CaCO₃/day`],
+    ['Resin operating capacity', `${f(d.cap,2)} eq/L (${f(d.capKgPerM3,0)} kg/m³)`],
+    ['Resin volume per vessel', `${f(d.resinVol,0)} L`],
+    ['Resin bed depth', `${f(d.bedDepth,2)} m`],
+    ['Vessel internal diameter', `${d.diaMm} mm (${f(d.diaM,2)} m)`],
+    ['Straight-side height (SH)', `${f(d.SH,2)} m`],
+    ['Freeboard', `${f(d.freeboard,2)} m`],
+    ['Total tangent length', `${f(d.totalLen,2)} m`],
+    ['Number of operating vessels', d.numOp],
+    ['Standby vessels', d.numStandby],
+    ['Cycle throughput per vessel', `${f(d.cycleVolM3,1)} m³`],
+    ['Operating time between regens', `${f(d.cycleHours,1)} h`],
+    ['Regenerations per vessel/day', f(d.regenPerDay,1)],
+    ['Salt per regeneration', `${f(d.saltPerRegen,1)} kg/vessel`],
+    ['Salt consumption per day', `${f(d.saltPerDay,1)} kg/day`],
+    ['Brine tank volume', `${f(d.brineTankVol,0)} L (${f(d.brineTankVol/1000,2)} m³)`],
+    ['Rinse water per regen', `${f(d.rinseVol,1)} m³`],
+  ];
+
+  if(fmt==='pdf'){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p','mm','a4');
+    doc.setFillColor(15,22,32); doc.rect(0,0,210,297,'F');
+    doc.setTextColor(43,179,192); doc.setFontSize(18); doc.setFont('helvetica','bold');
+    doc.text(proj, 14, 20);
+    doc.setTextColor(159,176,196); doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text('Water Softener Plant Designer — Public Utility Engineering Tool', 14, 27);
+    doc.text('Generated: '+stamp, 14, 32);
+    doc.setDrawColor(43,179,192); doc.line(14,35,196,35);
+    doc.autoTable({ startY:40, head:[['Parameter','Value']], body:rows,
+      theme:'grid', headStyles:{fillColor:[43,179,192],textColor:[10,17,24],fontStyle:'bold'},
+      styles:{fontSize:9, textColor:[230,237,245], fillColor:[23,32,46], lineColor:[40,60,80]},
+      alternateRowStyles:{fillColor:[31,42,60]} });
+    let y = doc.lastAutoTable.finalY + 8;
+    doc.setTextColor(43,179,192); doc.setFontSize(11); doc.setFont('helvetica','bold');
+    doc.text('Applicable Standards & Codes', 14, y); y+=5;
+    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(159,176,196);
+    const codes = [
+      ['IS 8406:1977','Code of practice for installation of water softeners'],
+      ['IS 7400:1994','Ion-exchange resins — specifications (SAC Na-form)'],
+      ['IS 10500:2012','Drinking water — TH desirable ≤200, permissible ≤600 mg/L'],
+      ['IS 1172:1993','Water requirements for buildings (per-unit demand)'],
+      ['IS 2065:1983','Water supply, drainage & sanitation in buildings'],
+      ['WHO GDWQ 4th ed.','Drinking-water quality — no health limit for hardness'],
+      ['IS 3025','Methods of sampling and test for water'],
+      ['NBC 2016 / CPHEEO','Building and public water-supply norms']
+    ];
+    codes.forEach(c=>{ doc.setTextColor(43,179,192); doc.text(c[0], 14, y); doc.setTextColor(159,176,196); doc.text(c[1], 50, y); y+=4.5; });
+    y+=4;
+    doc.setTextColor(224,162,58); doc.setFontSize(8);
+    doc.text('Design aid only — verify with a licensed water-treatment consultant and site water analysis before execution.', 14, y);
+    doc.save('Water_Softener_Design_'+d.appKey+'.pdf');
+  }
+  else if(fmt==='xls'){
+    const wb = XLSX.utils.book_new();
+    const wsData = [
+      ['WATER SOFTENER PLANT DESIGN REPORT'],
+      ['Application', d.app],
+      ['Generated', stamp],
+      [],
+      ['PARAMETER','VALUE','UNIT'],
+      ...rows.map(r=>[r[0], r[1], '']),
+      [],
+      ['STANDARDS & CODES'],
+      ['Code','Description'],
+      ['IS 8406:1977','Code of practice for installation of water softeners'],
+      ['IS 7400:1994','Ion-exchange resins specifications (SAC Na-form)'],
+      ['IS 10500:2012','Drinking water — TH desirable <=200, permissible <=600 mg/L'],
+      ['IS 1172:1993','Water requirements for buildings'],
+      ['IS 2065:1983','Water supply, drainage & sanitation in buildings'],
+      ['WHO GDWQ 4th ed.','No health-based limit for hardness'],
+      ['IS 3025','Methods of sampling and test for water'],
+      ['NBC 2016 / CPHEEO','Building and public water-supply norms'],
+      [],
+      ['NOTE: Design aid only. Verify with licensed consultant and site water analysis.']
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols']=[{wch:34},{wch:42},{wch:10}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Design');
+    XLSX.writeFile(wb, 'Water_Softener_Design_'+d.appKey+'.xlsx');
+  }
+  else if(fmt==='doc'){
+    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset="utf-8"><title>${proj}</title>
+    <style>body{font-family:'Calibri',sans-serif;color:#1a2333}h1{color:#1a6e7a}h2{color:#2bb3c0;border-bottom:1px solid #ccc;padding-bottom:3px}table{border-collapse:collapse;width:100%;font-size:11pt}td,th{border:1px solid #999;padding:5px 8px}th{background:#e6f3f5}small{color:#666}</style>
+</head><body>
+    <h1>${proj}</h1>
+    <p><small>Water Softener Plant Designer — Public Utility Engineering Tool<br>Generated: ${stamp}</small></p>
+    <h2>Design Inputs</h2>
+    <table><tr><th>Parameter</th><th>Value</th></tr>
+    ${rows.slice(0,11).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
+    </table>
+    <h2>Sizing & Performance</h2>
+    <table><tr><th>Parameter</th><th>Value</th></tr>
+    ${rows.slice(11).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
+    </table>
+    <h2>Applicable Standards & Codes</h2>
+    <table><tr><th>Code</th><th>Description</th></tr>
+    <tr><td>IS 8406:1977</td><td>Code of practice for installation of water softeners</td></tr>
+    <tr><td>IS 7400:1994</td><td>Ion-exchange resins — specifications (SAC Na-form)</td></tr>
+    <tr><td>IS 10500:2012</td><td>Drinking water — TH desirable ≤200, permissible ≤600 mg/L as CaCO₃</td></tr>
+    <tr><td>IS 1172:1993</td><td>Water requirements for buildings</td></tr>
+    <tr><td>IS 2065:1983</td><td>Water supply, drainage & sanitation in buildings</td></tr>
+    <tr><td>WHO GDWQ 4th ed.</td><td>No health-based limit for hardness; aesthetic/operational</td></tr>
+    <tr><td>IS 3025</td><td>Methods of sampling and test for water</td></tr>
+    <tr><td>NBC 2016 / CPHEEO</td><td>Building and public water-supply norms</td></tr>
+    </table>
+    <p><small><b>Disclaimer:</b> Design aid only. Verify with a licensed water-treatment consultant and site-specific water analysis before execution.</small></p>
+    </body></html>`;
+    const blob = new Blob(['\ufeff', html], {type:'application/msword'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Water_Softener_Design_'+d.appKey+'.doc';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+}
+
+/* initial render */
+calculate();
+</script>
+</body>
+</html>

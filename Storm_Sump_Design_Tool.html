@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storm Water Sump Design Tool — Rational + NBC 2016</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/Storm_Sump_Design_Tool.css">
+
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+
+<div class="container">
+
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+
+
+<!-- ========== HEADER ========== -->
+<header>
+  <h1>Basement Storm Water Sump Design Tool</h1>
+  <div class="subtitle">Rational Method (IS 16220:2014 + CPHEEO) &nbsp;|&nbsp; Fire LPM (NBC 2016 Part 4 Table 7) &nbsp;|&nbsp; Manning Channel &nbsp;|&nbsp; System-Characteristic Pump Sizing</div>
+  <div class="method-badge">AI-POWERED LIVE CALCULATION ENGINE</div>
+</header>
+
+<!-- ========== TOOLBAR ========== -->
+<div class="toolbar">
+  <button class="btn btn-primary" onclick="downloadCSV()" title="Export all inputs and results to CSV">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download CSV
+  </button>
+  <button class="btn" onclick="downloadJSON()" title="Export design data as JSON">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download JSON
+  </button>
+  <button class="btn" onclick="window.print()" title="Print or Save as PDF">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Print / Save PDF
+  </button>
+  <button class="btn" onclick="resetDefaults()" title="Reset to default values">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+    Reset
+  </button>
+</div>
+
+<!-- ========== SECTION 1: STORM INPUTS ========== -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <span class="num">1</span>
+    <h2>Storm Water Inputs</h2>
+    <span class="toggle">▼</span>
+  </div>
+  <div class="section-body">
+    <div class="input-grid">
+      <div class="field">
+        <label>Catchment area, A <span class="unit">m²</span></label>
+        <input type="number" id="in_A" value="2000" min="0" step="100">
+        <div class="hint">Tributary roof + paved area draining to basement</div>
+      </div>
+      <div class="field">
+        <label>Runoff coefficient, C</label>
+        <input type="number" id="in_C" value="0.85" min="0" max="1" step="0.05">
+        <div class="hint">IS 16220 Annex A; 0.70-0.95 paved</div>
+      </div>
+      <div class="field">
+        <label>Rainfall intensity, i <span class="unit">mm/hr</span></label>
+        <input type="number" id="in_i" value="75" min="0" step="5">
+        <div class="hint">From IMD IDF curve for project city</div>
+      </div>
+      <div class="field">
+        <label>Time of concentration, tc <span class="unit">min</span></label>
+        <input type="number" id="in_tc" value="20" min="10" step="5">
+        <div class="hint">Kirpich; min 10 min per IS 16220</div>
+      </div>
+      <div class="field">
+        <label>Design return period <span class="unit">years</span></label>
+        <input type="number" id="in_rp" value="2" min="1" step="1">
+        <div class="hint">1-2 yr normal; 5 yr important</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SECTION 2: STORM RUNOFF ========== -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <span class="num">2</span>
+    <h2>Storm Runoff — Rational Method</h2>
+    <span class="toggle">▼</span>
+  </div>
+  <div class="section-body">
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="label">Peak Storm Runoff (Q_storm)</div>
+        <div class="value" id="r_Qstorm_m3s">— <span class="small">m³/s</span></div>
+        <div class="formula">Q = C·i·A(ha)/360</div>
+      </div>
+      <div class="result-card">
+        <div class="label">Storm Runoff in LPM</div>
+        <div class="value" id="r_Qstorm_LPM">— <span class="small">LPM</span></div>
+        <div class="formula">× 1000 × 60</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SECTION 3: CHANNEL SIZING ========== -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <span class="num">3</span>
+    <h2>Storm Channel Sizing — Manning's Formula</h2>
+    <span class="toggle">▼</span>
+  </div>
+  <div class="section-body">
+    <div class="input-grid">
+      <div class="field">
+        <label>Manning's n</label>
+        <input type="number" id="in_n" value="0.013" min="0.008" max="0.02" step="0.001">
+        <div class="hint">0.013 RCC smooth; 0.015 rough</div>
+      </div>
+      <div class="field">
+        <label>Channel width, b <span class="unit">m</span></label>
+        <input type="number" id="in_b" value="0.30" min="0.1" step="0.05">
+        <div class="hint">Rectangular RCC channel</div>
+      </div>
+      <div class="field">
+        <label>Flow depth, y <span class="unit">m</span></label>
+        <input type="number" id="in_y" value="0.20" min="0.05" step="0.05">
+        <div class="hint">75-80% of channel depth</div>
+      </div>
+      <div class="field">
+        <label>Bed slope, S <span class="unit">m/m</span></label>
+        <input type="number" id="in_S" value="0.005" min="0.001" max="0.05" step="0.001">
+        <div class="hint">1:200 typical; min 1:333</div>
+      </div>
+    </div>
+    <div class="results-grid mt-16">
+      <div class="result-card">
+        <div class="label">Flow Area (A_flow)</div>
+        <div class="value" id="r_ch_A">— <span class="small">m²</span></div>
+        <div class="formula">b × y</div>
+      </div>
+      <div class="result-card">
+        <div class="label">Hydraulic Radius (R)</div>
+        <div class="value" id="r_ch_R">— <span class="small">m</span></div>
+        <div class="formula">A / P</div>
+      </div>
+      <div class="result-card">
+        <div class="label">Flow Velocity (V)</div>
+        <div class="value" id="r_ch_V">— <span class="small">m/s</span></div>
+        <div class="formula">(1/n)·R^(2/3)·S^(1/2)</div>
+      </div>
+      <div class="result-card">
+        <div class="label">Channel Capacity</div>
+        <div class="value" id="r_ch_Qcap">— <span class="small">LPM</span></div>
+        <div class="formula">A × V × 60000</div>
+      </div>
+    </div>
+    <div class="mt-14">
+      <div class="check-row">
+        <span class="check-label">Capacity check: Q_cap ≥ Q_storm</span>
+        <span class="status" id="chk_capacity">—</span>
+      </div>
+      <div class="check-row">
+        <span class="check-label">Velocity check: 0.6 ≤ V ≤ 2.4 m/s</span>
+        <span class="status" id="chk_velocity">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SECTION 4: FIRE WATER ========== -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <span class="num">4</span>
+    <h2>Fire-Fighting Water — NBC 2016 Part 4 Table 7</h2>
+    <span class="toggle">▼</span>
+  </div>
+  <div class="section-body">
+    <div class="input-grid">
+      <div class="field">
+        <label>Building height above grade <span class="unit">m</span></label>
+        <input type="number" id="in_bh" value="45" min="0" step="5">
+        <div class="hint">Determines pump LPM & tank per NBC Table 7</div>
+      </div>
+      <div class="field">
+        <label>Building occupancy</label>
+        <select id="in_occ">
+          <option value="residential">Residential</option>
+          <option value="commercial">Commercial</option>
+          <option value="hospital">Hospital</option>
+        </select>
+        <div class="hint">Affects tank capacity</div>
+      </div>
+    </div>
+    <div class="results-grid mt-16">
+      <div class="result-card fire">
+        <div class="label">NBC Fire Pump Discharge (Q_fire)</div>
+        <div class="value" id="r_fire_LPM">— <span class="small">LPM</span></div>
+        <div class="formula">≤15m→1620; 15-45m→2280; >45m→2850</div>
+      </div>
+      <div class="result-card fire">
+        <div class="label">Jockey Pump</div>
+        <div class="value" id="r_jockey">180 <span class="small">LPM</span></div>
+        <div class="formula">NBC Table 7</div>
+      </div>
+      <div class="result-card fire">
+        <div class="label">Fire Water Static Tank</div>
+        <div class="value" id="r_fire_tank">— <span class="small">litres</span></div>
+        <div class="formula">NBC Table 7 by height/occupancy</div>
+      </div>
+    </div>
+    <table class="nbc-table" id="nbcTable">
+      <thead>
+        <tr>
+          <th>Building Height</th>
+          <th>Static Tank (L)</th>
+          <th>Terrace Tank (L)</th>
+          <th>Fire Pump (LPM)</th>
+          <th>Jockey (LPM)</th>
+        </tr>
+      </thead>
+      <tbody id="nbcBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========== SECTION 5: SUMP SIZING ========== -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <span class="num">5</span>
+    <h2>Sump Sizing — Combined (Greater of Storm / Fire)</h2>
+    <span class="toggle">▼</span>
+  </div>
+  <div class="section-body">
+    <div class="results-grid">
+      <div class="result-card governing">
+        <div class="label">Governing Inflow (MAX of Storm / Fire)</div>
+        <div class="value" id="r_gov_inflow">— <span class="small">LPM</span></div>
+        <div class="formula">MAX(Q_storm, Q_fire)</div>
+      </div>
+      <div class="result-card pump">
+        <div class="label">Required Pump Capacity (×1.2 safety)</div>
+        <div class="value" id="r_pump_q">— <span class="small">LPM</span></div>
+        <div class="formula">Governing × Safety Factor</div>
+      </div>
+      <div class="result-card pump">
+        <div class="label">Pump Flow in L/s</div>
+        <div class="value" id="r_pump_ls">— <span class="small">L/s</span></div>
+        <div class="formula">÷ 60</div>
+      </div>
+      <div class="result-card pump">
+        <div class="label">Pump Flow in m³/hr</div>
+        <div class="value" id="r_pump_m3h">— <span class="small">m³/hr</span></div>
+        <div class="formula">× 60 ÷ 1000</div>
+      </div>
+    </div>
+
+    <div class="input-grid p-storm_sump_design_tool_html-s1">
+      <div class="field">
+        <label>Safety factor on pump capacity</label>
+        <input type="number" id="in_safety" value="1.2" min="1" max="2" step="0.1">
+        <div class="hint">1.2-1.5 typical</div>
+      </div>
+      <div class="field">
+        <label>Fire/storm runtime to retain <span class="unit">min</span></label>
+        <input type="number" id="in_runtime" value="60" min="10" step="10">
+        <div class="hint">NBC: 60-90 min fire operation</div>
+      </div>
+    </div>
+    <div class="results-grid mt-14">
+      <div class="result-card">
+        <div class="label">Retention Volume Needed</div>
+        <div class="value" id="r_ret_vol">— <span class="small">m³</span></div>
+        <div class="formula">LPM × min ÷ 1000</div>
+      </div>
+      <div class="result-card">
+        <div class="label">Min Cycle Volume (8 starts/hr)</div>
+        <div class="value" id="r_cycle_vol">— <span class="small">m³</span></div>
+        <div class="formula">Q(L/s) × 900 / starts</div>
+      </div>
+    </div>
+
+    <div class="input-grid p-storm_sump_design_tool_html-s2">
+      <div class="field">
+        <label>Sump length, L <span class="unit">m</span></label>
+        <input type="number" id="in_sump_L" value="3.0" min="1" step="0.5">
+      </div>
+      <div class="field">
+        <label>Sump width, W <span class="unit">m</span></label>
+        <input type="number" id="in_sump_W" value="2.0" min="1" step="0.5">
+      </div>
+      <div class="field">
+        <label>Sump depth, D <span class="unit">m</span></label>
+        <input type="number" id="in_sump_D" value="2.0" min="1" step="0.5">
+        <div class="hint">Min 1.5 m per IS 12251</div>
+      </div>
+      <div class="field">
+        <label>Freeboard <span class="unit">m</span></label>
+        <input type="number" id="in_fb" value="0.30" min="0.15" step="0.05">
+      </div>
+    </div>
+    <div class="results-grid mt-14">
+      <div class="result-card">
+        <div class="label">Sump Live Volume</div>
+        <div class="value" id="r_sump_vol">— <span class="small">m³</span></div>
+        <div class="formula">L × W × D</div>
+      </div>
+    </div>
+    <div class="mt-14">
+      <div class="check-row">
+        <span class="check-label">Volume check: Live vol ≥ Retention volume</span>
+        <span class="status" id="chk_volume">—</span>
+      </div>
+      <div class="check-row">
+        <span class="check-label">Cycle check: Live vol ≥ Min cycle volume</span>
+        <span class="status" id="chk_cycle">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SECTION 6: PUMP SIZING ========== -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <span class="num">6</span>
+    <h2>Sump Pump Sizing — System-Characteristic Method</h2>
+    <span class="toggle">▼</span>
+  </div>
+  <div class="section-body">
+    <div class="input-grid">
+      <div class="field">
+        <label>Discharge elev. (drain IL) <span class="unit">m RL</span></label>
+        <input type="number" id="in_disch_el" value="100.00" step="0.1">
+        <div class="hint">Municipal drain invert level</div>
+      </div>
+      <div class="field">
+        <label>Sump low water level (LLWL) <span class="unit">m RL</span></label>
+        <input type="number" id="in_llwl" value="95.00" step="0.1">
+        <div class="hint">Pump cut-off level</div>
+      </div>
+      <div class="field">
+        <label>Discharge pipe length <span class="unit">m</span></label>
+        <input type="number" id="in_pipe_L" value="30" min="5" step="5">
+      </div>
+      <div class="field">
+        <label>Pipe diameter <span class="unit">m</span></label>
+        <input type="number" id="in_pipe_D" value="0.100" min="0.05" step="0.025">
+        <div class="hint">ND100 typical for ~3000 LPM</div>
+      </div>
+      <div class="field">
+        <label>Hazen-Williams C</label>
+        <input type="number" id="in_hw_C" value="120" min="100" max="150" step="5">
+        <div class="hint">120 GI/MS; 140 uPVC</div>
+      </div>
+      <div class="field">
+        <label>Residual / exit head <span class="unit">m</span></label>
+        <input type="number" id="in_resid" value="1.0" min="0.5" step="0.5">
+        <div class="hint">Velocity head at drain</div>
+      </div>
+    </div>
+
+    <div class="results-grid mt-16">
+      <div class="result-card pump">
+        <div class="label">Static Head (Hs)</div>
+        <div class="value" id="r_static">— <span class="small">m</span></div>
+        <div class="formula">Discharge IL − LLWL</div>
+      </div>
+      <div class="result-card pump">
+        <div class="label">Pipe Friction Loss</div>
+        <div class="value" id="r_friction">— <span class="small">m</span></div>
+        <div class="formula">Hazen-Williams: 10.67·Q^1.852/(C^1.852·D^4.87) × L</div>
+      </div>
+      <div class="result-card pump">
+        <div class="label">Total Dynamic Head (TDH)</div>
+        <div class="value" id="r_tdh">— <span class="small">m</span></div>
+        <div class="formula">Hs + friction + fittings + residual</div>
+      </div>
+      <div class="result-card pump">
+        <div class="label">TDH in bar</div>
+        <div class="value" id="r_tdh_bar">— <span class="small">bar</span></div>
+        <div class="formula">× 0.0981</div>
+      </div>
+      <div class="result-card pump">
+        <div class="label">Approx. Motor Power</div>
+        <div class="value" id="r_kw">— <span class="small">kW</span></div>
+        <div class="formula">Q(m³/hr) × H / (367 × η), η=0.65</div>
+      </div>
+    </div>
+
+    <div class="p-storm_sump_design_tool_html-s3">
+      <div class="p-storm_sump_design_tool_html-s4">PUMP SELECTION SUMMARY</div>
+      <div class="p-storm_sump_design_tool_html-s5">
+        <div><strong class="p-storm_sump_design_tool_html-s6">Rated Flow:</strong> <span id="r_sel_flow">—</span></div>
+        <div><strong class="p-storm_sump_design_tool_html-s7">Rated Head:</strong> <span id="r_sel_head">—</span></div>
+        <div><strong class="p-storm_sump_design_tool_html-s8">Pump Type:</strong> <span class="p-storm_sump_design_tool_html-s9">Non-clog submersible</span></div>
+        <div><strong class="p-storm_sump_design_tool_html-s10">Configuration:</strong> <span class="p-storm_sump_design_tool_html-s11">1W + 1S (100% standby)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SECTION 7: COMPLIANCE NOTES ========== -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <span class="num">7</span>
+    <h2>Compliance & Method Notes</h2>
+    <span class="toggle">▼</span>
+  </div>
+  <div class="section-body notes">
+    <ol>
+      <li><strong>Storm runoff:</strong> Rational Method per IS 16220:2014 Cl 6.2 & CPHEEO Manual (Q = C·i·A/360, valid for catchments < 50 ha).</li>
+      <li><strong>Rainfall intensity 'i':</strong> Must be taken from the IMD IDF curve for the project city at the design return period and time of concentration.</li>
+      <li><strong>Channel sizing:</strong> Manning's equation V=(1/n)R^(2/3)S^(1/2); velocity kept 0.6–2.4 m/s for self-cleansing & no-scour (IS 16220 Cl 7.2.3).</li>
+      <li><strong>Fire LPM:</strong> NBC 2016 Part 4 Table 7: ≤15 m→1620; 15–45 m→2280; >45 m→2850 LPM (hydrant + sprinkler combined).</li>
+      <li><strong>Governing case:</strong> Fire water is usually the governing sump inflow in high-rises — sump pump capacity = MAX(storm, fire) × safety factor.</li>
+      <li><strong>Sump construction:</strong> Water-tight, non-clog pump, auto start/stop, NRV on discharge, silt trap before municipal sewer (IS 12251 Cl 2.2).</li>
+      <li><strong>Standby:</strong> 1 working + 1 standby (100%) pump with automatic electric changeover (IS 12251 Cl 2.4).</li>
+      <li><strong>Fire tank:</strong> Dedicated to fire (separate from domestic), sized per NBC Table 7.</li>
+      <li><strong>All inputs are editable</strong> — results update instantly. Use Download CSV for documentation.</li>
+    </ol>
+  </div>
+</div>
+
+<footer>
+  Storm Water Sump Design Tool &nbsp;·&nbsp; IS 16220:2014 + CPHEEO + NBC 2016 Part 4 + IS 12251<br>
+  Generated by AI-powered calculation engine &nbsp;·&nbsp; All inputs editable — results update live
+</footer>
+
+</div>
+
+<script>
+// ========== TOGGLE SECTIONS ==========
+function toggleSection(header){
+  header.classList.toggle('collapsed');
+}
+
+// ========== READ INPUTS ==========
+function val(id){
+  const el = document.getElementById(id);
+  return el ? parseFloat(el.value) || 0 : 0;
+}
+function valStr(id){
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+// ========== NBC LOOKUP ==========
+function nbcFireLPM(bh){
+  if(bh <= 15) return 1620;
+  if(bh <= 45) return 2280;
+  return 2850;
+}
+function nbcTank(bh, occ){
+  if(occ === 'hospital') return 200000;
+  if(occ === 'commercial'){
+    if(bh <= 30) return 75000;
+    if(bh <= 60) return 150000;
+    return 200000;
+  }
+  // residential
+  if(bh <= 15) return 10000;
+  if(bh <= 30) return 50000;
+  if(bh <= 45) return 100000;
+  return 150000;
+}
+function nbcTerraceTank(bh){
+  if(bh <= 30) return 5000;
+  return 10000;
+}
+
+// ========== NBC TABLE RENDER ==========
+function renderNBCTable(){
+  const bh = val('in_bh');
+  const data = [
+    {h:'≤ 15 m', tank:10000, terr:5000, pump:1620},
+    {h:'15–30 m (res)', tank:50000, terr:5000, pump:2280},
+    {h:'30–45 m (res)', tank:100000, terr:10000, pump:2280},
+    {h:'> 45 m (high-rise)', tank:150000, terr:10000, pump:2850},
+    {h:'Commercial 15-30m', tank:75000, terr:5000, pump:2280},
+    {h:'Commercial 30-60m', tank:150000, terr:10000, pump:2850},
+    {h:'Hospital (all)', tank:200000, terr:10000, pump:2850},
+  ];
+  const body = document.getElementById('nbcBody');
+  body.innerHTML = data.map(d => {
+    const isCurrent = d.pump === nbcFireLPM(bh);
+    return `<tr class="${isCurrent ? 'highlight' : ''}">
+      <td>${d.h}</td><td>${d.tank.toLocaleString()}</td><td>${d.terr.toLocaleString()}</td>
+      <td>${d.pump.toLocaleString()}</td><td>180</td>
+    </tr>`;
+  }).join('');
+}
+
+// ========== STATUS HELPERS ==========
+function setStatus(id, ok, okText, failText){
+  const el = document.getElementById(id);
+  el.textContent = ok ? okText : failText;
+  el.className = 'status ' + (ok ? 'status-ok' : 'status-fail');
+}
+function fmt(n, dec){
+  if(n === null || n === undefined || isNaN(n)) return '—';
+  return n.toLocaleString('en-IN', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+
+// ========== MAIN CALCULATION ==========
+function calculate(){
+  // --- 1. STORM ---
+  const A = val('in_A');       // m²
+  const C = val('in_C');
+  const i = val('in_i');       // mm/hr
+  // Q(m³/s) = C * i * A(ha) / 360 = C * i * (A/10000) / 360
+  const Qstorm_m3s = C * i * (A / 10000) / 360;
+  const Qstorm_LPM = Qstorm_m3s * 1000 * 60;
+
+  document.getElementById('r_Qstorm_m3s').innerHTML = fmt(Qstorm_m3s, 4) + ' <span class="small">m³/s</span>';
+  document.getElementById('r_Qstorm_LPM').innerHTML = fmt(Math.round(Qstorm_LPM), 0) + ' <span class="small">LPM</span>';
+
+  // --- 3. CHANNEL ---
+  const n = val('in_n');
+  const b = val('in_b');
+  const y = val('in_y');
+  const S = val('in_S');
+  const Aflow = b * y;
+  const P = b + 2 * y;
+  const R = Aflow / P;
+  const V = (1/n) * Math.pow(R, 2/3) * Math.pow(S, 0.5);
+  const Qcap_m3s = Aflow * V;
+  const Qcap_LPM = Qcap_m3s * 1000 * 60;
+
+  document.getElementById('r_ch_A').innerHTML = fmt(Aflow, 3) + ' <span class="small">m²</span>';
+  document.getElementById('r_ch_R').innerHTML = fmt(R, 3) + ' <span class="small">m</span>';
+  document.getElementById('r_ch_V').innerHTML = fmt(V, 2) + ' <span class="small">m/s</span>';
+  document.getElementById('r_ch_Qcap').innerHTML = fmt(Math.round(Qcap_LPM), 0) + ' <span class="small">LPM</span>';
+
+  setStatus('chk_capacity', Qcap_m3s >= Qstorm_m3s, 'OK — adequate', 'UNDER-SIZED');
+  setStatus('chk_velocity', V >= 0.6 && V <= 2.4, 'OK', 'Adjust slope/size');
+
+  // --- 4. FIRE ---
+  const bh = val('in_bh');
+  const occ = valStr('in_occ');
+  const fireLPM = nbcFireLPM(bh);
+  const fireTank = nbcTank(bh, occ);
+
+  document.getElementById('r_fire_LPM').innerHTML = fmt(fireLPM, 0) + ' <span class="small">LPM</span>';
+  document.getElementById('r_fire_tank').innerHTML = fmt(fireTank, 0) + ' <span class="small">litres</span>';
+  renderNBCTable();
+
+  // --- 5. SUMP ---
+  const govInflow = Math.max(Qstorm_LPM, fireLPM);
+  const safety = val('in_safety');
+  const pumpQ = govInflow * safety;
+  const pumpLs = pumpQ / 60;
+  const pumpM3h = pumpQ * 60 / 1000;
+
+  document.getElementById('r_gov_inflow').innerHTML = fmt(Math.round(govInflow), 0) + ' <span class="small">LPM</span>';
+  document.getElementById('r_pump_q').innerHTML = fmt(Math.round(pumpQ), 0) + ' <span class="small">LPM</span>';
+  document.getElementById('r_pump_ls').innerHTML = fmt(pumpLs, 1) + ' <span class="small">L/s</span>';
+  document.getElementById('r_pump_m3h').innerHTML = fmt(pumpM3h, 1) + ' <span class="small">m³/hr</span>';
+
+  const runtime = val('in_runtime');
+  const retVol = govInflow * runtime / 1000; // m³
+  const starts = 8;
+  const cycleVol = (pumpLs * 1000 * 3600 / starts / 4) / 1000; // m³
+
+  document.getElementById('r_ret_vol').innerHTML = fmt(retVol, 1) + ' <span class="small">m³</span>';
+  document.getElementById('r_cycle_vol').innerHTML = fmt(cycleVol, 2) + ' <span class="small">m³</span>';
+
+  const sumpL = val('in_sump_L');
+  const sumpW = val('in_sump_W');
+  const sumpD = val('in_sump_D');
+  const sumpVol = sumpL * sumpW * sumpD;
+
+  document.getElementById('r_sump_vol').innerHTML = fmt(sumpVol, 1) + ' <span class="small">m³</span>';
+  setStatus('chk_volume', sumpVol >= retVol, 'OK', 'INCREASE L/W/D');
+  setStatus('chk_cycle', sumpVol >= cycleVol, 'OK', 'INCREASE depth');
+
+  // --- 6. PUMP ---
+  const dischEl = val('in_disch_el');
+  const llwl = val('in_llwl');
+  const Hs = dischEl - llwl;
+  const pipeL = val('in_pipe_L');
+  const pipeD = val('in_pipe_D');
+  const hwC = val('in_hw_C');
+  const resid = val('in_resid');
+
+  // Hazen-Williams: hf/L = 10.67 * Q(m³/s)^1.852 / (C^1.852 * D^4.87)
+  const Q_m3s = pumpLs / 1000;
+  const hlPerM = 10.67 * Math.pow(Q_m3s, 1.852) / (Math.pow(hwC, 1.852) * Math.pow(pipeD, 4.87));
+  const frictionLoss = hlPerM * pipeL;
+  const fittingLoss = 0.1 * frictionLoss;
+  const TDH = Hs + frictionLoss + fittingLoss + resid;
+  const TDHbar = TDH * 0.0981;
+  const kw = (pumpM3h * TDH) / (367 * 0.65);
+
+  document.getElementById('r_static').innerHTML = fmt(Hs, 2) + ' <span class="small">m</span>';
+  document.getElementById('r_friction').innerHTML = fmt(frictionLoss, 2) + ' <span class="small">m</span>';
+  document.getElementById('r_tdh').innerHTML = fmt(TDH, 2) + ' <span class="small">m</span>';
+  document.getElementById('r_tdh_bar').innerHTML = fmt(TDHbar, 2) + ' <span class="small">bar</span>';
+  document.getElementById('r_kw').innerHTML = fmt(kw, 1) + ' <span class="small">kW</span>';
+
+  document.getElementById('r_sel_flow').textContent = fmt(Math.round(pumpQ), 0) + ' LPM';
+  document.getElementById('r_sel_head').textContent = fmt(TDH, 1) + ' m';
+
+  // Store for export
+  window._designData = {
+    inputs: {A, C, i, tc: val('in_tc'), rp: val('in_rp'), n, b, y, S, bh, occ, safety, runtime,
+             sumpL, sumpW, sumpD, fb: val('in_fb'), dischEl, llwl, pipeL, pipeD, hwC, resid},
+    results: {Qstorm_m3s, Qstorm_LPM, Aflow, R, V, Qcap_LPM,
+              fireLPM, fireTank, govInflow, pumpQ, pumpLs, pumpM3h,
+              retVol, cycleVol, sumpVol, Hs, frictionLoss, TDH, TDHbar, kw}
+  };
+}
+
+// ========== CSV EXPORT ==========
+function downloadCSV(){
+  const d = window._designData;
+  if(!d) return;
+  const rows = [
+    ['STORM WATER SUMP DESIGN — CALCULATION REPORT'],
+    ['Generated:', new Date().toLocaleString('en-IN')],
+    ['Method:', 'Rational (IS 16220) + NBC 2016 Part 4 + Manning + System-Characteristic'],
+    [],
+    ['SECTION 1: STORM INPUTS'],
+    ['Catchment area (m²)', d.inputs.A],
+    ['Runoff coefficient C', d.inputs.C],
+    ['Rainfall intensity i (mm/hr)', d.inputs.i],
+    ['Time of concentration (min)', d.inputs.tc],
+    ['Design return period (years)', d.inputs.rp],
+    [],
+    ['SECTION 2: STORM RUNOFF (Rational)'],
+    ['Peak storm runoff Q_storm (m³/s)', d.results.Qstorm_m3s.toFixed(6)],
+    ['Q_storm (LPM)', Math.round(d.results.Qstorm_LPM)],
+    [],
+    ['SECTION 3: CHANNEL (Manning)'],
+    ['Manning n', d.inputs.n],
+    ['Channel width b (m)', d.inputs.b],
+    ['Flow depth y (m)', d.inputs.y],
+    ['Bed slope S', d.inputs.S],
+    ['Flow area (m²)', d.results.Aflow.toFixed(4)],
+    ['Hydraulic radius R (m)', d.results.R.toFixed(4)],
+    ['Velocity V (m/s)', d.results.V.toFixed(3)],
+    ['Channel capacity (LPM)', Math.round(d.results.Qcap_LPM)],
+    [],
+    ['SECTION 4: FIRE WATER (NBC 2016)'],
+    ['Building height (m)', d.inputs.bh],
+    ['Occupancy', d.inputs.occ],
+    ['Fire pump discharge (LPM)', d.results.fireLPM],
+    ['Jockey pump (LPM)', 180],
+    ['Fire water tank (litres)', d.results.fireTank],
+    [],
+    ['SECTION 5: SUMP SIZING'],
+    ['Governing inflow MAX(storm,fire) (LPM)', Math.round(d.results.govInflow)],
+    ['Safety factor', d.inputs.safety],
+    ['Required pump capacity (LPM)', Math.round(d.results.pumpQ)],
+    ['Pump flow (L/s)', d.results.pumpLs.toFixed(1)],
+    ['Pump flow (m³/hr)', d.results.pumpM3h.toFixed(1)],
+    ['Retention volume (m³)', d.results.retVol.toFixed(1)],
+    ['Min cycle volume (m³)', d.results.cycleVol.toFixed(2)],
+    ['Sump L (m)', d.inputs.sumpL],
+    ['Sump W (m)', d.inputs.sumpW],
+    ['Sump D (m)', d.inputs.sumpD],
+    ['Sump live volume (m³)', d.results.sumpVol.toFixed(1)],
+    [],
+    ['SECTION 6: PUMP SIZING'],
+    ['Static head (m)', d.results.Hs.toFixed(2)],
+    ['Pipe friction loss (m)', d.results.frictionLoss.toFixed(2)],
+    ['TDH (m)', d.results.TDH.toFixed(2)],
+    ['TDH (bar)', d.results.TDHbar.toFixed(2)],
+    ['Motor power (kW)', d.results.kw.toFixed(1)],
+    ['Pump type', 'Non-clog submersible'],
+    ['Configuration', '1 Working + 1 Standby (100%)'],
+    [],
+    ['REFERENCES:'],
+    ['IS 16220:2014 — Guidelines for design of stormwater management systems'],
+    ['NBC 2016 Part 4 — Fire & Life Safety, Table 7'],
+    ['IS 12251:1987 — Drainage of building basements'],
+    ['CPHEEO Manual — Sewerage & Sewage Treatment'],
+  ];
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Storm_Sump_Design_Report.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ========== JSON EXPORT ==========
+function downloadJSON(){
+  const d = window._designData;
+  if(!d) return;
+  const data = {
+    title: 'Storm Water Sump Design Calculation',
+    generated: new Date().toISOString(),
+    method: 'Rational (IS 16220) + NBC 2016 Part 4 + Manning + System-Characteristic',
+    ...d
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Storm_Sump_Design.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ========== RESET ==========
+function resetDefaults(){
+  const defaults = {
+    in_A:2000, in_C:0.85, in_i:75, in_tc:20, in_rp:2,
+    in_n:0.013, in_b:0.30, in_y:0.20, in_S:0.005,
+    in_bh:45, in_safety:1.2, in_runtime:60,
+    in_sump_L:3.0, in_sump_W:2.0, in_sump_D:2.0, in_fb:0.30,
+    in_disch_el:100.00, in_llwl:95.00, in_pipe_L:30, in_pipe_D:0.100,
+    in_hw_C:120, in_resid:1.0
+  };
+  for(const [id, v] of Object.entries(defaults)){
+    const el = document.getElementById(id);
+    if(el) el.value = v;
+  }
+  document.getElementById('in_occ').value = 'residential';
+  calculate();
+}
+
+// ========== ATTACH LISTENERS ==========
+document.querySelectorAll('input, select').forEach(el => {
+  el.addEventListener('input', calculate);
+  el.addEventListener('change', calculate);
+});
+
+// ========== INIT ==========
+calculate();
+</script>
+
+</body>
+</html>

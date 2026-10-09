@@ -1,0 +1,411 @@
+/**
+ * Atomep Enteam — Shared CSS Primitives (Light Theme Only)
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. Buttons & Action Controls
+   ========================================================================== */
+.btn, button.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8, 8px);
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium, 500);
+  height: 38px;
+  padding: 8px 18px;
+  border-radius: var(--radius-buttons, 9999px);
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary, .btn--primary, .btn-success, .btn-calc {
+  background-color: var(--color-ink, #171717);
+  color: #ffffff;
+  border-color: var(--color-ink, #171717);
+  box-shadow: var(--shadow-subtle-2);
+}
+
+.btn-primary:hover, .btn--primary:hover, .btn-success:hover, .btn-calc:hover {
+  background-color: #262626;
+  border-color: #262626;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+/* Secondary Button (Pure White Surface) */
+.btn-secondary, .btn-outline, .btn--ghost {
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-ink, #171717);
+  border-color: var(--color-soft-fog, #f0f0f0);
+  box-shadow: var(--shadow-subtle-2);
+}
+
+.btn-secondary:hover, .btn-outline:hover, .btn--ghost:hover {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  border-color: var(--color-steel, #737373);
+  color: var(--color-ink, #171717);
+  text-decoration: none;
+}
+
+/* Ghost Text Button */
+.btn-ghost, .btn-tertiary {
+  background: transparent;
+  color: var(--color-ink, #171717);
+  border-color: transparent;
+  padding: 4px 8px;
+  height: auto;
+}
+
+.btn-ghost:hover, .btn-tertiary:hover {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  text-decoration: none;
+}
+
+/* Export / Download Action Bars & Buttons */
+.dl-bar {
+  display: flex;
+  gap: var(--spacing-8, 8px);
+  flex-wrap: wrap;
+  align-items: center;
+  margin: var(--spacing-16, 16px) 0;
+}
+
+.dl-btn {
+  font-family: var(--font-ui-monospace);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-buttons, 9999px);
+  padding: 6px 14px;
+  background-color: var(--color-pure-white, #ffffff);
+  color: var(--color-ink, #171717);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-subtle-2);
+  transition: all 0.15s ease;
+}
+
+.dl-btn:hover {
+  border-color: var(--color-ink, #171717);
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+.dl-pdf {
+  border-left: 3px solid var(--color-alert-red, #ef4444);
+}
+
+.dl-xlsx {
+  border-left: 3px solid var(--color-resolve-green, #22c55e);
+}
+
+.dl-docx {
+  border-left: 3px solid #0284c7;
+}
+
+/* ==========================================================================
+   2. Form Controls & Inputs
+   ========================================================================== */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4, 4px);
+  margin-bottom: var(--spacing-16, 16px);
+}
+
+.field label, label.field-label {
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-ink, #171717);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.field label .hint, .field label small {
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-regular, 400);
+  color: var(--color-steel, #737373);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+select,
+textarea {
+  font-family: var(--font-inter);
+  font-size: 14px;
+  color: var(--color-ink, #171717);
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 8px 12px;
+  height: 38px;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="number"] {
+  font-variant-numeric: tabular-nums;
+}
+
+textarea {
+  height: auto;
+  min-height: 80px;
+  padding: 10px 12px;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: var(--color-ink, #171717);
+  box-shadow: 0 0 0 2px var(--color-ink, #171717);
+}
+
+input[type="range"] {
+  accent-color: var(--color-ink, #171717);
+  cursor: pointer;
+}
+
+.range-hint {
+  font-size: var(--text-caption, 11px);
+  color: var(--color-steel, #737373);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   3. Cards & Panels
+   ========================================================================== */
+.card, .input-panel {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--card-padding, 16px);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-16, 16px);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover, .input-panel:hover {
+  box-shadow: var(--shadow-subtle-2);
+}
+
+.card h2, .input-panel h2 {
+  font-size: var(--text-subheading, 22px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  margin-bottom: var(--spacing-12, 12px);
+  padding-bottom: var(--spacing-8, 8px);
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.card h3, .input-panel h3 {
+  font-size: var(--text-body-lg, 18px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  margin-bottom: var(--spacing-8, 8px);
+}
+
+/* Tool Grid on Portal */
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-16, 16px);
+}
+
+.tool-card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--card-padding, 16px);
+  text-decoration: none;
+  color: var(--color-ink, #171717);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-subtle-2);
+  border-color: var(--color-steel, #737373);
+  text-decoration: none;
+}
+
+.tool-card .tool-title {
+  font-size: var(--text-body-lg, 18px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-ink, #171717);
+  margin-bottom: var(--spacing-4, 4px);
+}
+
+.tool-card .tool-desc {
+  font-size: var(--text-body, 15px);
+  color: var(--color-graphite, #525252);
+  line-height: var(--leading-body, 1.56);
+  flex: 1;
+  margin-bottom: var(--spacing-12, 12px);
+}
+
+/* ==========================================================================
+   4. Results & KPI Scorecards
+   ========================================================================== */
+.result-card, .result-panel {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--card-padding, 16px);
+  margin-bottom: var(--spacing-16, 16px);
+  box-shadow: var(--shadow-sm);
+}
+
+.result-card .label, .kpi-card__label, .result-box .l {
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-steel, #737373);
+}
+
+.big-number, .kpi-card__value, .result-box .v {
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: -0.5px;
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+  margin: var(--spacing-4, 4px) 0;
+}
+
+.result-grid, .kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--spacing-8, 8px);
+  margin-top: var(--spacing-12, 12px);
+}
+
+.result-box, .kpi-card {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: var(--spacing-12, 12px);
+  text-align: center;
+}
+
+/* ==========================================================================
+   5. Data Tables & Scroll Wrappers
+   ========================================================================== */
+.table-scroll, .table-container, .table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  margin: var(--spacing-16, 16px) 0;
+  background-color: var(--color-pure-white, #ffffff);
+}
+
+table, .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+
+th {
+  background-color: var(--color-ash-mist, #f5f5f5);
+  color: var(--color-ink, #171717);
+  font-weight: var(--font-weight-semibold, 600);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-graphite, #525252);
+  font-size: 14px;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #fafaf9;
+}
+
+tbody tr:hover {
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+td.num, th.num {
+  text-align: right;
+  font-family: var(--font-ui-monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   6. Badges & Tags
+   ========================================================================== */
+.badge-pill, .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-inter);
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: 0.3px;
+  background-color: var(--color-ash-mist, #f5f5f5);
+  color: var(--color-graphite, #525252);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-tags, 9999px);
+  padding: 2px 8px;
+}
+
+.tag-success, .status-success, .status.resolved {
+  background-color: #ecfdf5;
+  color: var(--color-resolve-green, #22c55e);
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.tag-warning, .status-warning {
+  background-color: var(--color-highlight-wash, #fef3c7);
+  color: #b45309;
+  border-color: rgba(180, 83, 9, 0.2);
+}
+
+.tag-error, .status-error, .status.danger {
+  background-color: #fef2f2;
+  color: var(--color-alert-red, #ef4444);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* ==========================================================================
+   7. Callouts & Highlights
+   ========================================================================== */
+.quote-callout, .callout-highlight {
+  background-color: var(--color-highlight-wash, #fef3c7);
+  border: 1px solid rgba(180, 83, 9, 0.15);
+  border-radius: var(--radius-inputs, 8px);
+  padding: var(--spacing-16, 16px);
+  margin: var(--spacing-16, 16px) 0;
+  color: var(--color-ink, #171717);
+}

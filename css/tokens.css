@@ -1,0 +1,193 @@
+/**
+ * Atomep Enteam — Design Tokens (Light Theme Only)
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+:root {
+  /* ==========================================================================
+     1. Surfaces (Warm Paper Workspace — Light Theme Only)
+     ========================================================================== */
+  --color-warm-canvas: #fffdf9;      /* Level 0: Page Canvas (warm paper off-white) */
+  --color-pure-white: #ffffff;       /* Level 1: Elevated Cards, Panels & Modals */
+  --color-ash-mist: #f5f5f5;         /* Level 2: Nested Content, Inputs, Sidebar */
+  --color-soft-fog: #f0f0f0;         /* Level 3: Dividers, Hairline Borders, Inactive Fills */
+  --color-charcoal-card: #1e1e1e;    /* Specialty Dark Mockup Surface */
+
+  /* Surface Aliases */
+  --surface-warm-canvas: #fffdf9;
+  --surface-pure-white: #ffffff;
+  --surface-ash-mist: #f5f5f5;
+  --surface-soft-fog: #f0f0f0;
+
+  /* ==========================================================================
+     2. Ink & Typography Hierarchy
+     ========================================================================== */
+  --color-ink: #171717;              /* Primary Text, Headings, Icons (near-black warmth) */
+  --color-graphite: #525252;         /* Secondary Text, Descriptions, Metadata */
+  --color-steel: #737373;            /* Tertiary Text, Timestamps, Labels */
+  --color-silver: #a3a3a3;           /* Muted Text, Placeholders, Disabled Fills */
+
+  /* ==========================================================================
+     3. Functional Punctuation (Rationed to <2% of UI)
+     ========================================================================== */
+  --color-resolve-green: #22c55e;    /* Resolved Actions, Success Indicators */
+  --color-highlight-wash: #fef3c7;   /* Highlight/Quote Callout Background */
+  --color-sienna-brand: #451a03;     /* Decorative Brand Mark Accent */
+  --color-alert-red: #ef4444;        /* Destructive / Error Accent */
+
+  /* ==========================================================================
+     4. Typography Font Families
+     Inter is the canonical UI font; the fallback stack is permitted only
+     where Inter is locally unavailable.
+     ========================================================================== */
+  --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-ui-monospace: 'ui-monospace', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-emoji: 'emoji', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-ui-monospace);
+
+  /* Typography Scale & Metrics */
+  --text-caption: 11px;
+  --leading-caption: 1.4;
+
+  --text-body: 15px;
+  --leading-body: 1.56;
+  --tracking-body: -0.27px;
+
+  --text-body-lg: 18px;
+  --leading-body-lg: 1.63;
+
+  --text-subheading: 22px;
+  --leading-subheading: 1.4;
+
+  --text-heading: 29px;
+  --leading-heading: 1.33;
+  --tracking-heading: -0.52px;
+
+  --text-display: 58px;
+  --leading-display: 1.2;
+  --tracking-display: -1.8px;
+
+  /* Typography Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* ==========================================================================
+     5. 4px Base Spacing Grid (Compact Density)
+     ========================================================================== */
+  --spacing-unit: 4px;
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-72: 72px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+  --spacing-160: 160px;
+
+  /* Legacy Spacing Aliases */
+  --spacing-xxs: var(--spacing-4);
+  --spacing-xs: var(--spacing-8);
+  --spacing-sm: var(--spacing-12);
+  --spacing-base: var(--spacing-16);
+  --spacing-md: var(--spacing-20);
+  --spacing-lg: var(--spacing-24);
+  --spacing-xl: var(--spacing-32);
+  --spacing-xxl: var(--spacing-48);
+  --spacing-section: var(--spacing-64);
+
+  /* ==========================================================================
+     6. Border Radius
+     ========================================================================== */
+  --radius-md: 4px;                  /* Badges, micro tags */
+  --radius-lg: 8px;                  /* Inputs, images, small post cards */
+  --radius-xl: 12px;                 /* Cards, containers, panels */
+  --radius-2xl: 18px;                /* Large containers */
+  --radius-full: 9999px;             /* Pill buttons, badges, avatars */
+
+  /* Named Radii from DESIGN.md */
+  --radius-tags: 9999px;
+  --radius-cards: 12px;
+  --radius-images: 8px;
+  --radius-inputs: 8px;
+  --radius-avatars: 9999px;
+  --radius-buttons: 9999px;
+  --radius-pill: 9999px;
+
+  /* ==========================================================================
+     7. Multi-Layered Low-Opacity Shadows (Elevation)
+     ========================================================================== */
+  --shadow-sm: rgba(0, 0, 0, 0.05) 0px 3px 6px -3px, rgba(0, 0, 0, 0.05) 0px 2px 4px -2px, rgba(0, 0, 0, 0.05) 0px 1px 2px -1px, rgba(0, 0, 0, 0.05) 0px 1px 1px -1px, rgba(0, 0, 0, 0.05) 0px 1px 0px -1px;
+  --shadow-subtle: rgba(0, 0, 0, 0.08) 0px 1px 1px -1px, rgba(0, 0, 0, 0.08) 0px 2px 2px -1px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px, rgb(255, 255, 255) 0px 1px 0px 0px inset, rgb(255, 255, 255) 0px 1px 2px 1px inset, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px inset;
+  --shadow-subtle-2: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  --shadow-subtle-3: rgba(255, 255, 255, 0.32) 0px 0.5px 0px 0px inset;
+  --shadow-subtle-4: rgba(0, 0, 0, 0.1) 0px 0.5px 0px 0px inset, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(0, 0, 0, 0.1) 0px 4px 12px 0px, rgba(0, 0, 0, 0.02) 0px 8px 20px 0px;
+
+  --shadow-card: var(--shadow-sm);
+  --shadow-soft: var(--shadow-subtle-2);
+  --shadow-elevated: var(--shadow-subtle-4);
+  --shadow-focus: 0 0 0 2px var(--color-ink);
+
+  /* ==========================================================================
+     8. Layout Geometry
+     ========================================================================== */
+  --page-max-width: 1200px;
+  --section-gap: 64px;
+  --card-padding: 16px;
+  --element-gap: 8px;
+  --container-max-width: 1200px;
+  --container-wide-max-width: 1200px;
+
+  /* ==========================================================================
+     9. Transitional Compatibility Aliases (Preserves Existing CSS Until Phase 3/4)
+     ========================================================================== */
+  --color-canvas: var(--color-warm-canvas);
+  --color-canvas-soft: var(--color-ash-mist);
+  --color-surface-card: var(--color-pure-white);
+  --color-surface-strong: var(--color-ash-mist);
+  --color-surface-dark: var(--color-ink);
+  --color-surface-dark-elevated: #1e1e1e;
+  --color-hairline: var(--color-soft-fog);
+  --color-hairline-soft: var(--color-soft-fog);
+  --color-hairline-strong: var(--color-soft-fog);
+  --color-body: var(--color-graphite);
+  --color-body-strong: var(--color-ink);
+  --color-muted: var(--color-steel);
+  --color-muted-soft: var(--color-silver);
+  --color-primary: var(--color-ink);
+  --color-primary-active: #262626;
+  --color-on-primary: var(--color-pure-white);
+  --color-text-link: var(--color-ink);
+  --color-text-link-secondary: var(--color-graphite);
+  --color-semantic-success: var(--color-resolve-green);
+  --color-semantic-error: var(--color-alert-red);
+  --color-semantic-error-strong: var(--color-alert-red);
+  --color-accent-warning: #b45309;
+  --color-success-bg: #ecfdf5;
+  --color-warning-bg: var(--color-highlight-wash);
+  --color-error-bg: #fef2f2;
+  --color-info-bg: var(--color-ash-mist);
+
+  /* Display Size Aliases */
+  --font-size-display-mega: var(--text-display);
+  --font-size-display-xl: 44px;
+  --font-size-display-lg: 36px;
+  --font-size-display-md: var(--text-heading);
+  --font-size-display-sm: var(--text-subheading);
+  --font-size-title-md: var(--text-body-lg);
+  --font-size-title-sm: 16px;
+  --font-size-body-md: var(--text-body);
+  --font-size-body-sm: 14px;
+  --font-size-caption: var(--text-caption);
+  --font-size-caption-upper: 11px;
+  --font-size-code: var(--text-caption);
+  --font-size-button: 14px;
+  --font-size-nav-link: 14px;
+}

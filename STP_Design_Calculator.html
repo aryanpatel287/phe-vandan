@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STP Design Calculator | Sewage Treatment Plant Sizing Tool</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/STP_Design_Calculator.css">
+
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+<header class="topbar">
+  <h1>
+    <span class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+      </svg>
+    </span>
+    <div>
+      STP Design Calculator
+      <div class="subtitle">Sewage Treatment Plant Sizing & Design Tool</div>
+    </div>
+  </h1>
+  <span class="badge">IS Code Compliant</span>
+</header>
+
+<div class="main-container">
+  <!-- ====================== INPUT PANEL ====================== -->
+  <aside class="panel" id="inputPanel">
+    <div class="panel-title"><span class="dot"></span> Design Parameters</div>
+
+    <div class="form-group">
+      <label>Application Type</label>
+      <div class="app-grid" id="appGrid"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="population">Population / Units</label>
+        <input type="number" class="form-control" id="population" value="1000" min="1">
+        <div class="hint" id="popHint">Number of residents</div>
+      </div>
+      <div class="form-group">
+        <label for="lpcd">Water Demand (LPCD)</label>
+        <input type="number" class="form-control" id="lpcd" value="135" min="0">
+        <div class="hint">Litres per capita per day</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="customFlow">Daily Flow (KLD) — Optional Override</label>
+      <input type="number" class="form-control" id="customFlow" value="" placeholder="Auto-calculated if blank">
+      <div class="hint">Leave blank to auto-calculate from population × LPCD</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="inletBOD">Inlet BOD (mg/L)</label>
+        <input type="number" class="form-control" id="inletBOD" value="300">
+      </div>
+      <div class="form-group">
+        <label for="inletCOD">Inlet COD (mg/L)</label>
+        <input type="number" class="form-control" id="inletCOD" value="600">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="inletTSS">Inlet TSS (mg/L)</label>
+        <input type="number" class="form-control" id="inletTSS" value="400">
+      </div>
+      <div class="form-group">
+        <label for="inletTKN">Inlet TKN (mg/L)</label>
+        <input type="number" class="form-control" id="inletTKN" value="40">
+      </div>
+    </div>
+
+    <div class="panel-title mt-20"><span class="dot"></span> Treatment Technology</div>
+    <div class="tech-tabs" id="techTabs">
+      <div class="tech-tab active" data-tech="MBBR">
+        MBBR
+        <div class="tech-desc">Moving Bed Biofilm Reactor</div>
+      </div>
+      <div class="tech-tab" data-tech="SBR">
+        SBR
+        <div class="tech-desc">Sequencing Batch Reactor</div>
+      </div>
+      <div class="tech-tab" data-tech="MBR">
+        MBR
+        <div class="tech-desc">Membrane Bio-Reactor</div>
+      </div>
+    </div>
+
+    <div class="form-group mt-16">
+      <label for="dischargeStd">Discharge Standard</label>
+      <select class="form-control" id="dischargeStd">
+        <option value="cpcb_surface">CPCB — Surface Discharge (Inland)</option>
+        <option value="cpcb_irrigation">CPCB — Irrigation</option>
+        <option value="cpcb_marine">CPCB — Marine Coastal</option>
+        <option value="moef_reuse">MOEF — Reuse/Recycling</option>
+        <option value="cpcb_pond">CPCB — Discharge into Pond</option>
+      </select>
+      <div class="hint">Select applicable regulatory norm</div>
+    </div>
+
+    <div class="form-group">
+      <label for="peakFactor">Peak Factor</label>
+      <select class="form-control" id="peakFactor">
+        <option value="2.0">2.0 — Residential / Commercial</option>
+        <option value="2.5">2.5 — Hotels / Hospitals</option>
+        <option value="3.0">3.0 — Airports / Railways</option>
+        <option value="2.25">2.25 — Mixed Use</option>
+        <option value="custom">Custom</option>
+      </select>
+      <div class="hint">Peak-to-average flow ratio</div>
+    </div>
+
+    <div class="form-group" id="customPeakGroup" style="display:none">
+      <label for="customPeak">Custom Peak Factor</label>
+      <input type="number" class="form-control" id="customPeak" value="2.5" step="0.1">
+    </div>
+
+    <div class="form-group">
+      <label for="projectName">Project Name</label>
+      <input type="text" class="form-control" id="projectName" value="STP Design Project" placeholder="Enter project name">
+    </div>
+
+    <div class="form-group">
+      <label for="engineerName">Engineer / Designer</label>
+      <input type="text" class="form-control" id="engineerName" value="" placeholder="Your name">
+    </div>
+
+    <button class="btn btn-primary" id="calculateBtn" onclick="calculateSTP()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/>
+      </svg>
+      Calculate & Design STP
+    </button>
+  </aside>
+
+  <!-- ====================== RESULTS AREA ====================== -->
+  <main class="results-area" id="resultsArea">
+
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+
+    <div class="panel results-empty" id="emptyState">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+      <h3>Enter parameters and click Calculate</h3>
+      <p class="p-stp_design_calculator_html-s1">Select application type, enter population/flow, choose technology (MBBR / SBR / MBR), and generate complete design calculations with PFD, P&ID, and IS code references.</p>
+    </div>
+    <div id="resultsContent" style="display:none"></div>
+  </main>
+</div>
+
+<footer class="footer">
+  STP Design Calculator &mdash; Based on IS 1172, IS 2470, IS 3304, CPCB & MOEF Guidelines<br>
+  Generated output is for preliminary design estimation only. Verify with a licensed environmental engineer before construction.
+</footer>
+
+<script>
+// ============================================================
+//  STP DESIGN CALCULATOR - ENGINE
+// ============================================================
+
+// ---- Application Type Data (IS 1172 / IS 2065 based) ----
+const APP_TYPES = {
+  residential:     { label: 'Residential',        lpcd: 135, popLabel: 'Number of Residents',    icon: 'home',      peak: 2.0 },
+  apartments:       { label: 'Apartments / Flats', lpcd: 135, popLabel: 'Number of Residents',    icon: 'building',  peak: 2.0 },
+  hotel:            { label: 'Hotel',              lpcd: 250, popLabel: 'Number of Beds (keys)',  icon: 'bed',       peak: 2.5 },
+  hospital:         { label: 'Hospital',           lpcd: 400, popLabel: 'Number of Beds',         icon: 'cross',     peak: 2.5 },
+  commercial:       { label: 'Commercial Mall',    lpcd: 45,  popLabel: 'Number of Occupants',    icon: 'cart',      peak: 2.5 },
+  office:           { label: 'Office Building',    lpcd: 45,  popLabel: 'Number of Employees',   icon: 'briefcase', peak: 2.5 },
+  airport:          { label: 'Airport',            lpcd: 20,  popLabel: 'Daily Passengers',       icon: 'plane',     peak: 3.0 },
+  railway:          { label: 'Railway Station',     lpcd: 25,  popLabel: 'Daily Passengers',       icon: 'train',     peak: 3.0 },
+  school:           { label: 'School / College',   lpcd: 45,  popLabel: 'Number of Students',    icon: 'book',      peak: 2.5 },
+  factory:          { label: 'Industry / Factory', lpcd: 80,  popLabel: 'Number of Workers',      icon: 'factory',   peak: 2.5 },
+};
+
+// ---- SVG icons for app cards ----
+const APP_ICONS = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="1"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/></svg>',
+  bed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8V4h12v4"/></svg>',
+  cross: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4H4v4h4v12h8V10h4V6h-4V2z"/></svg>',
+  cart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+  briefcase: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+  plane: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>',
+  train: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="16" rx="2"/><line x1="4" y1="11" x2="20" y2="11"/><circle cx="8.5" cy="15" r="1"/><circle cx="15.5" cy="15" r="1"/><line x1="7" y1="22" x2="9" y2="19"/><line x1="15" y1="22" x2="17" y2="19"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  factory: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l5 4V8l5 4V8l5 4V4h3v16z"/><line x1="6" y1="20" x2="6" y2="16"/><line x1="11" y1="20" x2="11" y2="16"/><line x1="16" y1="20" x2="16" y2="16"/></svg>',
+};
+
+// ---- Discharge Standards (CPCB / MOEF) ----
+const DISCHARGE_STANDARDS = {
+  cpcb_surface:    { label: 'Surface Discharge (Inland)', BOD: 10, COD: 50,  TSS: 20, TKN: 10, NH4: 5,  N_total: 10, P_total: 2, pH_min: 6.5, pH_max: 8.5, FC: 1000 },
+  cpcb_irrigation: { label: 'Irrigation',                BOD: 10, COD: 100, TSS: 30, TKN: 10, NH4: 5,  N_total: 10, P_total: 2, pH_min: 5.5, pH_max: 9.0, FC: 1000 },
+  cpcb_marine:     { label: 'Marine Coastal',             BOD: 20, COD: 100, TSS: 50, TKN: 15, NH4: 10, N_total: 15, P_total: 5, pH_min: 6.0, pH_max: 9.0, FC: 2300 },
+  moef_reuse:      { label: 'Reuse / Recycling',          BOD: 5,  COD: 30,  TSS: 10, TKN: 5,  NH4: 2,  N_total: 5,  P_total: 1, pH_min: 6.5, pH_max: 8.0, FC: 100  },
+  cpcb_pond:       { label: 'Discharge into Pond',        BOD: 10, COD: 50,  TSS: 20, TKN: 10, NH4: 5,  N_total: 10, P_total: 2, pH_min: 6.5, pH_max: 8.5, FC: 1000 },
+};
+
+// ---- IS Code References ----
+const IS_CODES = [
+  { code: 'IS 1172: 1993', desc: 'Water Requirements for Buildings — Code of Practice (LPCD standards)' },
+  { code: 'IS 2065: 1983', desc: 'Code of Practice for Water Supply in Buildings (design flow rates)' },
+  { code: 'IS 2470 (Part 1): 1985', desc: 'Code of Practice for Biological Treatment — Aerobic Processes (STP design)' },
+  { code: 'IS 2470 (Part 2): 1985', desc: 'Code of Practice for Biological Treatment — Anaerobic Processes' },
+  { code: 'IS 3304: 1985', desc: 'Code of Practice for Design and Construction of Septic Tanks' },
+  { code: 'IS 3306: 1979', desc: 'Code of Practice for Safety in Construction of Sewerage Systems' },
+  { code: 'IS 3025 (Part 1-60)', desc: 'Methods of Sampling and Test for Water and Wastewater Analysis' },
+  { code: 'IS 9000: 1978', desc: 'Code of Practice for Treatment of Water and Sewage' },
+  { code: 'CPCB Guidelines', desc: 'Central Pollution Control Board — Discharge Standards for STP' },
+  { code: 'MoEFCC Notification', desc: 'Environment (Protection) Rules, 1986 — Schedule VI Norms' },
+  { code: 'IS 10500: 2012', desc: 'Drinking Water Specifications (for comparison/recycled water quality)' },
+  { code: 'CPHEEO Manual', desc: 'Manual on Sewerage and Sewage Treatment (MORD/CPHEEO)' },
+];
+
+// ---- State ----
+let selectedApp = 'residential';
+let selectedTech = 'MBBR';
+
+// ---- Init Application Grid ----
+function initAppGrid() {
+  const grid = document.getElementById('appGrid');
+  grid.innerHTML = '';
+  Object.entries(APP_TYPES).forEach(([key, val]) => {
+    const card = document.createElement('div');
+    card.className = 'app-card' + (key === selectedApp ? ' active' : '');
+    card.dataset.app = key;
+    card.innerHTML = APP_ICONS[val.icon] + '<span>' + val.label + '</span><span class="lpcd">' + val.lpcd + ' LPCD</span>';
+    card.onclick = () => selectApp(key);
+    grid.appendChild(card);
+  });
+}
+
+function selectApp(key) {
+  selectedApp = key;
+  document.querySelectorAll('.app-card').forEach(c => c.classList.toggle('active', c.dataset.app === key));
+  const app = APP_TYPES[key];
+  document.getElementById('lpcd').value = app.lpcd;
+  document.getElementById('popHint').textContent = app.popLabel;
+  // Set peak factor
+  const pfSelect = document.getElementById('peakFactor');
+  for (let opt of pfSelect.options) {
+    if (parseFloat(opt.value) === app.peak) { opt.selected = true; break; }
+  }
+}
+
+// ---- Tech Tabs ----
+document.querySelectorAll('.tech-tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tech-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    selectedTech = tab.dataset.tech;
+  };
+});
+
+// ---- Peak Factor Custom Toggle ----
+document.getElementById('peakFactor').onchange = function() {
+  document.getElementById('customPeakGroup').style.display = this.value === 'custom' ? 'block' : 'none';
+};
+
+// ============================================================
+//  CORE CALCULATION ENGINE
+// ============================================================
+function calculateSTP() {
+  showLoading(true);
+  setTimeout(() => {
+    try {
+      const inputs = gatherInputs();
+      const design = runCalculations(inputs);
+      renderResults(inputs, design);
+      showLoading(false);
+      document.getElementById('resultsContent').scrollIntoView({ behavior: 'smooth' });
+    } catch (e) {
+      showLoading(false);
+      alert('Calculation error: ' + e.message);
+      console.error(e);
+    }
+  }, 300);
+}
+
+function gatherInputs() {
+  const pop = parseFloat(document.getElementById('population').value) || 0;
+  const lpcd = parseFloat(document.getElementById('lpcd').value) || 0;
+  const customFlow = parseFloat(document.getElementById('customFlow').value) || 0;
+  const peakFactorSel = document.getElementById('peakFactor').value;
+  const peakFactor = peakFactorSel === 'custom' ? parseFloat(document.getElementById('customPeak').value) : parseFloat(peakFactorSel);
+
+  return {
+    appType: selectedApp,
+    appLabel: APP_TYPES[selectedApp].label,
+    population: pop,
+    lpcd: lpcd,
+    customFlow: customFlow,
+    peakFactor: peakFactor,
+    inletBOD: parseFloat(document.getElementById('inletBOD').value) || 300,
+    inletCOD: parseFloat(document.getElementById('inletCOD').value) || 600,
+    inletTSS: parseFloat(document.getElementById('inletTSS').value) || 400,
+    inletTKN: parseFloat(document.getElementById('inletTKN').value) || 40,
+    technology: selectedTech,
+    dischargeStd: document.getElementById('dischargeStd').value,
+    projectName: document.getElementById('projectName').value || 'STP Design Project',
+    engineer: document.getElementById('engineerName').value || '---',
+    date: new Date().toLocaleDateString('en-IN'),
+  };
+}
+
+function runCalculations(inp) {
+  const d = {};
+  // --- Step 1: Flow Calculation ---
+  // Daily flow = population × LPCD × 0.8 (80% of water supplied becomes sewage)
+  const SEWAGE_FACTOR = 0.80; // IS 1172: 80% of water consumption returns as sewage
+  d.avgDailyFlowL = inp.customFlow > 0 ? inp.customFlow * 1000 : inp.population * inp.lpcd * SEWAGE_FACTOR;
+  d.avgDailyFlowKLD = d.avgDailyFlowL / 1000;
+  d.peakFlowL = d.avgDailyFlowL * inp.peakFactor;
+  d.peakFlowKLD = d.peakFlowL / 1000;
+  d.peakFlowM3hr = (d.peakFlowL / 1000) / 24;
+  d.avgFlowM3hr = d.avgDailyFlowL / 1000 / 24;
+  d.peakFlowM3hr = d.avgFlowM3hr * inp.peakFactor;
+  d.peakFlowLps = (d.peakFlowL / 86400);
+
+  // --- Step 2: Pollutant Loads ---
+  d.bodLoadKgDay = (d.avgDailyFlowL * inp.inletBOD) / 1e6; // kg/day
+  d.codLoadKgDay = (d.avgDailyFlowL * inp.inletCOD) / 1e6;
+  d.tssLoadKgDay = (d.avgDailyFlowL * inp.inletTSS) / 1e6;
+  d.tknLoadKgDay = (d.avgDailyFlowL * inp.inletTKN) / 1e6;
+
+  // --- Step 3: Black Water vs Grey Water Split ---
+  // Typical split: Black water (toilets) ~ 32%, Grey water ~ 68%
+  d.blackWaterL = d.avgDailyFlowL * 0.32;
+  d.greyWaterL = d.avgDailyFlowL * 0.68;
+  d.blackWaterPct = 32;
+  d.greyWaterPct = 68;
+
+  // --- Step 4: Screening & Grit Removal ---
+  d.barScreen = {
+    width_m: Math.max(0.3, Math.sqrt(d.peakFlowM3hr / 0.6)),
+    length_m: 1.5,
+    barSpacing_mm: 20,
+    velocity_ms: 0.6,
+    area_m2: d.peakFlowM3hr / 0.6,
+  };
+  d.gritChamber = {
+    length_m: Math.max(4, d.peakFlowM3hr * 60 / (0.3 * 1.0)), // surface overflow approach
+    width_m: Math.max(0.6, Math.sqrt(d.peakFlowM3hr / 0.3)),
+    depth_m: 0.8,
+    volume_m3: Math.max(3, d.peakFlowM3hr * 0.017), // ~1 min retention
+    detention_s: 60,
+    surfaceOverflow_mhr: 1200,
+  };
+
+  // --- Step 5: Equalization Tank ---
+  // Buffer for 4-6 hours of average flow
+  const eqHours = 6;
+  d.equalization = {
+    volume_m3: d.avgFlowM3hr * eqHours,
+    detention_hr: eqHours,
+    length_m: 0,
+    width_m: 0,
+    depth_m: 3.5,
+  };
+  // Assume rectangular: L:B = 2:1
+  const eqArea = d.equalization.volume_m3 / d.equalization.depth_m;
+  d.equalization.width_m = Math.sqrt(eqArea / 2);
+  d.equalization.length_m = d.equalization.width_m * 2;
+
+  // --- Step 6: Primary Clarifier (not used in SBR) ---
+  d.primaryClarifier = {
+    diameter_m: Math.max(3.0, Math.sqrt(d.peakFlowM3hr / (Math.PI * 1.5 * 0.25)) * 2),
+    surfaceArea_m2: 0,
+    surfaceLoading_m3m2day: 0,
+    detention_min: 120,
+    depth_m: 3.0,
+    volume_m3: 0,
+    swd_m: 2.5,
+  };
+  d.primaryClarifier.surfaceArea_m2 = Math.PI * Math.pow(d.primaryClarifier.diameter_m / 2, 2);
+  d.primaryClarifier.surfaceLoading_m3m2day = d.avgDailyFlowKLD / d.primaryClarifier.surfaceArea_m2;
+  d.primaryClarifier.volume_m3 = d.primaryClarifier.surfaceArea_m2 * d.primaryClarifier.swd_m;
+
+  // --- Step 7: Technology-Specific Bioreactor Design ---
+  const discharge = DISCHARGE_STANDARDS[inp.dischargeStd];
+  const targetBOD = discharge.BOD;
+  const bodRemovalPct = ((inp.inletBOD - targetBOD) / inp.inletBOD) * 100;
+
+  if (inp.technology === 'MBBR') {
+    d.bioreactor = calcMBBR(d, inp);
+  } else if (inp.technology === 'SBR') {
+    d.bioreactor = calcSBR(d, inp);
+  } else if (inp.technology === 'MBR') {
+    d.bioreactor = calcMBR(d, inp);
+  }
+
+  // --- Step 8: Secondary Clarifier (for MBBR; not for SBR/MBR) ---
+  if (inp.technology === 'MBBR') {
+    d.secondaryClarifier = {
+      diameter_m: Math.max(3.0, Math.sqrt(d.peakFlowM3hr / (Math.PI * 1.0 * 0.25)) * 2),
+      surfaceArea_m2: 0,
+      surfaceLoading_m3m2day: 0,
+      detention_min: 180,
+      depth_m: 3.5,
+      swd_m: 3.0,
+      volume_m3: 0,
+    };
+    d.secondaryClarifier.surfaceArea_m2 = Math.PI * Math.pow(d.secondaryClarifier.diameter_m / 2, 2);
+    d.secondaryClarifier.surfaceLoading_m3m2day = d.avgDailyFlowKLD / d.secondaryClarifier.surfaceArea_m2;
+    d.secondaryClarifier.volume_m3 = d.secondaryClarifier.surfaceArea_m2 * d.secondaryClarifier.swd_m;
+  }
+
+  // --- Step 9: Tertiary Treatment ---
+  d.tertiary = {
+    pressureSandFilter: {
+      diameter_m: Math.max(0.8, Math.sqrt(d.peakFlowM3hr / (Math.PI * 12 * 0.25)) * 2),
+      filtrationRate_mhr: 12,
+      mediaDepth_m: 0.8,
+      noUnits: d.peakFlowM3hr > 50 ? 2 : 1,
+    },
+    activatedCarbonFilter: {
+      diameter_m: Math.max(0.6, Math.sqrt(d.peakFlowM3hr / (Math.PI * 10 * 0.25)) * 2),
+      filtrationRate_mhr: 10,
+      mediaDepth_m: 1.2,
+    },
+    chlorination: {
+      contactTank_vol_m3: d.peakFlowM3hr * 0.5, // 30 min
+      dose_mgL: 8,
+      chlorineReq_kgDay: d.avgDailyFlowKLD * 8 / 1000,
+    },
+  };
+
+  // --- Step 10: Sludge Handling ---
+  // Excess sludge ~ 0.6 kg TSS per kg BOD removed at yield 0.6
+  const bodRemovedKgDay = d.bodLoadKgDay * (bodRemovalPct / 100);
+  d.sludge = {
+    excessSludge_kgDay: bodRemovedKgDay * 0.6,
+    sludgeVol_m3day: 0, // at 1% solids
+    sludgeAge_days: inp.technology === 'MBR' ? 25 : (inp.technology === 'SBR' ? 20 : 15),
+    sludgeTank_vol_m3: 0,
+    sludgeTank_Dm: 0,
+    sludgeTank_Hm: 3.0,
+  };
+  d.sludge.sludgeVol_m3day = d.sludge.excessSludge_kgDay / 10; // at 1% solids (10 kg/m3)
+  d.sludge.sludgeTank_vol_m3 = d.sludge.sludgeVol_m3day * 3; // 3 days storage
+  d.sludge.sludgeTank_Dm = Math.max(1.5, Math.sqrt(d.sludge.sludgeTank_vol_m3 / (Math.PI * 0.25 * d.sludge.sludgeTank_Hm)) * 2);
+
+  // --- Step 11: Footprint & Power ---
+  d.footprint_m2 = calculateFootprint(d, inp);
+  d.power_kW = calculatePower(d, inp);
+  d.power_kWhDay = d.power_kW * 20; // 20 hours avg operation
+
+  // --- Step 12: Discharge Quality Prediction ---
+  if (inp.technology === 'MBR') {
+    d.effluent = { BOD: 3, COD: 20, TSS: 3, NH4: 2, N_total: 5, P_total: 1, FC: 100 };
+  } else if (inp.technology === 'SBR') {
+    d.effluent = { BOD: 8, COD: 40, TSS: 12, NH4: 3, N_total: 8, P_total: 1.5, FC: 500 };
+  } else {
+    d.effluent = { BOD: 10, COD: 50, TSS: 15, NH4: 5, N_total: 10, P_total: 2, FC: 1000 };
+  }
+  d.effluent.pH = '7.0-7.5';
+
+  d.discharge = discharge;
+  d.bodRemovalPct = bodRemovalPct;
+
+  return d;
+}
+
+// ---- MBBR Design ----
+function calcMBBR(d, inp) {
+  // MBBR: BOD loading rate 5-15 g/m2.day on carrier surface area
+  // Standard SALR (Surface Area Loading Rate) = 5 g BOD/m2·day for BOD removal
+  const SALR = 5; // g BOD / m2.day (conservative for IS 2470 compliance)
+  const carrierSpecArea = 500; // m2/m3 (typical K3 carrier)
+  const carrierFillPct = 0.55; // 55% fill
+  const bodLoad_gDay = d.bodLoadKgDay * 1000;
+
+  // Required carrier surface area
+  const reqCarrierArea_m2 = bodLoad_gDay / SALR;
+  // Required carrier volume
+  const carrierVol_m3 = reqCarrierArea_m2 / carrierSpecArea;
+  // Total reactor volume = carrier vol / fill fraction
+  const reactorVol_m3 = carrierVol_m3 / carrierFillPct;
+  // HRT check: should be 4-6 hours
+  const hrt_hr = (reactorVol_m3 / d.avgFlowM3hr);
+  // If HRT < 3 hours, increase volume
+  const finalVol_m3 = Math.max(reactorVol_m3, d.avgFlowM3hr * 4);
+  const finalHRT_hr = finalVol_m3 / d.avgFlowM3hr;
+
+  // Two-stage MBBR: Stage 1 (60%), Stage 2 (40%)
+  const stage1Vol = finalVol_m3 * 0.60;
+  const stage2Vol = finalVol_m3 * 0.40;
+  // Air requirement: ~15-25 Nm3 air per kg BOD (use 20)
+  const airReq_nm3hr = (d.bodLoadKgDay * 20) / 24;
+
+  // Dimensions: L:B = 2:1, depth 4-5m
+  const depth = 4.5;
+  const area = finalVol_m3 / depth;
+  const width = Math.sqrt(area / 2);
+  const length = width * 2;
+
+  return {
+    name: 'Moving Bed Biofilm Reactor (MBBR)',
+    stages: 2,
+    SALR_gBOD_m2day: SALR,
+    carrierSpecArea_m2m3: carrierSpecArea,
+    carrierFillPct: carrierFillPct * 100,
+    carrierVol_m3: carrierVol_m3,
+    reactorVol_m3: finalVol_m3,
+    HRT_hr: finalHRT_hr,
+    stage1: { vol_m3: stage1Vol, fill_pct: 60 },
+    stage2: { vol_m3: stage2Vol, fill_pct: 50 },
+    depth_m: depth,
+    length_m: length,
+    width_m: width,
+    airReq_nm3hr: airReq_nm3hr,
+    bodRemovalPct: ((inp.inletBOD - 10) / inp.inletBOD) * 100,
+    fM_ratio: d.bodLoadKgDay / (finalVol_m3 * 3.5), // approximate MLSS 3500
+    MLSS_mgL: 3500,
+    notes: 'Carrier media: HDPE, specific gravity 0.95-0.98. Two-stage configuration for BOD removal + nitrification.',
+  };
+}
+
+// ---- SBR Design ----
+function calcSBR(d, inp) {
+  // SBR: Sequencing Batch Reactor - cyclic batch process
+  // Cycles per day: 4-6 (each cycle 4-6 hours)
+  const cyclesPerDay = 6;
+  const cycleTime_hr = 24 / cyclesPerDay; // 4 hours per cycle
+  const volPerCycle_m3 = d.avgDailyFlowKLD / cyclesPerDay;
+  // Total reactor volume = per cycle volume + sludge reserve (decant depth)
+  const decantFraction = 0.33; // 33% decant per cycle
+  const totalReactorVol_m3 = volPerCycle_m3 / decantFraction;
+  const HRT_hr = totalReactorVol_m3 / d.avgFlowM3hr;
+  // Number of basins: 2 for redundancy
+  const numBasins = d.avgDailyFlowKLD > 500 ? 2 : 2;
+  const volPerBasin = totalReactorVol_m3 / numBasins;
+  // Cycle phases (total 4 hours):
+  // Fill: 1.0 hr, React: 1.5 hr, Settle: 0.75 hr, Decant: 0.5 hr, Idle: 0.25 hr
+  const phases = {
+    fill_hr: 1.0,
+    react_hr: 1.5,
+    settle_hr: 0.75,
+    decant_hr: 0.5,
+    idle_hr: 0.25,
+  };
+  // F/M ratio: 0.15-0.4 kg BOD/kg MLVSS.day
+  const MLSS = 4000;
+  const FM = d.bodLoadKgDay / (totalReactorVol_m3 * MLSS / 1000);
+  // Air requirement
+  const airReq_nm3hr = (d.bodLoadKgDay * 25) / 24;
+  // Dimensions
+  const depth = 5.0;
+  const area = volPerBasin / depth;
+  const width = Math.sqrt(area);
+  const length = width;
+
+  return {
+    name: 'Sequencing Batch Reactor (SBR)',
+    cyclesPerDay: cyclesPerDay,
+    cycleTime_hr: cycleTime_hr,
+    numBasins: numBasins,
+    volPerBasin_m3: volPerBasin,
+    totalReactorVol_m3: totalReactorVol_m3,
+    volPerCycle_m3: volPerCycle_m3,
+    decantFraction: decantFraction,
+    HRT_hr: HRT_hr,
+    phases: phases,
+    depth_m: depth,
+    length_m: length,
+    width_m: width,
+    MLSS_mgL: MLSS,
+    FM_ratio: FM,
+    airReq_nm3hr: airReq_nm3hr,
+    bodRemovalPct: ((inp.inletBOD - 8) / inp.inletBOD) * 100,
+    SRT_days: 20,
+    notes: 'Cyclic batch process: Fill → React → Settle → Decant → Idle. No separate clarifier needed. Excellent nutrient removal.',
+  };
+}
+
+// ---- MBR Design ----
+function calcMBR(d, inp) {
+  // MBR: Membrane Bio-Reactor - MLSS 8000-12000, very low HRT
+  const MLSS = 10000; // mg/L
+  const FM = 0.08; // F/M = 0.08 kg BOD/kg MLSS.day (low for nitrification + high quality)
+  // Required reactor volume from F/M ratio
+  let reactorVol_m3 = d.bodLoadKgDay / (FM * MLSS / 1000);
+  // HRT check: minimum 6-8 hours
+  const minVolForHRT = d.avgFlowM3hr * 8;
+  reactorVol_m3 = Math.max(reactorVol_m3, minVolForHRT);
+  const HRT_hr = reactorVol_m3 / d.avgFlowM3hr;
+  const SRT_days = 25;
+  // Membrane flux: 15-25 LMH (L/m2.hr)
+  const flux_LMH = 20;
+  const membraneArea_m2 = (d.avgFlowM3hr * 1000) / flux_LMH;
+  const moduleArea_m2 = 1500; // per module (typical flat sheet or hollow fiber)
+  const numModules = Math.ceil(membraneArea_m2 / moduleArea_m2);
+  // Air requirement: higher due to membrane scouring
+  const airReq_nm3hr = (d.bodLoadKgDay * 25) / 24 + (membraneArea_m2 * 0.3); // process air + scour air
+  // Dimensions
+  const depth = 5.0;
+  const area = reactorVol_m3 / depth;
+  const width = Math.sqrt(area / 2);
+  const length = width * 2;
+
+  return {
+    name: 'Membrane Bio-Reactor (MBR)',
+    MLSS_mgL: MLSS,
+    FM_ratio: FM,
+    reactorVol_m3: reactorVol_m3,
+    HRT_hr: HRT_hr,
+    SRT_days: SRT_days,
+    flux_LMH: flux_LMH,
+    membraneArea_m2: membraneArea_m2,
+    numModules: numModules,
+    moduleArea_m2: moduleArea_m2,
+    depth_m: depth,
+    length_m: length,
+    width_m: width,
+    airReq_nm3hr: airReq_nm3hr,
+    bodRemovalPct: ((inp.inletBOD - 3) / inp.inletBOD) * 100,
+    poreSize_um: 0.1,
+    notes: 'Submerged flat-sheet or hollow-fiber membranes. MLSS 8000-12000 mg/L. Produces highest quality effluent. No secondary clarifier needed.',
+  };
+}
+
+// ---- Footprint Calculation ----
+function calculateFootprint(d, inp) {
+  let total = 0;
+  total += d.barScreen.area_m2 * 2; // bar screen + grit
+  total += d.equalization.volume_m3 / 3.5; // at 3.5m depth
+  if (inp.technology !== 'SBR') total += d.primaryClarifier.surfaceArea_m2;
+  total += d.bioreactor.length_m * d.bioreactor.width_m;
+  if (inp.technology === 'MBBR') total += d.secondaryClarifier.surfaceArea_m2;
+  // Tertiary
+  total += Math.PI * Math.pow(d.tertiary.pressureSandFilter.diameter_m / 2, 2);
+  total += Math.PI * Math.pow(d.tertiary.activatedCarbonFilter.diameter_m / 2, 2);
+  total += d.tertiary.chlorination.contactTank_vol_m3 / 2;
+  // Sludge
+  total += Math.PI * Math.pow(d.sludge.sludgeTank_Dm / 2, 2);
+  // Add 30% for walkways, roads, control room
+  return total * 1.3;
+}
+
+// ---- Power Calculation ----
+function calculatePower(d, inp) {
+  let kW = 0;
+  // Blowers: ~0.5 kW per Nm3/hr air (approximate)
+  kW += d.bioreactor.airReq_nm3hr * 0.04;
+  // Pumps: feed, recycle, sludge
+  kW += d.peakFlowM3hr * 0.15;
+  // Screens, grit, mixers
+  kW += 2.0;
+  // MBR: additional permeate pumps + scour
+  if (inp.technology === 'MBR') kW += d.bioreactor.numModules * 0.55;
+  // Tertiary filters
+  kW += 1.5;
+  return Math.round(kW * 10) / 10;
+}
+
+// ---- Utility ----
+function showLoading(show) {
+  document.getElementById('loadingOverlay').classList.toggle('active', show);
+}
+function fmt(num, dec = 1) {
+  if (num === null || num === undefined || isNaN(num)) return '-';
+  return Number(num).toFixed(dec);
+}
+function fmt0(num) {
+  if (num === null || num === undefined || isNaN(num)) return '-';
+  return Math.round(num).toLocaleString('en-IN');
+}
+
+// Expose for download functions
+let LAST_INPUTS = null;
+let LAST_DESIGN = null;
+
+console.log('STP Engine loaded.');
+</script>
+
+<script>
+// ============================================================
+//  RESULTS RENDERING
+// ============================================================
+
+function renderResults(inp, d) {
+  LAST_INPUTS = inp;
+  LAST_DESIGN = d;
+  document.getElementById('emptyState').style.display = 'none';
+  const c = document.getElementById('resultsContent');
+  c.style.display = 'block';
+
+  let html = '';
+
+  // ---- Project Header ----
+  html += `
+    <div class="panel" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:20px;font-weight:700">${inp.projectName}</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:4px;font-family:var(--font-mono)">
+            ${inp.appLabel} &nbsp;|&nbsp; ${d.bioreactor.name} &nbsp;|&nbsp; Design Date: ${inp.date} &nbsp;|&nbsp; Engineer: ${inp.engineer}
+          </div>
+        </div>
+        <div class="download-bar" style="margin:0">
+          <span class="label">Download:</span>
+          <button class="btn btn-download" onclick="downloadPDF()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            PDF
+          </button>
+          <button class="btn btn-download" onclick="downloadExcel()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            Excel
+          </button>
+          <button class="btn btn-download" onclick="downloadWord()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Word
+          </button>
+          <button class="btn btn-download" onclick="window.print()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+  // ---- KPI Cards ----
+  html += `
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Average Daily Flow</div>
+        <div class="kpi-value">${fmt(d.avgDailyFlowKLD, 1)}<span class="kpi-unit"> KLD</span></div>
+      </div>
+      <div class="kpi-card accent-2">
+        <div class="kpi-label">Peak Flow</div>
+        <div class="kpi-value">${fmt(d.peakFlowKLD, 1)}<span class="kpi-unit"> KLD</span></div>
+      </div>
+      <div class="kpi-card success">
+        <div class="kpi-label">BOD Removal Efficiency</div>
+        <div class="kpi-value">${fmt(d.bodRemovalPct, 1)}<span class="kpi-unit">%</span></div>
+      </div>
+      <div class="kpi-card warning">
+        <div class="kpi-label">Plant Footprint</div>
+        <div class="kpi-value">${fmt0(d.footprint_m2)}<span class="kpi-unit"> m²</span></div>
+      </div>
+    </div>`;
+
+  // ---- Tabs ----
+  html += `
+    <div class="results-tabs">
+      <button class="result-tab active" onclick="switchTab(event,'tab-summary')">Summary</button>
+      <button class="result-tab" onclick="switchTab(event,'tab-calcs')">Calculations</button>
+      <button class="result-tab" onclick="switchTab(event,'tab-tanks')">Tank Sizing</button>
+      <button class="result-tab" onclick="switchTab(event,'tab-diagrams')">Process Flow (PFD)</button>
+      <button class="result-tab" onclick="switchTab(event,'tab-pid')">P&ID Diagram</button>
+      <button class="result-tab" onclick="switchTab(event,'tab-3d')">3D Layout</button>
+      <button class="result-tab" onclick="switchTab(event,'tab-effluent')">Effluent Quality</button>
+      <button class="result-tab" onclick="switchTab(event,'tab-iscode')">IS Codes</button>
+      <button class="result-tab" onclick="switchTab(event,'tab-watertype')">Black / Grey Water</button>
+      <button class="result-tab" onclick="switchTab(event,'tab-comparison')">Technology Comparison</button>
+    </div>`;
+
+  // ---- Tab: Summary ----
+  html += `<div id="tab-summary" class="tab-content active">`;
+  html += renderSummaryTab(inp, d);
+  html += `</div>`;
+
+  // ---- Tab: Calculations ----
+  html += `<div id="tab-calcs" class="tab-content">`;
+  html += renderCalcsTab(inp, d);
+  html += `</div>`;
+
+  // ---- Tab: Tank Sizing ----
+  html += `<div id="tab-tanks" class="tab-content">`;
+  html += renderTanksTab(inp, d);
+  html += `</div>`;
+
+  // ---- Tab: PFD ----
+  html += `<div id="tab-diagrams" class="tab-content">`;
+  html += renderPFD(inp, d);
+  html += `</div>`;
+
+  // ---- Tab: P&ID ----
+  html += `<div id="tab-pid" class="tab-content">`;
+  html += renderPID(inp, d);
+  html += `</div>`;
+
+  // ---- Tab: 3D Layout ----
+  html += `<div id="tab-3d" class="tab-content">`;
+  html += render3DLayout(inp, d);
+  html += `</div>`;
+
+  // ---- Tab: Effluent Quality ----
+  html += `<div id="tab-effluent" class="tab-content">`;
+  html += renderEffluentTab(inp, d);
+  html += `</div>`;
+
+  // ---- Tab: IS Codes ----
+  html += `<div id="tab-iscode" class="tab-content">`;
+  html += renderISCodesTab(inp, d);
+  html += `</div>`;
+
+  // ---- Tab: Water Type ----
+  html += `<div id="tab-watertype" class="tab-content">`;
+  html += renderWaterTypeTab(inp, d);
+  html += `</div>`;
+
+  // ---- Tab: Tech Comparison ----
+  html += `<div id="tab-comparison" class="tab-content">`;
+  html += renderComparisonTab(inp, d);
+  html += `</div>`;
+
+  c.innerHTML = html;
+}
+
+function switchTab(evt, tabId) {
+  document.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  evt.currentTarget.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ============================================================
+//  SUMMARY TAB
+// ============================================================
+function renderSummaryTab(inp, d) {
+  let h = '';
+  h += `<div class="panel"><div class="panel-title"><span class="dot"></span> Design Summary</div>`;
+
+  h += `<table class="data-table">
+    <tr><td><strong>Application</strong></td><td>${inp.appLabel}</td></tr>
+    <tr><td><strong>Population / Units</strong></td><td class="num">${fmt0(inp.population)}</td></tr>
+    <tr><td><strong>Water Demand Rate</strong></td><td class="num">${inp.lpcd} LPCD (IS 1172)</td></tr>
+    <tr><td><strong>Sewage Generation Factor</strong></td><td class="num">80% (IS 1172)</td></tr>
+    <tr><td><strong>Average Daily Sewage</strong></td><td class="num">${fmt(d.avgDailyFlowKLD, 2)} KLD / ${fmt0(d.avgDailyFlowL)} L</td></tr>
+    <tr><td><strong>Peak Factor</strong></td><td class="num">${inp.peakFactor}</td></tr>
+    <tr><td><strong>Peak Daily Flow</strong></td><td class="num">${fmt(d.peakFlowKLD, 2)} KLD</td></tr>
+    <tr><td><strong>Peak Hourly Flow</strong></td><td class="num">${fmt(d.peakFlowM3hr, 2)} m³/hr</td></tr>
+    <tr><td><strong>Treatment Technology</strong></td><td>${d.bioreactor.name}</td></tr>
+    <tr><td><strong>Reactor Volume</strong></td><td class="num">${fmt(d.bioreactor.reactorVol_m3 || d.bioreactor.totalReactorVol_m3, 1)} m³</td></tr>
+    <tr><td><strong>HRT</strong></td><td class="num">${fmt(d.bioreactor.HRT_hr, 1)} hours</td></tr>
+    <tr><td><strong>BOD Inlet</strong></td><td class="num">${inp.inletBOD} mg/L → Load ${fmt(d.bodLoadKgDay, 2)} kg/day</td></tr>
+    <tr><td><strong>BOD Effluent (Predicted)</strong></td><td class="num">${d.effluent.BOD} mg/L</td></tr>
+    <tr><td><strong>BOD Removal</strong></td><td class="num">${fmt(d.bodRemovalPct, 1)}%</td></tr>
+    <tr><td><strong>Estimated Power</strong></td><td class="num">${d.power_kW} kW (${fmt(d.power_kWhDay, 0)} kWh/day)</td></tr>
+    <tr><td><strong>Plant Footprint (approx.)</strong></td><td class="num">${fmt0(d.footprint_m2)} m²</td></tr>
+    <tr><td><strong>Discharge Standard</strong></td><td>${d.discharge.label}</td></tr>
+  </table>`;
+
+  h += `<div class="disclaimer"><strong>Disclaimer:</strong> These calculations are for preliminary design and estimation based on IS 1172, IS 2470, and CPCB guidelines. Detailed design requires a licensed environmental consultant with site-specific geotechnical and hydraulic analysis. Verify all parameters before construction.</div>`;
+  h += `</div>`;
+  return h;
+}
+
+// ============================================================
+//  CALCULATIONS TAB
+// ============================================================
+function renderCalcsTab(inp, d) {
+  let h = `<div class="panel"><div class="panel-title"><span class="dot"></span> Step-by-Step Calculations</div>`;
+
+  h += `<div class="section-heading"><span class="num-badge">1</span> Sewage Flow Calculation</div>`;
+  h += `<div class="calc-step">
+    <strong>Daily Water Demand</strong><br>
+    <span class="formula">= Population × LPCD = ${fmt0(inp.population)} × ${inp.lpcd} = ${fmt0(inp.population * inp.lpcd)} L/day</span>
+  </div>`;
+  h += `<div class="calc-step">
+    <strong>Average Sewage Flow (80% of water demand per IS 1172)</strong><br>
+    <span class="formula">= ${fmt0(inp.population * inp.lpcd)} × 0.80 = ${fmt0(d.avgDailyFlowL)} L/day = ${fmt(d.avgDailyFlowKLD, 2)} KLD</span><br>
+    <span class="result">Q_avg = ${fmt(d.avgFlowM3hr, 2)} m³/hr</span>
+  </div>`;
+  h += `<div class="calc-step">
+    <strong>Peak Sewage Flow (Peak Factor × Average)</strong><br>
+    <span class="formula">= ${fmt(d.avgDailyFlowKLD, 2)} × ${inp.peakFactor} = ${fmt(d.peakFlowKLD, 2)} KLD</span><br>
+    <span class="result">Q_peak = ${fmt(d.peakFlowM3hr, 2)} m³/hr = ${fmt(d.peakFlowLps, 2)} L/s</span>
+  </div>`;
+
+  h += `<div class="section-heading"><span class="num-badge">2</span> Pollutant Load Calculation</div>`;
+  h += `<div class="calc-step">
+    <strong>BOD Load</strong><br>
+    <span class="formula">= Q_avg × BOD_inlet = ${fmt(d.avgDailyFlowL, 0)} L × ${inp.inletBOD} mg/L ÷ 10⁶</span><br>
+    <span class="result">= ${fmt(d.bodLoadKgDay, 2)} kg BOD/day</span>
+  </div>`;
+  h += `<div class="calc-step">
+    <strong>COD Load</strong> = ${fmt(d.codLoadKgDay, 2)} kg/day &nbsp;|&nbsp;
+    <strong>TSS Load</strong> = ${fmt(d.tssLoadKgDay, 2)} kg/day &nbsp;|&nbsp;
+    <strong>TKN Load</strong> = ${fmt(d.tknLoadKgDay, 2)} kg/day
+  </div>`;
+
+  h += `<div class="section-heading"><span class="num-badge">3</span> Bar Screen & Grit Chamber</div>`;
+  h += `<div class="calc-step">
+    <strong>Bar Screen (IS 2470)</strong><br>
+    Velocity through screen: ${d.barScreen.velocity_ms} m/s<br>
+    Area = Q_peak ÷ v = ${fmt(d.peakFlowM3hr, 2)} ÷ ${d.barScreen.velocity_ms} = ${fmt(d.barScreen.area_m2, 2)} m²<br>
+    <span class="result">Width: ${fmt(d.barScreen.width_m, 2)} m × Length: ${d.barScreen.length_m} m, Bar spacing: ${d.barScreen.barSpacing_mm} mm</span>
+  </div>`;
+  h += `<div class="calc-step">
+    <strong>Grit Chamber (IS 2470)</strong><br>
+    Detention: ${d.gritChamber.detention_s}s, Surface overflow: ${d.gritChamber.surfaceOverflow_mhr} m/hr<br>
+    <span class="result">L × W × D = ${fmt(d.gritChamber.length_m, 1)} × ${fmt(d.gritChamber.width_m, 1)} × ${d.gritChamber.depth_m} m | Volume: ${fmt(d.gritChamber.volume_m3, 1)} m³</span>
+  </div>`;
+
+  h += `<div class="section-heading"><span class="num-badge">4</span> Equalization / Buffer Tank</div>`;
+  h += `<div class="calc-step">
+    <strong>Volume (6-hour buffer)</strong><br>
+    <span class="formula">= Q_avg × ${d.equalization.detention_hr} hours = ${fmt(d.avgFlowM3hr, 2)} × ${d.equalization.detention_hr} = ${fmt(d.equalization.volume_m3, 1)} m³</span><br>
+    <span class="result">L × W × D = ${fmt(d.equalization.length_m, 1)} × ${fmt(d.equalization.width_m, 1)} × ${d.equalization.depth_m} m</span>
+  </div>`;
+
+  // Technology-specific
+  const bio = d.bioreactor;
+  h += `<div class="section-heading"><span class="num-badge">5</span> ${bio.name} Design</div>`;
+  if (inp.technology === 'MBBR') {
+    h += `<div class="calc-step">
+      <strong>SALR (Surface Area Loading Rate)</strong> = ${bio.SALR_gBOD_m2day} g BOD/m²·day (IS 2470)<br>
+      <strong>Carrier Media Specific Area</strong> = ${bio.carrierSpecArea_m2m3} m²/m³<br>
+      <strong>Carrier Fill Fraction</strong> = ${bio.carrierFillPct.toFixed(0)}%<br><br>
+      <strong>Required Carrier Surface Area</strong><br>
+      <span class="formula">= BOD Load ÷ SALR = ${fmt(bio.carrierVol_m3 * bio.carrierSpecArea_m2m3, 0)} m²</span><br><br>
+      <strong>Carrier Media Volume</strong><br>
+      <span class="formula">= ${fmt(bio.carrierVol_m3 * bio.carrierSpecArea_m2m3, 0)} ÷ ${bio.carrierSpecArea_m2m3} = ${fmt(bio.carrierVol_m3, 1)} m³</span><br><br>
+      <strong>Reactor Volume</strong><br>
+      <span class="formula">= Carrier Volume ÷ Fill = ${fmt(bio.carrierVol_m3, 1)} ÷ ${(bio.carrierFillPct / 100).toFixed(2)} = ${fmt(bio.reactorVol_m3, 1)} m³</span><br>
+      <span class="result">HRT = ${fmt(bio.HRT_hr, 1)} hours | 2-stage: Stage 1 = ${fmt(bio.stage1.vol_m3, 1)} m³, Stage 2 = ${fmt(bio.stage2.vol_m3, 1)} m³</span><br>
+      <span class="result">Air Required: ${fmt(bio.airReq_nm3hr, 1)} Nm³/hr | F/M = ${fmt(bio.fM_ratio, 3)}</span>
+    </div>`;
+  }
+  if (inp.technology === 'SBR') {
+    h += `<div class="calc-step">
+      <strong>Cycles per Day</strong> = ${bio.cyclesPerDay} (cycle time: ${bio.cycleTime_hr} hr each)<br>
+      <strong>Number of Basins</strong> = ${bio.numBasins}<br><br>
+      <strong>Volume per Cycle</strong><br>
+      <span class="formula">= Q_avg ÷ cycles = ${fmt(d.avgDailyFlowKLD, 1)} ÷ ${bio.cyclesPerDay} = ${fmt(bio.volPerCycle_m3, 1)} m³</span><br><br>
+      <strong>Total Reactor Volume</strong><br>
+      <span class="formula">= Vol per cycle ÷ decant fraction = ${fmt(bio.volPerCycle_m3, 1)} ÷ ${bio.decantFraction} = ${fmt(bio.totalReactorVol_m3, 1)} m³</span><br>
+      <span class="result">Volume per basin: ${fmt(bio.volPerBasin_m3, 1)} m³ | HRT: ${fmt(bio.HRT_hr, 1)} hr | MLSS: ${bio.MLSS_mgL} mg/L</span><br>
+      <span class="result">F/M = ${fmt(bio.FM_ratio, 3)} | SRT = ${bio.SRT_days} days | Air: ${fmt(bio.airReq_nm3hr, 1)} Nm³/hr</span><br><br>
+      <strong>Cycle Phases:</strong> Fill ${bio.phases.fill_hr}h → React ${bio.phases.react_hr}h → Settle ${bio.phases.settle_hr}h → Decant ${bio.phases.decant_hr}h → Idle ${bio.phases.idle_hr}h
+    </div>`;
+  }
+  if (inp.technology === 'MBR') {
+    h += `<div class="calc-step">
+      <strong>Design MLSS</strong> = ${bio.MLSS_mgL} mg/L (high biomass concentration)<br>
+      <strong>F/M Ratio</strong> = ${bio.FM_ratio} kg BOD/kg MLSS·day<br><br>
+      <strong>Reactor Volume (from F/M)</strong><br>
+      <span class="formula">= BOD Load ÷ (F/M × MLSS) = ${fmt(d.bodLoadKgDay, 2)} ÷ (${bio.FM_ratio} × ${bio.MLSS_mgL / 1000})</span><br><br>
+      <strong>Final Reactor Volume (HRT ≥ 8 hr)</strong><br>
+      <span class="formula">= max(V_F/M, Q_avg × 8) = ${fmt(bio.reactorVol_m3, 1)} m³</span><br>
+      <span class="result">HRT: ${fmt(bio.HRT_hr, 1)} hr | SRT: ${bio.SRT_days} days | Air: ${fmt(bio.airReq_nm3hr, 1)} Nm³/hr</span><br><br>
+      <strong>Membrane Design</strong><br>
+      Flux: ${bio.flux_LMH} LMH | Total membrane area: ${fmt0(bio.membraneArea_m2)} m²<br>
+      <span class="result">Modules: ${bio.numModules} (at ${fmt0(bio.moduleArea_m2)} m²/module) | Pore size: ${bio.poreSize_um} μm</span>
+    </div>`;
+  }
+
+  // Tertiary
+  h += `<div class="section-heading"><span class="num-badge">6</span> Tertiary Treatment</div>`;
+  h += `<div class="calc-step">
+    <strong>Pressure Sand Filter</strong>: Diameter ${fmt(d.tertiary.pressureSandFilter.diameter_m, 2)} m, Rate ${d.tertiary.pressureSandFilter.filtrationRate_mhr} m/hr, Media depth ${d.tertiary.pressureSandFilter.mediaDepth_m} m<br>
+    <strong>Activated Carbon Filter</strong>: Diameter ${fmt(d.tertiary.activatedCarbonFilter.diameter_m, 2)} m, Rate ${d.tertiary.activatedCarbonFilter.filtrationRate_mhr} m/hr<br>
+    <strong>Chlorine Contact Tank</strong>: Volume ${fmt(d.tertiary.chlorination.contactTank_vol_m3, 1)} m³ (30 min contact), Dose ${d.tertiary.chlorination.dose_mgL} mg/L, Chlorine needed: ${fmt(d.tertiary.chlorination.chlorineReq_kgDay, 2)} kg/day
+  </div>`;
+
+  // Sludge
+  h += `<div class="section-heading"><span class="num-badge">7</span> Sludge Handling</div>`;
+  h += `<div class="calc-step">
+    <strong>Excess Sludge Production</strong> = ${fmt(d.sludge.excessSludge_kgDay, 2)} kg/day (Y=0.6, at ${d.sludge.sludgeAge_days} day SRT)<br>
+    <strong>Sludge Volume</strong> (at 1% solids) = ${fmt(d.sludge.sludgeVol_m3day, 2)} m³/day<br>
+    <span class="result">Sludge Storage Tank: ${fmt(d.sludge.sludgeTank_vol_m3, 1)} m³ (3 days), Diameter ${fmt(d.sludge.sludgeTank_Dm, 1)} m × ${d.sludge.sludgeTank_Hm} m depth</span>
+  </div>`;
+
+  h += `</div>`;
+  return h;
+}
+
+// ============================================================
+//  TANK SIZING TAB
+// ============================================================
+function renderTanksTab(inp, d) {
+  let h = `<div class="panel"><div class="panel-title"><span class="dot"></span> Tank Sizing Summary — ${inp.technology}</div>`;
+
+  h += `<table class="data-table">
+    <thead><tr><th>Unit / Tank</th><th>Type</th><th class="num">Dimensions</th><th class="num">Volume (m³)</th><th class="num">HRT / Detention</th><th>IS Code</th></tr></thead>
+    <tbody>
+    <tr>
+      <td class="param-cell">Bar Screen Chamber</td>
+      <td>Manual / Mechanical</td>
+      <td class="num">${fmt(d.barScreen.width_m, 2)}W × ${d.barScreen.length_m}L m</td>
+      <td class="num">${fmt(d.barScreen.area_m2 * d.barScreen.length_m, 1)}</td>
+      <td class="num">-</td>
+      <td>IS 2470</td>
+    </tr>
+    <tr>
+      <td class="param-cell">Grit Chamber</td>
+      <td>Aerated / Vortex</td>
+      <td class="num">${fmt(d.gritChamber.length_m, 1)}L × ${fmt(d.gritChamber.width_m, 1)}W × ${d.gritChamber.depth_m}D m</td>
+      <td class="num">${fmt(d.gritChamber.volume_m3, 1)}</td>
+      <td class="num">${d.gritChamber.detention_s} s</td>
+      <td>IS 2470</td>
+    </tr>
+    <tr>
+      <td class="param-cell">Equalization Tank</td>
+      <td>RC Rectangular</td>
+      <td class="num">${fmt(d.equalization.length_m, 1)}L × ${fmt(d.equalization.width_m, 1)}W × ${d.equalization.depth_m}D m</td>
+      <td class="num">${fmt(d.equalization.volume_m3, 1)}</td>
+      <td class="num">${d.equalization.detention_hr} hr</td>
+      <td>IS 2470</td>
+    </tr>`;
+
+  if (inp.technology !== 'SBR') {
+    h += `<tr>
+      <td class="param-cell">Primary Clarifier</td>
+      <td>Circular RC</td>
+      <td class="num">Ø ${fmt(d.primaryClarifier.diameter_m, 1)} m × ${d.primaryClarifier.swd_m} m SWD</td>
+      <td class="num">${fmt(d.primaryClarifier.volume_m3, 1)}</td>
+      <td class="num">${d.primaryClarifier.detention_min} min</td>
+      <td>IS 2470</td>
+    </tr>`;
+  }
+
+  const bio = d.bioreactor;
+  h += `<tr class="highlight-row">
+    <td class="param-cell">${inp.technology} Reactor</td>
+    <td>${inp.technology === 'SBR' ? 'Cyclic Batch Basin' : 'RC Rectangular'}</td>
+    <td class="num">${fmt(bio.length_m, 1)}L × ${fmt(bio.width_m, 1)}W × ${bio.depth_m}D m</td>
+    <td class="num">${fmt(bio.reactorVol_m3 || bio.totalReactorVol_m3, 1)}</td>
+    <td class="num">${fmt(bio.HRT_hr, 1)} hr</td>
+    <td>IS 2470</td>
+  </tr>`;
+
+  if (inp.technology === 'MBBR') {
+    h += `<tr>
+      <td class="param-cell">Secondary Clarifier</td>
+      <td>Circular RC</td>
+      <td class="num">Ø ${fmt(d.secondaryClarifier.diameter_m, 1)} m × ${d.secondaryClarifier.swd_m} m SWD</td>
+      <td class="num">${fmt(d.secondaryClarifier.volume_m3, 1)}</td>
+      <td class="num">${d.secondaryClarifier.detention_min} min</td>
+      <td>IS 2470</td>
+    </tr>`;
+  }
+
+  h += `<tr>
+    <td class="param-cell">Pressure Sand Filter</td>
+    <td>Mild Steel / FRP</td>
+    <td class="num">Ø ${fmt(d.tertiary.pressureSandFilter.diameter_m, 2)} m</td>
+    <td class="num">${fmt(d.tertiary.pressureSandFilter.diameter_m * d.tertiary.pressureSandFilter.diameter_m * 0.785 * d.tertiary.pressureSandFilter.mediaDepth_m, 1)}</td>
+    <td class="num">${d.tertiary.pressureSandFilter.filtrationRate_mhr} m/hr</td>
+    <td>CPHEEO</td>
+  </tr>
+  <tr>
+    <td class="param-cell">Activated Carbon Filter</td>
+    <td>Mild Steel / FRP</td>
+    <td class="num">Ø ${fmt(d.tertiary.activatedCarbonFilter.diameter_m, 2)} m</td>
+    <td class="num">${fmt(d.tertiary.activatedCarbonFilter.diameter_m * d.tertiary.activatedCarbonFilter.diameter_m * 0.785 * d.tertiary.activatedCarbonFilter.mediaDepth_m, 1)}</td>
+    <td class="num">${d.tertiary.activatedCarbonFilter.filtrationRate_mhr} m/hr</td>
+    <td>CPHEEO</td>
+  </tr>
+  <tr>
+    <td class="param-cell">Chlorine Contact Tank</td>
+    <td>RC Rectangular</td>
+    <td class="num">Volume-based</td>
+    <td class="num">${fmt(d.tertiary.chlorination.contactTank_vol_m3, 1)}</td>
+    <td class="num">30 min</td>
+    <td>IS 3025</td>
+  </tr>
+  <tr>
+    <td class="param-cell">Sludge Storage Tank</td>
+    <td>Circular RC</td>
+    <td class="num">Ø ${fmt(d.sludge.sludgeTank_Dm, 1)} m × ${d.sludge.sludgeTank_Hm} m</td>
+    <td class="num">${fmt(d.sludge.sludgeTank_vol_m3, 1)}</td>
+    <td class="num">3 days</td>
+    <td>IS 2470</td>
+  </tr>
+  </tbody></table>`;
+
+  h += `<div class="footnote">SWD = Side Water Depth | RC = Reinforced Concrete | Dimensions rounded to practical construction values. Verify with structural design.</div>`;
+  h += `</div>`;
+
+  return h;
+}
+</script>
+
+<script>
+// ============================================================
+//  PROCESS FLOW DIAGRAM (PFD) - SVG
+// ============================================================
+function renderPFD(inp, d) {
+  const tech = inp.technology;
+  let h = `<div class="panel"><div class="panel-title"><span class="dot"></span> Process Flow Diagram (PFD)</div>`;
+  h += `<div class="diagram-container">`;
+  h += `<div class="diagram-title">Process Flow — ${tech} Technology <span class="tag">PFD</span></div>`;
+
+  // Build SVG flow diagram
+  const stages = getPFDStages(tech);
+  h += generatePFDsvg(stages, d, inp);
+  h += `</div>`;
+
+  // Flow description
+  h += `<table class="data-table" style="margin-top:16px"><thead><tr><th>#</th><th>Stage</th><th>Function</th><th>IS Code</th></tr></thead><tbody>`;
+  stages.forEach((s, i) => {
+    h += `<tr><td class="num">${i + 1}</td><td class="param-cell">${s.name}</td><td>${s.func}</td><td>${s.isCode}</td></tr>`;
+  });
+  h += `</tbody></table>`;
+  h += `</div>`;
+  return h;
+}
+
+function getPFDStages(tech) {
+  const common = [
+    { name: 'Raw Sewage Inlet', func: 'Collection from source', isCode: 'IS 2470', color: '#5d4037' },
+    { name: 'Bar Screen', func: 'Removes large solids (>20mm)', isCode: 'IS 2470', color: '#78909c' },
+    { name: 'Grit Chamber', func: 'Removes sand, grit, grease', isCode: 'IS 2470', color: '#78909c' },
+    { name: 'Equalization Tank', func: 'Flow & load balancing (6 hr buffer)', isCode: 'IS 2470', color: '#0288d1' },
+  ];
+  let middle = [];
+  if (tech === 'MBBR') {
+    middle = [
+      { name: 'Primary Clarifier', func: 'Settleable solids removal', isCode: 'IS 2470', color: '#0288d1' },
+      { name: 'MBBR Reactor Stage 1', func: 'BOD removal (carrier media)', isCode: 'IS 2470', color: '#0891b2' },
+      { name: 'MBBR Reactor Stage 2', func: 'Nitrification + polishing', isCode: 'IS 2470', color: '#0891b2' },
+      { name: 'Secondary Clarifier', func: 'Biomass separation', isCode: 'IS 2470', color: '#0288d1' },
+    ];
+  } else if (tech === 'SBR') {
+    middle = [
+      { name: 'SBR Basin (Fill+React)', func: 'Aerobic biological treatment', isCode: 'IS 2470', color: '#0891b2' },
+      { name: 'SBR Settle Phase', func: 'Batch settling (no clarifier)', isCode: 'IS 2470', color: '#0891b2' },
+      { name: 'SBR Decant Phase', func: 'Clear effluent decanting', isCode: 'IS 2470', color: '#0891b2' },
+    ];
+  } else {
+    middle = [
+      { name: 'Anoxic Tank', func: 'Denitrification (nitrate→N₂)', isCode: 'IS 2470', color: '#0891b2' },
+      { name: 'MBR Aeration Tank', func: 'High-MLSS aerobic treatment', isCode: 'IS 2470', color: '#0891b2' },
+      { name: 'Membrane Filtration', func: 'Solids separation (0.1 μm)', isCode: 'IS 2470', color: '#0288d1' },
+    ];
+  }
+  const end = [
+    { name: 'Pressure Sand Filter', func: 'Suspended solids polishing', isCode: 'CPHEEO', color: '#059669' },
+    { name: 'Activated Carbon Filter', func: 'Odour, colour, organics removal', isCode: 'CPHEEO', color: '#059669' },
+    { name: 'Chlorination Tank', func: 'Disinfection (30 min contact)', isCode: 'IS 3025', color: '#d97706' },
+    { name: 'Treated Water Outlet', func: 'Discharge / Reuse', isCode: 'CPCB', color: '#059669' },
+  ];
+  const sludge = [
+    { name: 'Sludge Holding Tank', func: 'Excess sludge storage (3 days)', isCode: 'IS 2470', color: '#5d4037' },
+    { name: 'Sludge Drying Beds', func: 'Dewatering / thickening', isCode: 'IS 2470', color: '#5d4037' },
+  ];
+
+  return [...common, ...middle, ...end, ...sludge];
+}
+
+function generatePFDsvg(stages, d, inp) {
+  // Split into main flow + sludge flow
+  const mainStages = stages.filter(s => !s.name.includes('Sludge'));
+  const sludgeStages = stages.filter(s => s.name.includes('Sludge'));
+  const total = mainStages.length;
+  const boxW = 140, boxH = 56, gap = 20;
+  const perRow = Math.min(total, 5);
+  const rows = Math.ceil(total / perRow);
+  const svgW = perRow * (boxW + gap) + 60;
+  const svgH = rows * (boxH + gap + 30) + 120;
+
+  let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" style="width:100%;max-width:${svgW}px;height:auto" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0891b2"/>
+    </marker>
+    <marker id="arrowSludge" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5d4037"/>
+    </marker>
+  </defs>`;
+
+  // Background
+  svg += `<rect width="100%" height="100%" fill="rgba(8,145,178,0.02)" rx="8"/>`;
+
+  let x = 30, y = 30;
+  let prevX = 0, prevY = 0;
+  let positions = [];
+
+  mainStages.forEach((stage, i) => {
+    const col = i % perRow;
+    const row = Math.floor(i / perRow);
+    x = 30 + col * (boxW + gap);
+    y = 30 + row * (boxH + gap + 30);
+    positions.push({ x, y, ...stage });
+
+    // Draw box
+    svg += `<rect x="${x}" y="${y}" width="${boxW}" height="${boxH}" rx="6" fill="${stage.color}22" stroke="${stage.color}" stroke-width="1.5"/>`;
+    svg += `<text x="${x + boxW / 2}" y="${y + 20}" text-anchor="middle" fill="var(--text)" font-size="10" font-family="IBM Plex Sans, sans-serif" font-weight="600">${wrapText(stage.name, boxW - 10, 0)}</text>`;
+    if (stage.name.length > 16) {
+      svg += `<text x="${x + boxW / 2}" y="${y + 35}" text-anchor="middle" fill="var(--text-dim)" font-size="9" font-family="IBM Plex Sans, sans-serif">${wrapText(stage.name, boxW - 10, 1)}</text>`;
+    }
+    svg += `<text x="${x + boxW / 2}" y="${y + boxH - 6}" text-anchor="middle" fill="${stage.color}" font-size="8" font-family="IBM Plex Mono, monospace">#${i + 1}</text>`;
+
+    // Draw arrow to next
+    if (i < total - 1) {
+      const nextCol = (i + 1) % perRow;
+      const nextRow = Math.floor((i + 1) / perRow);
+      if (nextCol === 0) {
+        // Wrap to next row - draw L-shaped arrow
+        svg += `<path d="M${x + boxW / 2},${y + boxH} L${x + boxW / 2},${y + boxH + 15} L${30 + boxW / 2},${y + boxH + 15}" fill="none" stroke="#0891b2" stroke-width="2" marker-end="url(#arrow)"/>`;
+      } else {
+        svg += `<line x1="${x + boxW}" y1="${y + boxH / 2}" x2="${x + boxW + gap}" y2="${y + boxH / 2}" stroke="#0891b2" stroke-width="2" marker-end="url(#arrow)"/>`;
+      }
+    }
+  });
+
+  // Sludge flow (bottom)
+  if (sludgeStages.length > 0) {
+    const sludgeY = svgH - 70;
+    // Dashed line from bioreactor to sludge
+    const bioIdx = mainStages.findIndex(s => s.name.includes('MBBR') || s.name.includes('SBR') || s.name.includes('MBR'));
+    if (bioIdx >= 0) {
+      const bp = positions[bioIdx];
+      svg += `<path d="M${bp.x + boxW / 2},${bp.y + boxH} L${bp.x + boxW / 2},${sludgeY - 10} L30 + ${boxW / 2},${sludgeY - 10}" fill="none" stroke="#5d4037" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowSludge)"/>`;
+    }
+    sludgeStages.forEach((s, i) => {
+      const sx = 30 + i * (boxW + gap);
+      svg += `<rect x="${sx}" y="${sludgeY}" width="${boxW}" height="${boxH}" rx="6" fill="${s.color}22" stroke="${s.color}" stroke-width="1.5" stroke-dasharray="3,2"/>`;
+      svg += `<text x="${sx + boxW / 2}" y="${sludgeY + 25}" text-anchor="middle" fill="var(--text)" font-size="10" font-family="IBM Plex Sans, sans-serif" font-weight="600">${wrapText(s.name, boxW - 10, 0)}</text>`;
+      svg += `<text x="${sx + boxW / 2}" y="${sludgeY + 40}" text-anchor="middle" fill="var(--text-dim)" font-size="9" font-family="IBM Plex Sans, sans-serif">${wrapText(s.name, boxW - 10, 1)}</text>`;
+    });
+  }
+
+  // Legend
+  svg += `<text x="${svgW - 20}" y="${svgH - 10}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="IBM Plex Mono, monospace">Flow: ${fmt(d.avgDailyFlowKLD, 1)} KLD | Technology: ${inp.technology}</text>`;
+
+  svg += `</svg>`;
+  return svg;
+}
+
+function wrapText(text, maxW, line) {
+  if (text.length <= 16) return line === 0 ? text : '';
+  const words = text.split(' ');
+  if (line === 0) return words.slice(0, Math.ceil(words.length / 2)).join(' ');
+  return words.slice(Math.ceil(words.length / 2)).join(' ');
+}
+
+// ============================================================
+//  P&ID DIAGRAM (Piping & Instrumentation)
+// ============================================================
+function renderPID(inp, d) {
+  let h = `<div class="panel"><div class="panel-title"><span class="dot"></span> Piping & Instrumentation Diagram (P&ID)</div>`;
+  h += `<div class="diagram-container">`;
+  h += `<div class="diagram-title">P&ID Schematic — ${inp.technology} STP <span class="tag">P&ID</span></div>`;
+
+  h += generatePIDsvg(inp, d);
+
+  h += `</div>`;
+
+  // Instrument list
+  h += `<div class="section-heading" style="margin-top:16px"><span class="num-badge">i</span> Instrument Schedule</div>`;
+  h += `<table class="data-table"><thead><tr><th>Tag</th><th>Description</th><th>Type</th><th>Location</th></tr></thead><tbody>`;
+  const instruments = getInstrumentList(inp.technology);
+  instruments.forEach(inst => {
+    h += `<tr><td class="param-cell">${inst.tag}</td><td>${inst.desc}</td><td>${inst.type}</td><td>${inst.location}</td></tr>`;
+  });
+  h += `</tbody></table>`;
+
+  // Valve list
+  h += `<div class="section-heading" style="margin-top:16px"><span class="num-badge">v</span> Valve Schedule</div>`;
+  h += `<table class="data-table"><thead><tr><th>Tag</th><th>Description</th><th>Type</th></tr></thead><tbody>`;
+  const valves = getValveList(inp.technology);
+  valves.forEach(v => {
+    h += `<tr><td class="param-cell">${v.tag}</td><td>${v.desc}</td><td>${v.type}</td></tr>`;
+  });
+  h += `</tbody></table>`;
+  h += `</div>`;
+  return h;
+}
+
+function generatePIDsvg(inp, d) {
+  const tech = inp.technology;
+  const w = 1100, h = 500;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px;height:auto" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<defs>
+    <marker id="pidArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(120,169,207,0.05)" stroke-width="0.5"/></pattern>
+  </defs>`;
+  svg += `<rect width="100%" height="100%" fill="url(#grid)" rx="8"/>`;
+
+  // Main process line
+  svg += `<line x1="20" y1="200" x2="${w - 20}" y2="200" stroke="var(--accent)" stroke-width="2" opacity="0.3"/>`;
+
+  // Draw units as rectangles along the line
+  const units = getPIDUnits(tech);
+  const unitW = 120, unitH = 70;
+  const spacing = (w - 60) / units.length;
+
+  units.forEach((u, i) => {
+    const x = 30 + i * spacing;
+    const y = 165;
+
+    // Tank/vessel
+    svg += drawPIDUnit(x, y, unitW, unitH, u);
+
+    // Instrument bubbles
+    if (u.instruments) {
+      u.instruments.forEach((inst, j) => {
+        const ix = x + 20 + j * 45;
+        const iy = y - 25;
+        svg += drawInstrumentBubble(ix, iy, inst.tag, inst.type);
+        svg += `<line x1="${ix}" y1="${iy + 12}" x2="${ix}" y2="${y}" stroke="var(--text-dim)" stroke-width="1"/>`;
+      });
+    }
+
+    // Flow arrow
+    if (i < units.length - 1) {
+      svg += `<line x1="${x + unitW}" y1="200" x2="${x + spacing}" y2="200" stroke="var(--accent)" stroke-width="2" marker-end="url(#pidArrow)"/>`;
+    }
+  });
+
+  // Blower (bottom)
+  const blowerX = 30 + Math.floor(units.length / 2) * spacing + unitW / 2;
+  svg += `<circle cx="${blowerX}" cy="380" r="20" fill="var(--surface-3)" stroke="var(--accent-2)" stroke-width="2"/>`;
+  svg += `<text x="${blowerX}" y="385" text-anchor="middle" font-size="10" fill="var(--accent-2)" font-family="IBM Plex Mono" font-weight="600">B-101</text>`;
+  svg += `<text x="${blowerX}" y="415" text-anchor="middle" font-size="9" fill="var(--text-dim)">Blower</text>`;
+  svg += `<line x1="${blowerX}" y1="360" x2="${blowerX}" y2="235" stroke="var(--accent-2)" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#pidArrow)"/>`;
+  svg += `<text x="${blowerX + 5}" y="300" font-size="9" fill="var(--accent-2)" font-family="IBM Plex Mono">Air</text>`;
+
+  // Sludge return
+  svg += `<path d="M${blowerX - 60},235 Q${blowerX - 150},280 ${30 + unitW / 2},235" fill="none" stroke="#5d4037" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  svg += `<text x="${blowerX - 100}" y="290" font-size="9" fill="#5d4037" font-family="IBM Plex Mono">Sludge Return</text>`;
+
+  // Title annotations
+  svg += `<text x="20" y="30" font-size="14" fill="var(--text)" font-family="IBM Plex Sans" font-weight="600">P&ID — ${tech} Sewage Treatment Plant</text>`;
+  svg += `<text x="20" y="48" font-size="10" fill="var(--text-dim)" font-family="IBM Plex Mono">Flow: ${fmt(d.avgDailyFlowKLD, 1)} KLD | Q_peak: ${fmt(d.peakFlowM3hr, 1)} m³/hr</text>`;
+
+  // Legend
+  svg += `<g transform="translate(${w - 280}, 30)">
+    <rect width="260" height="80" fill="var(--surface-2)" stroke="var(--border)" rx="4"/>
+    <text x="10" y="18" font-size="10" fill="var(--text-dim)" font-family="IBM Plex Mono" font-weight="600">LEGEND</text>
+    <circle cx="20" cy="35" r="8" fill="var(--surface-3)" stroke="var(--accent)" stroke-width="1.5"/><text x="35" y="39" font-size="9" fill="var(--text)">Instrument (Field)</text>
+    <line x1="12" y1="52" x2="28" y2="52" stroke="var(--accent)" stroke-width="2" marker-end="url(#pidArrow)"/><text x="35" y="56" font-size="9" fill="var(--text)">Process Flow</text>
+    <line x1="12" y1="68" x2="28" y2="68" stroke="var(--accent-2)" stroke-width="1.5" stroke-dasharray="4,2"/><text x="35" y="72" font-size="9" fill="var(--text)">Air Line</text>
+  </g>`;
+
+  svg += `</svg>`;
+  return svg;
+}
+
+function drawPIDUnit(x, y, w, h, unit) {
+  let svg = '';
+  if (unit.shape === 'rect') {
+    svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${unit.color || 'var(--accent-dim)'}" stroke="var(--accent)" stroke-width="1.5"/>`;
+  } else if (unit.shape === 'circle') {
+    svg += `<circle cx="${x + w / 2}" cy="${y + h / 2}" r="${h / 2}" fill="${unit.color || 'var(--accent-dim)'}" stroke="var(--accent)" stroke-width="1.5"/>`;
+  } else if (unit.shape === 'cylinder') {
+    svg += `<ellipse cx="${x + w / 2}" cy="${y + 10}" rx="${w / 2}" ry="10" fill="${unit.color || 'var(--accent-dim)'}" stroke="var(--accent)" stroke-width="1.5"/>`;
+    svg += `<rect x="${x}" y="${y + 10}" width="${w}" height="${h - 20}" fill="${unit.color || 'var(--accent-dim)'}" stroke="var(--accent)" stroke-width="1.5"/>`;
+    svg += `<ellipse cx="${x + w / 2}" cy="${y + h - 10}" rx="${w / 2}" ry="10" fill="${unit.color || 'var(--accent-dim)'}" stroke="var(--accent)" stroke-width="1.5"/>`;
+  } else {
+    svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${unit.color || 'var(--accent-dim)'}" stroke="var(--accent)" stroke-width="1.5"/>`;
+  }
+  // Label
+  svg += `<text x="${x + w / 2}" y="${y + h / 2 - 5}" text-anchor="middle" font-size="10" fill="var(--text)" font-family="IBM Plex Sans" font-weight="600">${unit.name}</text>`;
+  svg += `<text x="${x + w / 2}" y="${y + h / 2 + 12}" text-anchor="middle" font-size="8" fill="var(--text-dim)" font-family="IBM Plex Mono">${unit.tag}</text>`;
+  return svg;
+}
+
+function drawInstrumentBubble(x, y, tag, type) {
+  const color = type === 'I' ? 'var(--accent-light)' : (type === 'C' ? 'var(--accent-2)' : 'var(--success)');
+  return `<g>
+    <circle cx="${x}" cy="${y}" r="12" fill="var(--surface-3)" stroke="${color}" stroke-width="1.5"/>
+    <text x="${x}" y="${y + 1}" text-anchor="middle" font-size="7" fill="${color}" font-family="IBM Plex Mono" font-weight="600">${tag}</text>
+    <line x1="${x - 8}" y1="${y}" x2="${x + 8}" y2="${y}" stroke="${color}" stroke-width="0.5"/>
+  </g>`;
+}
+
+function getPIDUnits(tech) {
+  const base = [
+    { name: 'Screen', tag: 'SC-101', shape: 'rect', instruments: [{ tag: 'FIT-101', type: 'I' }] },
+    { name: 'Grit', tag: 'GC-101', shape: 'rect', instruments: [{ tag: 'LIT-101', type: 'I' }] },
+    { name: 'Eq. Tank', tag: 'ET-101', shape: 'rect', instruments: [{ tag: 'LIT-102', type: 'I' }, { tag: 'FIT-102', type: 'I' }] },
+  ];
+  let bio = [];
+  if (tech === 'MBBR') {
+    bio = [
+      { name: 'Primary Cl.', tag: 'PC-101', shape: 'cylinder', instruments: [{ tag: 'LIT-103', type: 'I' }] },
+      { name: 'MBBR-1', tag: 'BR-101', shape: 'rect', instruments: [{ tag: 'DIT-101', type: 'I' }, { tag: 'AIT-101', type: 'I' }] },
+      { name: 'MBBR-2', tag: 'BR-102', shape: 'rect', instruments: [{ tag: 'DIT-102', type: 'I' }] },
+      { name: 'Sec. Cl.', tag: 'SC-102', shape: 'cylinder', instruments: [{ tag: 'LIT-104', type: 'I' }] },
+    ];
+  } else if (tech === 'SBR') {
+    bio = [
+      { name: 'SBR-1', tag: 'SB-101', shape: 'rect', instruments: [{ tag: 'DIT-101', type: 'I' }, { tag: 'AIT-101', type: 'I' }, { tag: 'DO-101', type: 'I' }] },
+      { name: 'SBR-2', tag: 'SB-102', shape: 'rect', instruments: [{ tag: 'DIT-102', type: 'I' }, { tag: 'DO-102', type: 'I' }] },
+      { name: 'Decant', tag: 'DC-101', shape: 'rect', instruments: [{ tag: 'FIT-103', type: 'I' }] },
+    ];
+  } else {
+    bio = [
+      { name: 'Anoxic', tag: 'AX-101', shape: 'rect', instruments: [{ tag: 'DIT-101', type: 'I' }] },
+      { name: 'MBR Tank', tag: 'MB-101', shape: 'rect', instruments: [{ tag: 'DIT-102', type: 'I' }, { tag: 'AIT-101', type: 'I' }, { tag: 'DO-101', type: 'I' }] },
+      { name: 'Membrane', tag: 'MF-101', shape: 'rect', instruments: [{ tag: 'PIT-101', type: 'I' }, { tag: 'FIT-104', type: 'I' }] },
+    ];
+  }
+  const end = [
+    { name: 'PSF', tag: 'SF-101', shape: 'cylinder', instruments: [{ tag: 'PIT-102', type: 'I' }] },
+    { name: 'ACF', tag: 'AC-101', shape: 'cylinder', instruments: [{ tag: 'PIT-103', type: 'I' }] },
+    { name: 'Chlor.', tag: 'CT-101', shape: 'rect', instruments: [{ tag: 'AIT-102', type: 'I' }] },
+  ];
+  return [...base, ...bio, ...end];
+}
+
+function getInstrumentList(tech) {
+  const common = [
+    { tag: 'FIT-101', desc: 'Inlet Flow Indicator Transmitter', type: 'Electromagnetic Flowmeter', location: 'Inlet to Screen' },
+    { tag: 'LIT-101', desc: 'Grit Chamber Level', type: 'Ultrasonic Level Transmitter', location: 'Grit Chamber' },
+    { tag: 'LIT-102', desc: 'Equalization Tank Level', type: 'Ultrasonic Level Transmitter', location: 'Eq. Tank' },
+    { tag: 'FIT-102', desc: 'Feed Flow to Bioreactor', type: 'Electromagnetic Flowmeter', location: 'Bioreactor Feed' },
+  ];
+  let bio = [];
+  if (tech === 'MBBR') {
+    bio = [
+      { tag: 'LIT-103', desc: 'Primary Clarifier Level', type: 'Ultrasonic Level Transmitter', location: 'Primary Clarifier' },
+      { tag: 'DIT-101', desc: 'MBBR-1 Dissolved Oxygen', type: 'DO Probe', location: 'MBBR Stage 1' },
+      { tag: 'AIT-101', desc: 'pH / Temp Analyzer', type: 'pH+Temp Sensor', location: 'MBBR Stage 1' },
+      { tag: 'DIT-102', desc: 'MBBR-2 Dissolved Oxygen', type: 'DO Probe', location: 'MBBR Stage 2' },
+      { tag: 'LIT-104', desc: 'Secondary Clarifier Level', type: 'Ultrasonic Level Transmitter', location: 'Sec. Clarifier' },
+    ];
+  } else if (tech === 'SBR') {
+    bio = [
+      { tag: 'DIT-101', desc: 'SBR-1 Dissolved Oxygen', type: 'DO Probe', location: 'SBR Basin 1' },
+      { tag: 'AIT-101', desc: 'pH / Temp / ORP Analyzer', type: 'Multi-parameter Sensor', location: 'SBR Basin 1' },
+      { tag: 'DO-101', desc: 'DO Controller', type: 'PLC Controller', location: 'SBR Basin 1' },
+      { tag: 'DIT-102', desc: 'SBR-2 Dissolved Oxygen', type: 'DO Probe', location: 'SBR Basin 2' },
+      { tag: 'FIT-103', desc: 'Decant Flow', type: 'Electromagnetic Flowmeter', location: 'Decant Outlet' },
+    ];
+  } else {
+    bio = [
+      { tag: 'DIT-101', desc: 'Anoxic Tank Mixer Status', type: 'ORP + Level', location: 'Anoxic Tank' },
+      { tag: 'DIT-102', desc: 'MBR Dissolved Oxygen', type: 'DO Probe', location: 'MBR Aeration' },
+      { tag: 'AIT-101', desc: 'pH / Temp / MLSS Analyzer', type: 'Multi-parameter Sensor', location: 'MBR Tank' },
+      { tag: 'DO-101', desc: 'DO Controller', type: 'PLC Controller', location: 'MBR Tank' },
+      { tag: 'PIT-101', desc: 'Membrane TMP Pressure', type: 'Pressure Transmitter', location: 'Membrane Module' },
+      { tag: 'FIT-104', desc: 'Permeate Flow', type: 'Electromagnetic Flowmeter', location: 'Membrane Outlet' },
+    ];
+  }
+  const end = [
+    { tag: 'PIT-102', desc: 'PSF Inlet Pressure', type: 'Pressure Gauge', location: 'Sand Filter' },
+    { tag: 'PIT-103', desc: 'ACF Inlet Pressure', type: 'Pressure Gauge', location: 'Carbon Filter' },
+    { tag: 'AIT-102', desc: 'Chlorine Residual', type: 'Chlorine Analyzer', location: 'Chlorine Tank' },
+  ];
+  return [...common, ...bio, ...end];
+}
+
+function getValveList(tech) {
+  return [
+    { tag: 'V-101', desc: 'Inlet Isolation Valve', type: 'Gate Valve DN100' },
+    { tag: 'V-102', desc: 'Equalization Tank Outlet', type: 'Butterfly Valve DN150' },
+    { tag: 'V-103', desc: 'Bioreactor Inlet', type: 'Butterfly Valve DN100' },
+    { tag: 'V-104', desc: 'Sludge Return Valve', type: 'Gate Valve DN80' },
+    { tag: 'V-105', desc: 'Sludge Waste Valve', type: 'Ball Valve DN50' },
+    { tag: 'V-106', desc: 'Filter Inlet', type: 'Ball Valve DN80' },
+    { tag: 'V-107', desc: 'Chlorine Dosing Valve', type: 'Solenoid Valve DN15' },
+    { tag: 'V-108', desc: 'Treated Water Outlet', type: 'Butterfly Valve DN100' },
+    ...(tech === 'MBR' ? [{ tag: 'V-109', desc: 'Membrane Backwash Valve', type: 'Ball Valve DN50' }] : []),
+    ...(tech === 'SBR' ? [{ tag: 'V-109', desc: 'Decant Valve', type: 'Motorized Valve DN100' }] : []),
+  ];
+}
+
+// ============================================================
+//  3D ISOMETRIC LAYOUT
+// ============================================================
+function render3DLayout(inp, d) {
+  let h = `<div class="panel"><div class="panel-title"><span class="dot"></span> 3D Isometric Plant Layout</div>`;
+  h += `<div class="diagram-container">`;
+  h += `<div class="diagram-title">3D Isometric View — ${inp.technology} STP Plant <span class="tag">3D</span></div>`;
+
+  h += generate3Dsvg(inp, d);
+
+  h += `</div>`;
+  h += `<div class="info-box">
+    <div class="title">Layout Notes</div>
+    <div class="content">
+      • Tanks shown in isometric projection for visualization. Actual layout should follow site topography.<br>
+      • Total estimated plant footprint: <strong>${fmt0(d.footprint_m2)} m²</strong> (including walkways, roads, control room — 30% allowance)<br>
+      • Flow direction: Left (inlet) → Right (outlet). Blower room positioned centrally for air distribution.<br>
+      • Sludge handling located at the rear for truck access.<br>
+      • Electrical/control panel room near entrance for operations access.
+    </div>
+  </div>`;
+  h += `</div>`;
+  return h;
+}
+
+function generate3Dsvg(inp, d) {
+  const w = 1000, h = 500;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px;height:auto" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<defs>
+    <linearGradient id="tank3d" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:var(--accent-light);stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0.1"/>
+    </linearGradient>
+    <linearGradient id="tank3dSide" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:var(--bg);stop-opacity:0.4"/>
+    </linearGradient>
+    <linearGradient id="ground3d" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:rgba(120,169,207,0.06)"/>
+      <stop offset="100%" style="stop-color:rgba(120,169,207,0.02)"/>
+    </linearGradient>
+  </defs>`;
+
+  // Ground plane (isometric)
+  svg += `<polygon points="100,380 900,380 750,450 50,450" fill="url(#ground3d)" stroke="var(--border)" stroke-width="1"/>`;
+  svg += `<polygon points="100,380 900,380 750,450 50,450" fill="none" stroke="var(--border-strong)" stroke-width="1" stroke-dasharray="3,3"/>`;
+
+  // Draw tanks in isometric
+  const bio = d.bioreactor;
+  let xPos = 80;
+  const baseY = 380;
+
+  // Inlet screen
+  svg += draw3DBox(xPos, baseY, 60, 40, 50, 'Screen', 'var(--text-dim)');
+  xPos += 90;
+
+  // Grit chamber
+  svg += draw3DBox(xPos, baseY, 80, 50, 45, 'Grit', '#78909c');
+  xPos += 110;
+
+  // Equalization
+  svg += draw3DBox(xPos, baseY, 130, 80, 50, 'Eq. Tank', '#0288d1');
+  xPos += 160;
+
+  // Bioreactor
+  const bioW = Math.min(200, Math.max(120, bio.length_m * 5));
+  const bioD = Math.min(100, Math.max(60, bio.width_m * 5));
+  const bioH = Math.min(80, Math.max(40, bio.depth_m * 8));
+  if (inp.technology === 'SBR') {
+    // Two SBR basins side by side
+    svg += draw3DBox(xPos, baseY, 100, 60, 60, 'SBR-1', 'var(--accent)');
+    svg += draw3DBox(xPos + 120, baseY, 100, 60, 60, 'SBR-2', 'var(--accent)');
+    xPos += 250;
+  } else if (inp.technology === 'MBBR') {
+    svg += draw3DBox(xPos, baseY, 90, 60, 55, 'MBBR-1', 'var(--accent)');
+    svg += draw3DBox(xPos + 110, baseY, 80, 60, 55, 'MBBR-2', 'var(--accent)');
+    xPos += 230;
+    // Secondary clarifier (cylinder)
+    svg += draw3DCylinder(xPos, baseY, 70, 60, 'Sec. Cl.', '#0288d1');
+    xPos += 110;
+  } else {
+    svg += draw3DBox(xPos, baseY, 100, 70, 65, 'MBR Tank', 'var(--accent)');
+    svg += draw3DBox(xPos + 120, baseY, 70, 50, 60, 'Membrane', 'var(--accent-light)');
+    xPos += 230;
+  }
+
+  // PSF
+  svg += draw3DCylinder(xPos, baseY, 50, 50, 'PSF', '#059669');
+  xPos += 80;
+  // ACF
+  svg += draw3DCylinder(xPos, baseY, 50, 50, 'ACF', '#059669');
+  xPos += 80;
+  // Chlorination
+  svg += draw3DBox(xPos, baseY, 70, 50, 40, 'Chlor.', '#d97706');
+  xPos += 100;
+
+  // Flow arrows (isometric)
+  svg += `<g opacity="0.5">`;
+  for (let i = 1; i < 8; i++) {
+    const ax = 80 + i * 110;
+    svg += `<polygon points="${ax},${baseY - 5} ${ax + 8},${baseY - 2} ${ax + 8},${baseY - 8}" fill="var(--accent)" stroke="none"/>`;
+  }
+  svg += `</g>`;
+
+  // Blower room (behind)
+  svg += `<g opacity="0.7">
+    <polygon points="400,340 520,340 540,320 560,340 560,360 540,380 400,380 380,360 380,340" fill="var(--surface-2)" stroke="var(--accent-2)" stroke-width="1.5"/>
+    <text x="470" y="362" text-anchor="middle" font-size="10" fill="var(--accent-2)" font-family="IBM Plex Mono" font-weight="600">Blower Room</text>
+    <text x="470" y="375" text-anchor="middle" font-size="8" fill="var(--text-dim)" font-family="IBM Plex Mono">B-101/102/103</text>
+  </g>`;
+
+  // Sludge tank (behind, left)
+  svg += `<g opacity="0.7">
+    <polygon points="80,340 160,340 180,320 200,340 200,360 180,380 80,380" fill="var(--surface-2)" stroke="#5d4037" stroke-width="1.5"/>
+    <text x="140" y="362" text-anchor="middle" font-size="9" fill="#8d6e63" font-family="IBM Plex Mono" font-weight="600">Sludge Tank</text>
+  </g>`;
+
+  // Control room (front right)
+  svg += `<g opacity="0.7">
+    <polygon points="${xPos + 10},${baseY + 10} ${xPos + 90},${baseY + 10} ${xPos + 90},${baseY + 40} ${xPos + 10},${baseY + 40}" fill="var(--surface-2)" stroke="var(--success)" stroke-width="1.5"/>
+    <text x="${xPos + 50}" y="${baseY + 30}" text-anchor="middle" font-size="9" fill="var(--success)" font-family="IBM Plex Mono" font-weight="600">Control</text>
+  </g>`;
+
+  // Labels
+  svg += `<text x="20" y="30" font-size="16" fill="var(--text)" font-family="IBM Plex Sans" font-weight="600">3D Isometric Layout — ${inp.technology} STP</text>`;
+  svg += `<text x="20" y="50" font-size="10" fill="var(--text-dim)" font-family="IBM Plex Mono">Capacity: ${fmt(d.avgDailyFlowKLD, 1)} KLD | Footprint ≈ ${fmt0(d.footprint_m2)} m²</text>`;
+
+  // Compass / flow direction
+  svg += `<g transform="translate(${w - 100}, 60)">
+    <circle cx="20" cy="20" r="18" fill="var(--surface-2)" stroke="var(--border)" stroke-width="1"/>
+    <text x="20" y="8" text-anchor="middle" font-size="9" fill="var(--text-dim)">N</text>
+    <text x="20" y="37" text-anchor="middle" font-size="9" fill="var(--text-dim)">S</text>
+    <text x="6" y="24" font-size="9" fill="var(--text-dim)">W</text>
+    <text x="32" y="24" font-size="9" fill="var(--text-dim)">E</text>
+    <polygon points="20,12 16,22 24,22" fill="var(--accent)"/>
+  </g>`;
+
+  svg += `</svg>`;
+  return svg;
+}
+
+function draw3DBox(x, baseY, w, d, h, label, color) {
+  // Isometric projection
+  const isoX = 30;
+  const isoY = 15;
+  const top = baseY - h;
+  // Front face
+  let svg = `<polygon points="${x},${top} ${x + w},${top} ${x + w},${baseY} ${x},${baseY}" fill="${color}33" stroke="${color}" stroke-width="1.5"/>`;
+  // Top face (isometric)
+  svg += `<polygon points="${x},${top} ${x + w},${top} ${x + w + isoX},${top - isoY} ${x + isoX},${top - isoY}" fill="${color}22" stroke="${color}" stroke-width="1"/>`;
+  // Right face (isometric)
+  svg += `<polygon points="${x + w},${top} ${x + w + isoX},${top - isoY} ${x + w + isoX},${baseY - isoY} ${x + w},${baseY}" fill="${color}15" stroke="${color}" stroke-width="1"/>`;
+  // Label
+  svg += `<text x="${x + w / 2}" y="${top + h / 2 + 4}" text-anchor="middle" font-size="10" fill="var(--text)" font-family="IBM Plex Sans" font-weight="600">${label}</text>`;
+  return svg;
+}
+
+function draw3DCylinder(x, baseY, w, h, label, color) {
+  const top = baseY - h;
+  let svg = '';
+  // Body
+  svg += `<rect x="${x}" y="${top + 8}" width="${w}" height="${h - 8}" fill="${color}33" stroke="${color}" stroke-width="1.5"/>`;
+  // Top ellipse
+  svg += `<ellipse cx="${x + w / 2}" cy="${top + 8}" rx="${w / 2}" ry="8" fill="${color}22" stroke="${color}" stroke-width="1.5"/>`;
+  // Bottom ellipse (partial)
+  svg += `<path d="M${x},${baseY} A${w / 2},8 0 0 0 ${x + w},${baseY}" fill="none" stroke="${color}" stroke-width="1"/>`;
+  // Label
+  svg += `<text x="${x + w / 2}" y="${top + h / 2 + 4}" text-anchor="middle" font-size="10" fill="var(--text)" font-family="IBM Plex Sans" font-weight="600">${label}</text>`;
+  return svg;
+}
+
+// ============================================================
+//  EFFLUENT QUALITY TAB
+// ============================================================
+function renderEffluentTab(inp, d) {
+  let h = `<div class="panel"><div class="panel-title"><span class="dot"></span> Effluent Quality & Discharge Compliance</div>`;
+
+  h += `<table class="data-table">
+    <thead><tr><th>Parameter</th><th class="num">Inlet</th><th class="num">Predicted Effluent</th><th class="num">Standard (${d.discharge.label})</th><th>Status</th></tr></thead>
+    <tbody>`;
+
+  const params = [
+    { name: 'BOD (mg/L)', inlet: inp.inletBOD, eff: d.effluent.BOD, std: d.discharge.BOD },
+    { name: 'COD (mg/L)', inlet: inp.inletCOD, eff: d.effluent.COD, std: d.discharge.COD },
+    { name: 'TSS (mg/L)', inlet: inp.inletTSS, eff: d.effluent.TSS, std: d.discharge.TSS },
+    { name: 'TKN (mg/L)', inlet: inp.inletTKN, eff: d.effluent.N_total, std: d.discharge.N_total },
+    { name: 'NH₄-N (mg/L)', inlet: '-', eff: d.effluent.NH4, std: d.discharge.NH4 },
+    { name: 'Total P (mg/L)', inlet: '-', eff: d.effluent.P_total, std: d.discharge.P_total },
+    { name: 'Faecal Coliform (MPN/100mL)', inlet: '-', eff: d.effluent.FC, std: d.discharge.FC },
+    { name: 'pH', inlet: '6.5-7.5', eff: d.effluent.pH, std: `${d.discharge.pH_min}-${d.discharge.pH_max}` },
+  ];
+
+  params.forEach(p => {
+    const pass = typeof p.eff === 'number' && typeof p.std === 'number' ? p.eff <= p.std : true;
+    const status = pass ? '<span style="color:var(--success);font-weight:600">PASS</span>' : '<span style="color:var(--danger);font-weight:600">CHECK</span>';
+    h += `<tr>
+      <td class="param-cell">${p.name}</td>
+      <td class="num">${p.inlet}</td>
+      <td class="num" style="font-weight:600;color:var(--accent-light)">${p.eff}</td>
+      <td class="num">${p.std}</td>
+      <td>${status}</td>
+    </tr>`;
+  });
+
+  h += `</tbody></table>`;
+
+  h += `<div class="info-box success">
+    <div class="title">Compliance Assessment</div>
+    <div class="content">Based on ${inp.technology} technology performance, the predicted effluent quality meets the <strong>${d.discharge.label}</strong> discharge standard as per CPCB / MOEFCC guidelines. Regular monitoring per IS 3025 methods is required for compliance verification.</div>
+  </div>`;
+
+  h += `<div class="section-heading"><span class="num-badge">m</span> Monitoring Requirements</div>`;
+  h += `<table class="data-table"><thead><tr><th>Parameter</th><th>Frequency</th><th>Method (IS 3025)</th></tr></thead><tbody>
+    <tr><td>pH</td><td>Daily</td><td>IS 3025 (Part 11)</td></tr>
+    <tr><td>BOD</td><td>Weekly</td><td>IS 3025 (Part 44)</td></tr>
+    <tr><td>COD</td><td>Weekly</td><td>IS 3025 (Part 58)</td></tr>
+    <tr><td>TSS</td><td>Weekly</td><td>IS 3025 (Part 17)</td></tr>
+    <tr><td>NH₄-N</td><td>Monthly</td><td>IS 3025 (Part 34)</td></tr>
+    <tr><td>Faecal Coliform</td><td>Monthly</td><td>IS 1622</td></tr>
+  </tbody></table>`;
+
+  h += `</div>`;
+  return h;
+}
+
+// ============================================================
+//  IS CODES TAB
+// ============================================================
+function renderISCodesTab(inp, d) {
+  let h = `<div class="panel"><div class="panel-title"><span class="dot"></span> Indian Standard Codes & References</div>`;
+
+  h += `<div class="info-box">
+    <div class="title">Applicable Standards</div>
+    <div class="content">This design follows the Indian Standard codes and CPCB/MOEFCC guidelines for sewage treatment plant design, construction, and discharge norms.</div>
+  </div>`;
+
+  h += `<div class="is-code-grid">`;
+  IS_CODES.forEach(code => {
+    h += `<div class="is-code-item">
+      <div class="code">${code.code}</div>
+      <div class="desc">${code.desc}</div>
+    </div>`;
+  });
+  h += `</div>`;
+
+  h += `<div class="section-heading"><span class="num-badge">L</span> LPCD Standards (IS 1172)</div>`;
+  h += `<table class="data-table"><thead><tr><th>Application</th><th class="num">LPCD</th><th>Source</th></tr></thead><tbody>`;
+  Object.entries(APP_TYPES).forEach(([k, v]) => {
+    h += `<tr><td>${v.label}</td><td class="num">${v.lpcd}</td><td>IS 1172 / CPHEEO Manual</td></tr>`;
+  });
+  h += `</tbody></table>`;
+
+  h += `<div class="section-heading"><span class="num-badge">D</span> Discharge Standards (CPCB / MOEFCC)</div>`;
+  h += `<table class="data-table"><thead><tr><th>Standard</th><th class="num">BOD</th><th class="num">COD</th><th class="num">TSS</th><th class="num">N-total</th><th class="num">P-total</th><th class="num">pH</th></tr></thead><tbody>`;
+  Object.entries(DISCHARGE_STANDARDS).forEach(([k, v]) => {
+    h += `<tr><td>${v.label}</td><td class="num">${v.BOD}</td><td class="num">${v.COD}</td><td class="num">${v.TSS}</td><td class="num">${v.N_total}</td><td class="num">${v.P_total}</td><td class="num">${v.pH_min}-${v.pH_max}</td></tr>`;
+  });
+  h += `</tbody></table>`;
+
+  h += `</div>`;
+  return h;
+}
+
+// ============================================================
+//  BLACK WATER / GREY WATER TAB
+// ============================================================
+function renderWaterTypeTab(inp, d) {
+  let h = `<div class="panel"><div class="panel-title"><span class="dot"></span> Black Water vs Grey Water</div>`;
+
+  h += `<div class="info-box">
+    <div class="title">Understanding Wastewater Types</div>
+    <div class="content">Sewage from buildings is a combination of <strong>black water</strong> (toilet waste) and <strong>grey water</strong> (from showers, sinks, washing machines). Understanding the split is critical for STP design and potential water recycling strategies.</div>
+  </div>`;
+
+  h += `<div class="water-type-grid">
+    <div class="water-type-card black-water">
+      <h4>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5d4037" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Black Water
+      </h4>
+      <p style="font-size:12px;color:var(--text-dim);margin-bottom:8px">Wastewater from toilets containing human waste (faecal matter, urine). High pathogen and organic load.</p>
+      <ul>
+        <li>Source: Toilets, urinals, bidets</li>
+        <li>Contribution: ~32% of total sewage</li>
+        <li>BOD: 400-600 mg/L (high)</li>
+        <li>Pathogens: Very high (faecal coliforms)</li>
+        <li>Nitrogen: 50-80 mg/L (high)</li>
+        <li>TSS: 500-800 mg/L (high)</li>
+        <li>Treatment: Requires full biological STP</li>
+        <li>Recycling: NOT suitable for direct reuse (treat fully first)</li>
+      </ul>
+      <div style="margin-top:10px;padding:8px;background:var(--surface-3);border-radius:4px;font-size:12px">
+        <strong>In this design:</strong> ${fmt0(d.blackWaterL)} L/day (${d.blackWaterPct}%)
+      </div>
+    </div>
+    <div class="water-type-card grey-water">
+      <h4>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#78909c" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Grey Water
+      </h4>
+      <p style="font-size:12px;color:var(--text-dim);margin-bottom:8px">Wastewater from non-toilet sources (bathing, laundry, kitchen sinks). Lower contamination — easier to treat for reuse.</p>
+      <ul>
+        <li>Source: Showers, sinks, washing machines, kitchen</li>
+        <li>Contribution: ~68% of total sewage</li>
+        <li>BOD: 100-300 mg/L (moderate)</li>
+        <li>Pathogens: Moderate (some from kitchen)</li>
+        <li>Nitrogen: 10-30 mg/L (lower)</li>
+        <li>TSS: 100-300 mg/L (moderate)</li>
+        <li>Treatment: Can be treated separately for reuse (flushing, gardening)</li>
+        <li>Recycling: Suitable for flushing, irrigation, cooling towers</li>
+      </ul>
+      <div style="margin-top:10px;padding:8px;background:var(--surface-3);border-radius:4px;font-size:12px">
+        <strong>In this design:</strong> ${fmt0(d.greyWaterL)} L/day (${d.greyWaterPct}%)
+      </div>
+    </div>
+  </div>`;
+
+  h += `<div class="section-heading"><span class="num-badge">S</span> Combined Flow Distribution</div>`;
+  h += `<table class="data-table"><thead><tr><th>Water Type</th><th class="num">Daily Volume (L)</th><th class="num">Percentage</th><th class="num">BOD (mg/L)</th><th>Treatment</th></tr></thead><tbody>
+    <tr><td>Black Water (Toilets)</td><td class="num">${fmt0(d.blackWaterL)}</td><td class="num">${d.blackWaterPct}%</td><td class="num">400-600</td><td>Full biological treatment required</td></tr>
+    <tr><td>Grey Water (Sinks/Baths)</td><td class="num">${fmt0(d.greyWaterL)}</td><td class="num">${d.greyWaterPct}%</td><td class="num">100-300</td><td>Can be treated separately for reuse</td></tr>
+    <tr class="highlight-row"><td>Total Combined Sewage</td><td class="num">${fmt0(d.avgDailyFlowL)}</td><td class="num">100%</td><td class="num">${inp.inletBOD}</td><td>Combined STP treatment</td></tr>
+  </tbody></table>`;
+
+  h += `<div class="info-box success">
+    <div class="title">Dual Plumbing Opportunity</div>
+    <div class="content">For ${inp.appLabel} applications, consider separate grey water plumbing. The ${fmt0(d.greyWaterL)} L/day of grey water can be recycled for flushing, garden irrigation, or cooling tower makeup — reducing fresh water demand by up to ${d.greyWaterPct}%.</div>
+  </div>`;
+
+  h += `</div>`;
+  return h;
+}
+
+// ============================================================
+//  TECHNOLOGY COMPARISON TAB
+// ============================================================
+function renderComparisonTab(inp, d) {
+  let h = `<div class="panel"><div class="panel-title"><span class="dot"></span> Technology Comparison</div>`;
+
+  h += `<div class="info-box">
+    <div class="title">Selected Technology: ${inp.technology}</div>
+    <div class="content">Below is a comparison of MBBR, SBR, and MBR technologies for your design flow of ${fmt(d.avgDailyFlowKLD, 1)} KLD.</div>
+  </div>`;
+
+  h += `<table class="data-table">
+    <thead><tr><th>Parameter</th><th>MBBR</th><th>SBR</th><th>MBR</th></tr></thead>
+    <tbody>
+    <tr><td class="param-cell">Full Form</td><td>Moving Bed Biofilm Reactor</td><td>Sequencing Batch Reactor</td><td>Membrane Bio-Reactor</td></tr>
+    <tr><td class="param-cell">Process Type</td><td>Continuous, attached growth</td><td>Batch cyclic, suspended growth</td><td>Continuous, suspended + membrane</td></tr>
+    <tr><td class="param-cell">MLSS (mg/L)</td><td class="num">3,000-5,000</td><td class="num">3,500-5,000</td><td class="num">8,000-12,000</td></tr>
+    <tr><td class="param-cell">HRT (hours)</td><td class="num">4-6</td><td class="num">6-10</td><td class="num">6-8</td></tr>
+    <tr><td class="param-cell">F/M Ratio</td><td class="num">0.3-0.6</td><td class="num">0.15-0.4</td><td class="num">0.05-0.15</td></tr>
+    <tr><td class="param-cell">SRT (days)</td><td class="num">15-20</td><td class="num">15-25</td><td class="num">20-30</td></tr>
+    <tr><td class="param-cell">BOD Effluent (mg/L)</td><td class="num">10-15</td><td class="num">5-10</td><td class="num"><3</td></tr>
+    <tr><td class="param-cell">TSS Effluent (mg/L)</td><td class="num">15-20</td><td class="num">10-15</td><td class="num"><5</td></tr>
+    <tr><td class="param-cell">Footprint</td><td>Medium</td><td>Medium</td><td>Smallest</td></tr>
+    <tr><td class="param-cell">Capital Cost</td><td>Medium</td><td>Medium</td><td>High</td></tr>
+    <tr><td class="param-cell">O&M Cost</td><td>Low-Medium</td><td>Medium</td><td>High (membrane replacement)</td></tr>
+    <tr><td class="param-cell">Secondary Clarifier</td><td>Required</td><td>Not required (batch settle)</td><td>Not required (membrane)</td></tr>
+    <tr><td class="param-cell">Nutrient Removal (N)</td><td>Moderate</td><td>Good (aerobic-anoxic cycle)</td><td>Excellent</td></tr>
+    <tr><td class="param-cell">Reuse Quality</td><td>Irrigation, flushing</td><td>Flushing, cooling</td><td>High-grade reuse</td></tr>
+    <tr><td class="param-cell">Automation Level</td><td>Low-Medium</td><td>High (cycle control)</td><td>Very High</td></tr>
+    <tr><td class="param-cell">Sludge Production</td><td>Medium</td><td>Low-Medium</td><td>Low</td></tr>
+    <tr><td class="param-cell">Membrane Replacement</td><td>Not applicable</td><td>Not applicable</td><td>Every 5-8 years</td></tr>
+    <tr><td class="param-cell">Odour Control</td><td>Adequate</td><td>Good (closed cycle)</td><td>Excellent</td></tr>
+    <tr><td class="param-cell">Best For</td><td>Mid-scale residential, commercial</td><td>Variable flow, nutrient removal</td><td>High-quality reuse, space-constrained</td></tr>
+    </tbody>
+  </table>`;
+
+  h += `<div class="section-heading"><span class="num-badge">!</span> Selection Guide</div>`;
+  h += `<div class="water-type-grid">
+    <div class="water-type-card" style="border-top:3px solid var(--accent)">
+      <h4>Choose MBBR when:</h4>
+      <ul>
+        <li>Medium-scale projects (50-500 KLD)</li>
+        <li>Lower O&M cost is priority</li>
+        <li>Simple, robust operation needed</li>
+        <li>Space is not severely constrained</li>
+        <li>Effluent BOD ≤ 10-15 mg/L acceptable</li>
+      </ul>
+    </div>
+    <div class="water-type-card" style="border-top:3px solid var(--accent-2)">
+      <h4>Choose SBR when:</h4>
+      <ul>
+        <li>Variable flow patterns (airports, railways)</li>
+        <li>Nutrient (N & P) removal required</li>
+        <li>No separate clarifier desired</li>
+        <li>Automation is available</li>
+        <li>Effluent BOD ≤ 5-10 mg/L needed</li>
+      </ul>
+    </div>
+  </div>
+  <div class="water-type-card" style="border-top:3px solid var(--success);max-width:48%;margin:0 auto">
+    <h4>Choose MBR when:</h4>
+    <ul>
+      <li>Highest effluent quality needed (BOD <3 mg/L)</li>
+      <li>Water reuse/recycling for high-grade applications</li>
+      <li>Space is severely constrained (small footprint)</li>
+      <li>High automation acceptable</li>
+      <li>Higher capital & O&M cost is justifiable</li>
+    </ul>
+  </div>`;
+
+  h += `</div>`;
+  return h;
+}
+
+console.log('Rendering engine loaded.');
+</script>
+
+<script>
+// ============================================================
+//  DOWNLOAD FUNCTIONS
+// ============================================================
+
+function downloadPDF() {
+  if (!LAST_DESIGN) { alert('Please calculate first.'); return; }
+  const inp = LAST_INPUTS;
+  const d = LAST_DESIGN;
+
+  // Create a print-friendly HTML and open print dialog (user can "Save as PDF")
+  const win = window.open('', '_blank');
+  if (!win) { alert('Please allow pop-ups to download PDF.'); return; }
+
+  const bio = d.bioreactor;
+  const bioVol = bio.reactorVol_m3 || bio.totalReactorVol_m3;
+
+  win.document.write(`
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${inp.projectName} - STP Design Report</title>
+<style>
+  body { font-family: 'Helvetica', 'Arial', sans-serif; color: #1a2d42; margin: 40px; font-size: 12px; line-height: 1.5; }
+  h1 { font-size: 22px; color: #0891b2; border-bottom: 2px solid #0891b2; padding-bottom: 8px; }
+  h2 { font-size: 15px; color: #0e7490; margin-top: 24px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+  h3 { font-size: 13px; color: #333; margin-top: 16px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11px; }
+  th { background: #e0e7ee; padding: 6px 8px; text-align: left; border: 1px solid #ccc; }
+  td { padding: 6px 8px; border: 1px solid #ddd; }
+  .num { text-align: right; font-family: monospace; }
+  .header { display: flex; justify-content: space-between; align-items: center; }
+  .kpi { display: inline-block; padding: 8px 16px; margin: 4px; background: #f0f7fa; border-left: 3px solid #0891b2; }
+  .kpi-val { font-size: 18px; font-weight: bold; }
+  .kpi-label { font-size: 10px; color: #666; text-transform: uppercase; }
+  .disclaimer { background: #fff3e0; padding: 12px; border: 1px solid #ffcc80; margin: 16px 0; font-size: 10px; }
+  .footer { margin-top: 32px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #ccc; padding-top: 12px; }
+  @media print { body { margin: 10mm; } .no-print { display: none; } }
+</style></head><body>
+
+<div class="header">
+  <div>
+    <h1>${inp.projectName}</h1>
+    <p><strong>Sewage Treatment Plant Design Report</strong><br>
+    Technology: ${bio.name} | Date: ${inp.date} | Engineer: ${inp.engineer}</p>
+  </div>
+  <div style="text-align:right;font-size:10px;color:#666">
+    Generated by STP Design Calculator<br>IS 1172 / IS 2470 / CPCB Compliant
+  </div>
+</div>
+
+<div style="margin:16px 0">
+  <div class="kpi"><div class="kpi-label">Avg Flow</div><div class="kpi-val">${fmt(d.avgDailyFlowKLD,1)} KLD</div></div>
+  <div class="kpi"><div class="kpi-label">Peak Flow</div><div class="kpi-val">${fmt(d.peakFlowKLD,1)} KLD</div></div>
+  <div class="kpi"><div class="kpi-label">BOD Removal</div><div class="kpi-val">${fmt(d.bodRemovalPct,1)}%</div></div>
+  <div class="kpi"><div class="kpi-label">Footprint</div><div class="kpi-val">${fmt0(d.footprint_m2)} m²</div></div>
+</div>
+
+<h2>1. Design Basis</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Application Type</td><td>${inp.appLabel}</td></tr>
+<tr><td>Population / Units</td><td class="num">${fmt0(inp.population)}</td></tr>
+<tr><td>Water Demand Rate</td><td class="num">${inp.lpcd} LPCD (IS 1172)</td></tr>
+<tr><td>Sewage Generation Factor</td><td class="num">80%</td></tr>
+<tr><td>Average Daily Sewage</td><td class="num">${fmt(d.avgDailyFlowKLD,2)} KLD</td></tr>
+<tr><td>Peak Factor</td><td class="num">${inp.peakFactor}</td></tr>
+<tr><td>Peak Flow</td><td class="num">${fmt(d.peakFlowM3hr,2)} m³/hr</td></tr>
+<tr><td>Treatment Technology</td><td>${bio.name}</td></tr>
+<tr><td>Discharge Standard</td><td>${d.discharge.label}</td></tr>
+</table>
+
+<h2>2. Inlet Characteristics</h2>
+<table>
+<tr><th>Parameter</th><th>Inlet Value</th><th>Load (kg/day)</th></tr>
+<tr><td>BOD</td><td class="num">${inp.inletBOD} mg/L</td><td class="num">${fmt(d.bodLoadKgDay,2)}</td></tr>
+<tr><td>COD</td><td class="num">${inp.inletCOD} mg/L</td><td class="num">${fmt(d.codLoadKgDay,2)}</td></tr>
+<tr><td>TSS</td><td class="num">${inp.inletTSS} mg/L</td><td class="num">${fmt(d.tssLoadKgDay,2)}</td></tr>
+<tr><td>TKN</td><td class="num">${inp.inletTKN} mg/L</td><td class="num">${fmt(d.tknLoadKgDay,2)}</td></tr>
+</table>
+
+<h2>3. ${bio.name} Design</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Reactor Volume</td><td class="num">${fmt(bioVol,1)} m³</td></tr>
+<tr><td>HRT</td><td class="num">${fmt(bio.HRT_hr,1)} hours</td></tr>
+<tr><td>Dimensions (L×W×D)</td><td class="num">${fmt(bio.length_m,1)} × ${fmt(bio.width_m,1)} × ${bio.depth_m} m</td></tr>
+${inp.technology === 'MBBR' ? `<tr><td>SALR</td><td class="num">${bio.SALR_gBOD_m2day} g BOD/m²·day</td></tr>
+<tr><td>Carrier Media Volume</td><td class="num">${fmt(bio.carrierVol_m3,1)} m³</td></tr>
+<tr><td>Carrier Fill</td><td class="num">${bio.carrierFillPct.toFixed(0)}%</td></tr>` : ''}
+${inp.technology === 'SBR' ? `<tr><td>Cycles per Day</td><td class="num">${bio.cyclesPerDay}</td></tr>
+<tr><td>Number of Basins</td><td class="num">${bio.numBasins}</td></tr>
+<tr><td>MLSS</td><td class="num">${bio.MLSS_mgL} mg/L</td></tr>
+<tr><td>F/M Ratio</td><td class="num">${fmt(bio.FM_ratio,3)}</td></tr>` : ''}
+${inp.technology === 'MBR' ? `<tr><td>MLSS</td><td class="num">${bio.MLSS_mgL} mg/L</td></tr>
+<tr><td>F/M Ratio</td><td class="num">${bio.FM_ratio}</td></tr>
+<tr><td>Membrane Area</td><td class="num">${fmt0(bio.membraneArea_m2)} m²</td></tr>
+<tr><td>Membrane Modules</td><td class="num">${bio.numModules}</td></tr>
+<tr><td>Flux</td><td class="num">${bio.flux_LMH} LMH</td></tr>` : ''}
+<tr><td>Air Requirement</td><td class="num">${fmt(bio.airReq_nm3hr,1)} Nm³/hr</td></tr>
+<tr><td>BOD Removal</td><td class="num">${fmt(bio.bodRemovalPct,1)}%</td></tr>
+</table>
+
+<h2>4. Tank Sizing Summary</h2>
+<table>
+<tr><th>Unit</th><th>Dimensions</th><th class="num">Volume (m³)</th><th class="num">Detention</th></tr>
+<tr><td>Bar Screen</td><td>${fmt(d.barScreen.width_m,2)}W × ${d.barScreen.length_m}L m</td><td class="num">${fmt(d.barScreen.area_m2*d.barScreen.length_m,1)}</td><td>-</td></tr>
+<tr><td>Grit Chamber</td><td>${fmt(d.gritChamber.length_m,1)}L × ${fmt(d.gritChamber.width_m,1)}W × ${d.gritChamber.depth_m}D m</td><td class="num">${fmt(d.gritChamber.volume_m3,1)}</td><td class="num">${d.gritChamber.detention_s}s</td></tr>
+<tr><td>Equalization Tank</td><td>${fmt(d.equalization.length_m,1)}L × ${fmt(d.equalization.width_m,1)}W × ${d.equalization.depth_m}D m</td><td class="num">${fmt(d.equalization.volume_m3,1)}</td><td class="num">${d.equalization.detention_hr} hr</td></tr>
+${inp.technology !== 'SBR' ? `<tr><td>Primary Clarifier</td><td>Ø${fmt(d.primaryClarifier.diameter_m,1)} × ${d.primaryClarifier.swd_m}m SWD</td><td class="num">${fmt(d.primaryClarifier.volume_m3,1)}</td><td class="num">${d.primaryClarifier.detention_min} min</td></tr>` : ''}
+<tr><td>${inp.technology} Reactor</td><td>${fmt(bio.length_m,1)}L × ${fmt(bio.width_m,1)}W × ${bio.depth_m}D m</td><td class="num">${fmt(bioVol,1)}</td><td class="num">${fmt(bio.HRT_hr,1)} hr</td></tr>
+${inp.technology === 'MBBR' ? `<tr><td>Secondary Clarifier</td><td>Ø${fmt(d.secondaryClarifier.diameter_m,1)} × ${d.secondaryClarifier.swd_m}m SWD</td><td class="num">${fmt(d.secondaryClarifier.volume_m3,1)}</td><td class="num">${d.secondaryClarifier.detention_min} min</td></tr>` : ''}
+<tr><td>Pressure Sand Filter</td><td>Ø${fmt(d.tertiary.pressureSandFilter.diameter_m,2)} m</td><td class="num">${fmt(d.tertiary.pressureSandFilter.diameter_m**2*0.785*d.tertiary.pressureSandFilter.mediaDepth_m,1)}</td><td class="num">${d.tertiary.pressureSandFilter.filtrationRate_mhr} m/hr</td></tr>
+<tr><td>Activated Carbon Filter</td><td>Ø${fmt(d.tertiary.activatedCarbonFilter.diameter_m,2)} m</td><td class="num">${fmt(d.tertiary.activatedCarbonFilter.diameter_m**2*0.785*d.tertiary.activatedCarbonFilter.mediaDepth_m,1)}</td><td class="num">${d.tertiary.activatedCarbonFilter.filtrationRate_mhr} m/hr</td></tr>
+<tr><td>Chlorine Contact Tank</td><td>Volume-based</td><td class="num">${fmt(d.tertiary.chlorination.contactTank_vol_m3,1)}</td><td class="num">30 min</td></tr>
+<tr><td>Sludge Storage Tank</td><td>Ø${fmt(d.sludge.sludgeTank_Dm,1)} × ${d.sludge.sludgeTank_Hm} m</td><td class="num">${fmt(d.sludge.sludgeTank_vol_m3,1)}</td><td class="num">3 days</td></tr>
+</table>
+
+<h2>5. Effluent Quality vs Discharge Standard</h2>
+<table>
+<tr><th>Parameter</th><th class="num">Inlet</th><th class="num">Effluent</th><th class="num">Standard</th><th>Status</th></tr>
+<tr><td>BOD (mg/L)</td><td class="num">${inp.inletBOD}</td><td class="num">${d.effluent.BOD}</td><td class="num">${d.discharge.BOD}</td><td>${d.effluent.BOD <= d.discharge.BOD ? 'PASS' : 'CHECK'}</td></tr>
+<tr><td>COD (mg/L)</td><td class="num">${inp.inletCOD}</td><td class="num">${d.effluent.COD}</td><td class="num">${d.discharge.COD}</td><td>${d.effluent.COD <= d.discharge.COD ? 'PASS' : 'CHECK'}</td></tr>
+<tr><td>TSS (mg/L)</td><td class="num">${inp.inletTSS}</td><td class="num">${d.effluent.TSS}</td><td class="num">${d.discharge.TSS}</td><td>${d.effluent.TSS <= d.discharge.TSS ? 'PASS' : 'CHECK'}</td></tr>
+<tr><td>N-total (mg/L)</td><td class="num">${inp.inletTKN}</td><td class="num">${d.effluent.N_total}</td><td class="num">${d.discharge.N_total}</td><td>${d.effluent.N_total <= d.discharge.N_total ? 'PASS' : 'CHECK'}</td></tr>
+</table>
+
+<h2>6. Black Water vs Grey Water</h2>
+<table>
+<tr><th>Type</th><th class="num">Volume (L/day)</th><th class="num">Percentage</th><th>Source</th></tr>
+<tr><td>Black Water (Toilets)</td><td class="num">${fmt0(d.blackWaterL)}</td><td class="num">${d.blackWaterPct}%</td><td>Toilets, urinals</td></tr>
+<tr><td>Grey Water (Sinks/Baths)</td><td class="num">${fmt0(d.greyWaterL)}</td><td class="num">${d.greyWaterPct}%</td><td>Showers, sinks, laundry</td></tr>
+</table>
+
+<h2>7. Power & Footprint</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Estimated Connected Power</td><td class="num">${d.power_kW} kW</td></tr>
+<tr><td>Daily Energy Consumption</td><td class="num">${fmt0(d.power_kWhDay)} kWh/day</td></tr>
+<tr><td>Plant Footprint (approx.)</td><td class="num">${fmt0(d.footprint_m2)} m²</td></tr>
+<tr><td>Sludge Production</td><td class="num">${fmt(d.sludge.excessSludge_kgDay,2)} kg/day</td></tr>
+</table>
+
+<h2>8. Applicable IS Codes</h2>
+<table>
+<tr><th>Code</th><th>Description</th></tr>
+${IS_CODES.map(c => `<tr><td style="font-family:monospace;font-weight:600">${c.code}</td><td>${c.desc}</td></tr>`).join('')}
+</table>
+
+<div class="disclaimer">
+  <strong>Disclaimer:</strong> This report is generated for preliminary design estimation based on IS 1172, IS 2470, and CPCB guidelines. It is NOT a substitute for detailed engineering design by a licensed environmental consultant. Site-specific conditions, geotechnical data, and hydraulic calculations must be verified before construction. The calculations should be reviewed and stamped by a qualified environmental engineer.
+</div>
+
+<div class="footer">
+  Generated by STP Design Calculator | Based on IS 1172, IS 2470, IS 3304, CPCB & MOEFCC Guidelines<br>
+  Report Date: ${inp.date}
+</div>
+
+<scr"+"ipt>
+  window.onload = function() {
+    setTimeout(function() { window.print(); }, 500);
+  };
+</scr"+"ipt>
+</body></html>`);
+  win.document.close();
+}
+
+function downloadExcel() {
+  if (!LAST_DESIGN) { alert('Please calculate first.'); return; }
+  const inp = LAST_INPUTS;
+  const d = LAST_DESIGN;
+  const bio = d.bioreactor;
+  const bioVol = bio.reactorVol_m3 || bio.totalReactorVol_m3;
+
+  // Generate CSV (Excel-compatible)
+  let csv = 'STP Design Calculation Report\n';
+  csv += `Project Name,${inp.projectName}\n`;
+  csv += `Date,${inp.date}\n`;
+  csv += `Engineer,${inp.engineer}\n\n`;
+
+  csv += '1. DESIGN BASIS\n';
+  csv += `Application Type,${inp.appLabel}\n`;
+  csv += `Population / Units,${inp.population}\n`;
+  csv += `Water Demand Rate (LPCD),${inp.lpcd}\n`;
+  csv += `Sewage Generation Factor,80%\n`;
+  csv += `Average Daily Flow (KLD),${fmt(d.avgDailyFlowKLD,2)}\n`;
+  csv += `Average Daily Flow (L),${fmt0(d.avgDailyFlowL)}\n`;
+  csv += `Peak Factor,${inp.peakFactor}\n`;
+  csv += `Peak Flow (KLD),${fmt(d.peakFlowKLD,2)}\n`;
+  csv += `Peak Flow (m3/hr),${fmt(d.peakFlowM3hr,2)}\n`;
+  csv += `Peak Flow (L/s),${fmt(d.peakFlowLps,2)}\n`;
+  csv += `Treatment Technology,${bio.name}\n`;
+  csv += `Discharge Standard,${d.discharge.label}\n\n`;
+
+  csv += '2. INLET CHARACTERISTICS\n';
+  csv += `Parameter,Inlet Value (mg/L),Load (kg/day)\n`;
+  csv += `BOD,${inp.inletBOD},${fmt(d.bodLoadKgDay,2)}\n`;
+  csv += `COD,${inp.inletCOD},${fmt(d.codLoadKgDay,2)}\n`;
+  csv += `TSS,${inp.inletTSS},${fmt(d.tssLoadKgDay,2)}\n`;
+  csv += `TKN,${inp.inletTKN},${fmt(d.tknLoadKgDay,2)}\n\n`;
+
+  csv += '3. TANK SIZING\n';
+  csv += `Unit,Type,Dimensions,Volume (m3),Detention,IS Code\n`;
+  csv += `Bar Screen,Manual/Mechanical,${fmt(d.barScreen.width_m,2)}W x ${d.barScreen.length_m}L m,${fmt(d.barScreen.area_m2*d.barScreen.length_m,1)},-,IS 2470\n`;
+  csv += `Grit Chamber,Aerated,${fmt(d.gritChamber.length_m,1)}L x ${fmt(d.gritChamber.width_m,1)}W x ${d.gritChamber.depth_m}D m,${fmt(d.gritChamber.volume_m3,1)},${d.gritChamber.detention_s}s,IS 2470\n`;
+  csv += `Equalization Tank,RC Rectangular,${fmt(d.equalization.length_m,1)}L x ${fmt(d.equalization.width_m,1)}W x ${d.equalization.depth_m}D m,${fmt(d.equalization.volume_m3,1)},${d.equalization.detention_hr} hr,IS 2470\n`;
+  if (inp.technology !== 'SBR') csv += `Primary Clarifier,Circular RC,O${fmt(d.primaryClarifier.diameter_m,1)} x ${d.primaryClarifier.swd_m}m SWD,${fmt(d.primaryClarifier.volume_m3,1)},${d.primaryClarifier.detention_min} min,IS 2470\n`;
+  csv += `${inp.technology} Reactor,${inp.technology === 'SBR' ? 'Cyclic' : 'RC Rect'},${fmt(bio.length_m,1)}L x ${fmt(bio.width_m,1)}W x ${bio.depth_m}D m,${fmt(bioVol,1)},${fmt(bio.HRT_hr,1)} hr,IS 2470\n`;
+  if (inp.technology === 'MBBR') csv += `Secondary Clarifier,Circular RC,O${fmt(d.secondaryClarifier.diameter_m,1)} x ${d.secondaryClarifier.swd_m}m SWD,${fmt(d.secondaryClarifier.volume_m3,1)},${d.secondaryClarifier.detention_min} min,IS 2470\n`;
+  csv += `Pressure Sand Filter,MS/FRP,O${fmt(d.tertiary.pressureSandFilter.diameter_m,2)} m,${fmt(d.tertiary.pressureSandFilter.diameter_m**2*0.785*d.tertiary.pressureSandFilter.mediaDepth_m,1)},${d.tertiary.pressureSandFilter.filtrationRate_mhr} m/hr,CPHEEO\n`;
+  csv += `Activated Carbon Filter,MS/FRP,O${fmt(d.tertiary.activatedCarbonFilter.diameter_m,2)} m,${fmt(d.tertiary.activatedCarbonFilter.diameter_m**2*0.785*d.tertiary.activatedCarbonFilter.mediaDepth_m,1)},${d.tertiary.activatedCarbonFilter.filtrationRate_mhr} m/hr,CPHEEO\n`;
+  csv += `Chlorine Contact Tank,RC Rect,Volume-based,${fmt(d.tertiary.chlorination.contactTank_vol_m3,1)},30 min,IS 3025\n`;
+  csv += `Sludge Storage Tank,Circular RC,O${fmt(d.sludge.sludgeTank_Dm,1)} x ${d.sludge.sludgeTank_Hm} m,${fmt(d.sludge.sludgeTank_vol_m3,1)},3 days,IS 2470\n\n`;
+
+  csv += '4. BIOREACTOR DESIGN DETAILS\n';
+  csv += `Parameter,Value\n`;
+  csv += `Reactor Volume (m3),${fmt(bioVol,1)}\n`;
+  csv += `HRT (hours),${fmt(bio.HRT_hr,1)}\n`;
+  csv += `MLSS (mg/L),${bio.MLSS_mgL || 3500}\n`;
+  csv += `F/M Ratio,${fmt(bio.fM_ratio || bio.FM_ratio,3)}\n`;
+  csv += `Air Requirement (Nm3/hr),${fmt(bio.airReq_nm3hr,1)}\n`;
+  csv += `BOD Removal (%),${fmt(bio.bodRemovalPct,1)}\n`;
+  if (inp.technology === 'MBBR') {
+    csv += `SALR (g BOD/m2.day),${bio.SALR_gBOD_m2day}\n`;
+    csv += `Carrier Fill (%),${bio.carrierFillPct.toFixed(0)}\n`;
+    csv += `Carrier Volume (m3),${fmt(bio.carrierVol_m3,1)}\n`;
+  }
+  if (inp.technology === 'SBR') {
+    csv += `Cycles per Day,${bio.cyclesPerDay}\n`;
+    csv += `Number of Basins,${bio.numBasins}\n`;
+    csv += `SRT (days),${bio.SRT_days}\n`;
+  }
+  if (inp.technology === 'MBR') {
+    csv += `SRT (days),${bio.SRT_days}\n`;
+    csv += `Membrane Area (m2),${fmt0(bio.membraneArea_m2)}\n`;
+    csv += `Number of Modules,${bio.numModules}\n`;
+    csv += `Flux (LMH),${bio.flux_LMH}\n`;
+  }
+  csv += '\n';
+
+  csv += '5. EFFLUENT QUALITY\n';
+  csv += `Parameter,Inlet,Effluent,Standard,Status\n`;
+  csv += `BOD (mg/L),${inp.inletBOD},${d.effluent.BOD},${d.discharge.BOD},${d.effluent.BOD <= d.discharge.BOD ? 'PASS' : 'CHECK'}\n`;
+  csv += `COD (mg/L),${inp.inletCOD},${d.effluent.COD},${d.discharge.COD},${d.effluent.COD <= d.discharge.COD ? 'PASS' : 'CHECK'}\n`;
+  csv += `TSS (mg/L),${inp.inletTSS},${d.effluent.TSS},${d.discharge.TSS},${d.effluent.TSS <= d.discharge.TSS ? 'PASS' : 'CHECK'}\n`;
+  csv += `N-total (mg/L),${inp.inletTKN},${d.effluent.N_total},${d.discharge.N_total},${d.effluent.N_total <= d.discharge.N_total ? 'PASS' : 'CHECK'}\n`;
+  csv += `\n`;
+
+  csv += '6. BLACK WATER vs GREY WATER\n';
+  csv += `Type,Volume (L/day),Percentage,Source\n`;
+  csv += `Black Water,${fmt0(d.blackWaterL)},${d.blackWaterPct}%,Toilets/Urinals\n`;
+  csv += `Grey Water,${fmt0(d.greyWaterL)},${d.greyWaterPct}%,Showers/Sinks/Laundry\n\n`;
+
+  csv += '7. POWER & FOOTPRINT\n';
+  csv += `Connected Power (kW),${d.power_kW}\n`;
+  csv += `Daily Energy (kWh/day),${fmt0(d.power_kWhDay)}\n`;
+  csv += `Plant Footprint (m2),${fmt0(d.footprint_m2)}\n`;
+  csv += `Sludge Production (kg/day),${fmt(d.sludge.excessSludge_kgDay,2)}\n\n`;
+
+  csv += '8. IS CODES REFERENCED\n';
+  csv += `Code,Description\n`;
+  IS_CODES.forEach(c => { csv += `"${c.code}","${c.desc}"\n`; });
+
+  // Download CSV
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${inp.projectName.replace(/\s+/g, '_')}_STP_Design.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function downloadWord() {
+  if (!LAST_DESIGN) { alert('Please calculate first.'); return; }
+  const inp = LAST_INPUTS;
+  const d = LAST_DESIGN;
+  const bio = d.bioreactor;
+  const bioVol = bio.reactorVol_m3 || bio.totalReactorVol_m3;
+
+  // Generate Word-compatible HTML (.doc)
+  let content = `
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset="UTF-8"><title>STP Design Report</title>
+<style>
+body { font-family: 'Calibri', sans-serif; font-size: 11pt; color: #1a2d42; }
+h1 { color: #0891b2; font-size: 20pt; border-bottom: 2px solid #0891b2; }
+h2 { color: #0e7490; font-size: 14pt; margin-top: 20px; border-bottom: 1px solid #ccc; }
+table { border-collapse: collapse; width: 100%; font-size: 10pt; }
+th { background: #d0e3ee; padding: 6px; border: 1px solid #999; text-align: left; }
+td { padding: 5px 8px; border: 1px solid #ccc; }
+.kpi { display: inline-block; margin: 4px 8px; padding: 8px 12px; background: #e8f4f8; border-left: 3px solid #0891b2; }
+.disclaimer { background: #fff3e0; padding: 10px; border: 1px solid #ffcc80; font-size: 9pt; margin-top: 20px; }
+</style></head><body>
+
+<h1>${inp.projectName}</h1>
+<p><strong>Sewage Treatment Plant Design Report</strong><br>
+Technology: ${bio.name} | Date: ${inp.date} | Engineer: ${inp.engineer}</p>
+
+<div>
+<div class="kpi"><strong>${fmt(d.avgDailyFlowKLD,1)} KLD</strong> — Avg Daily Flow</div>
+<div class="kpi"><strong>${fmt(d.peakFlowKLD,1)} KLD</strong> — Peak Flow</div>
+<div class="kpi"><strong>${fmt(d.bodRemovalPct,1)}%</strong> — BOD Removal</div>
+<div class="kpi"><strong>${fmt0(d.footprint_m2)} m²</strong> — Footprint</div>
+</div>
+
+<h2>1. Design Basis</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Application Type</td><td>${inp.appLabel}</td></tr>
+<tr><td>Population / Units</td><td>${fmt0(inp.population)}</td></tr>
+<tr><td>Water Demand Rate</td><td>${inp.lpcd} LPCD (IS 1172)</td></tr>
+<tr><td>Sewage Generation Factor</td><td>80%</td></tr>
+<tr><td>Average Daily Sewage</td><td>${fmt(d.avgDailyFlowKLD,2)} KLD (${fmt0(d.avgDailyFlowL)} L/day)</td></tr>
+<tr><td>Peak Factor</td><td>${inp.peakFactor}</td></tr>
+<tr><td>Peak Flow</td><td>${fmt(d.peakFlowM3hr,2)} m³/hr (${fmt(d.peakFlowLps,2)} L/s)</td></tr>
+<tr><td>Treatment Technology</td><td>${bio.name}</td></tr>
+<tr><td>Discharge Standard</td><td>${d.discharge.label}</td></tr>
+</table>
+
+<h2>2. Inlet Characteristics</h2>
+<table>
+<tr><th>Parameter</th><th>Inlet (mg/L)</th><th>Load (kg/day)</th></tr>
+<tr><td>BOD</td><td>${inp.inletBOD}</td><td>${fmt(d.bodLoadKgDay,2)}</td></tr>
+<tr><td>COD</td><td>${inp.inletCOD}</td><td>${fmt(d.codLoadKgDay,2)}</td></tr>
+<tr><td>TSS</td><td>${inp.inletTSS}</td><td>${fmt(d.tssLoadKgDay,2)}</td></tr>
+<tr><td>TKN</td><td>${inp.inletTKN}</td><td>${fmt(d.tknLoadKgDay,2)}</td></tr>
+</table>
+
+<h2>3. ${bio.name} Design</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Reactor Volume</td><td>${fmt(bioVol,1)} m³</td></tr>
+<tr><td>HRT</td><td>${fmt(bio.HRT_hr,1)} hours</td></tr>
+<tr><td>Dimensions (L×W×D)</td><td>${fmt(bio.length_m,1)} × ${fmt(bio.width_m,1)} × ${bio.depth_m} m</td></tr>
+${inp.technology === 'MBBR' ? `<tr><td>SALR</td><td>${bio.SALR_gBOD_m2day} g BOD/m²·day</td></tr>
+<tr><td>Carrier Media Volume</td><td>${fmt(bio.carrierVol_m3,1)} m³</td></tr>
+<tr><td>Carrier Fill</td><td>${bio.carrierFillPct.toFixed(0)}%</td></tr>` : ''}
+${inp.technology === 'SBR' ? `<tr><td>Cycles per Day</td><td>${bio.cyclesPerDay}</td></tr>
+<tr><td>Basins</td><td>${bio.numBasins}</td></tr>
+<tr><td>MLSS</td><td>${bio.MLSS_mgL} mg/L</td></tr>
+<tr><td>F/M Ratio</td><td>${fmt(bio.FM_ratio,3)}</td></tr>
+<tr><td>SRT</td><td>${bio.SRT_days} days</td></tr>` : ''}
+${inp.technology === 'MBR' ? `<tr><td>MLSS</td><td>${bio.MLSS_mgL} mg/L</td></tr>
+<tr><td>F/M Ratio</td><td>${bio.FM_ratio}</td></tr>
+<tr><td>Membrane Area</td><td>${fmt0(bio.membraneArea_m2)} m²</td></tr>
+<tr><td>Modules</td><td>${bio.numModules}</td></tr>
+<tr><td>SRT</td><td>${bio.SRT_days} days</td></tr>` : ''}
+<tr><td>Air Requirement</td><td>${fmt(bio.airReq_nm3hr,1)} Nm³/hr</td></tr>
+<tr><td>BOD Removal</td><td>${fmt(bio.bodRemovalPct,1)}%</td></tr>
+</table>
+
+<h2>4. Tank Sizing Summary</h2>
+<table>
+<tr><th>Unit</th><th>Dimensions</th><th>Volume (m³)</th><th>Detention</th><th>IS Code</th></tr>
+<tr><td>Bar Screen</td><td>${fmt(d.barScreen.width_m,2)}W × ${d.barScreen.length_m}L m</td><td>${fmt(d.barScreen.area_m2*d.barScreen.length_m,1)}</td><td>-</td><td>IS 2470</td></tr>
+<tr><td>Grit Chamber</td><td>${fmt(d.gritChamber.length_m,1)}L × ${fmt(d.gritChamber.width_m,1)}W × ${d.gritChamber.depth_m}D</td><td>${fmt(d.gritChamber.volume_m3,1)}</td><td>${d.gritChamber.detention_s}s</td><td>IS 2470</td></tr>
+<tr><td>Equalization Tank</td><td>${fmt(d.equalization.length_m,1)}L × ${fmt(d.equalization.width_m,1)}W × ${d.equalization.depth_m}D</td><td>${fmt(d.equalization.volume_m3,1)}</td><td>${d.equalization.detention_hr} hr</td><td>IS 2470</td></tr>
+${inp.technology !== 'SBR' ? `<tr><td>Primary Clarifier</td><td>Ø${fmt(d.primaryClarifier.diameter_m,1)} × ${d.primaryClarifier.swd_m}m SWD</td><td>${fmt(d.primaryClarifier.volume_m3,1)}</td><td>${d.primaryClarifier.detention_min} min</td><td>IS 2470</td></tr>` : ''}
+<tr><td>${inp.technology} Reactor</td><td>${fmt(bio.length_m,1)}L × ${fmt(bio.width_m,1)}W × ${bio.depth_m}D</td><td>${fmt(bioVol,1)}</td><td>${fmt(bio.HRT_hr,1)} hr</td><td>IS 2470</td></tr>
+${inp.technology === 'MBBR' ? `<tr><td>Secondary Clarifier</td><td>Ø${fmt(d.secondaryClarifier.diameter_m,1)} × ${d.secondaryClarifier.swd_m}m SWD</td><td>${fmt(d.secondaryClarifier.volume_m3,1)}</td><td>${d.secondaryClarifier.detention_min} min</td><td>IS 2470</td></tr>` : ''}
+<tr><td>Pressure Sand Filter</td><td>Ø${fmt(d.tertiary.pressureSandFilter.diameter_m,2)} m</td><td>${fmt(d.tertiary.pressureSandFilter.diameter_m**2*0.785*d.tertiary.pressureSandFilter.mediaDepth_m,1)}</td><td>${d.tertiary.pressureSandFilter.filtrationRate_mhr} m/hr</td><td>CPHEEO</td></tr>
+<tr><td>Activated Carbon Filter</td><td>Ø${fmt(d.tertiary.activatedCarbonFilter.diameter_m,2)} m</td><td>${fmt(d.tertiary.activatedCarbonFilter.diameter_m**2*0.785*d.tertiary.activatedCarbonFilter.mediaDepth_m,1)}</td><td>${d.tertiary.activatedCarbonFilter.filtrationRate_mhr} m/hr</td><td>CPHEEO</td></tr>
+<tr><td>Chlorine Contact Tank</td><td>Volume-based</td><td>${fmt(d.tertiary.chlorination.contactTank_vol_m3,1)}</td><td>30 min</td><td>IS 3025</td></tr>
+<tr><td>Sludge Storage Tank</td><td>Ø${fmt(d.sludge.sludgeTank_Dm,1)} × ${d.sludge.sludgeTank_Hm} m</td><td>${fmt(d.sludge.sludgeTank_vol_m3,1)}</td><td>3 days</td><td>IS 2470</td></tr>
+</table>
+
+<h2>5. Effluent Quality vs Discharge Standard</h2>
+<table>
+<tr><th>Parameter</th><th>Inlet</th><th>Effluent</th><th>Standard</th><th>Status</th></tr>
+<tr><td>BOD (mg/L)</td><td>${inp.inletBOD}</td><td>${d.effluent.BOD}</td><td>${d.discharge.BOD}</td><td>${d.effluent.BOD <= d.discharge.BOD ? 'PASS' : 'CHECK'}</td></tr>
+<tr><td>COD (mg/L)</td><td>${inp.inletCOD}</td><td>${d.effluent.COD}</td><td>${d.discharge.COD}</td><td>${d.effluent.COD <= d.discharge.COD ? 'PASS' : 'CHECK'}</td></tr>
+<tr><td>TSS (mg/L)</td><td>${inp.inletTSS}</td><td>${d.effluent.TSS}</td><td>${d.discharge.TSS}</td><td>${d.effluent.TSS <= d.discharge.TSS ? 'PASS' : 'CHECK'}</td></tr>
+<tr><td>N-total (mg/L)</td><td>${inp.inletTKN}</td><td>${d.effluent.N_total}</td><td>${d.discharge.N_total}</td><td>${d.effluent.N_total <= d.discharge.N_total ? 'PASS' : 'CHECK'}</td></tr>
+</table>
+
+<h2>6. Black Water vs Grey Water</h2>
+<table>
+<tr><th>Type</th><th>Volume (L/day)</th><th>Percentage</th><th>Source</th></tr>
+<tr><td>Black Water (Toilets)</td><td>${fmt0(d.blackWaterL)}</td><td>${d.blackWaterPct}%</td><td>Toilets, urinals</td></tr>
+<tr><td>Grey Water (Sinks/Baths)</td><td>${fmt0(d.greyWaterL)}</td><td>${d.greyWaterPct}%</td><td>Showers, sinks, laundry</td></tr>
+</table>
+
+<h2>7. Power & Footprint</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Estimated Connected Power</td><td>${d.power_kW} kW</td></tr>
+<tr><td>Daily Energy Consumption</td><td>${fmt0(d.power_kWhDay)} kWh/day</td></tr>
+<tr><td>Plant Footprint</td><td>${fmt0(d.footprint_m2)} m²</td></tr>
+<tr><td>Sludge Production</td><td>${fmt(d.sludge.excessSludge_kgDay,2)} kg/day</td></tr>
+</table>
+
+<h2>8. Applicable IS Codes</h2>
+<table>
+<tr><th>Code</th><th>Description</th></tr>
+${IS_CODES.map(c => `<tr><td style="font-family:monospace;font-weight:bold">${c.code}</td><td>${c.desc}</td></tr>`).join('')}
+</table>
+
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This report is generated for preliminary design estimation based on IS 1172, IS 2470, and CPCB guidelines. It is NOT a substitute for detailed engineering design by a licensed environmental consultant. Site-specific conditions, geotechnical data, and hydraulic calculations must be verified before construction.
+</div>
+
+<p style="text-align:center;font-size:9pt;color:#999;margin-top:20px;">
+Generated by STP Design Calculator | IS 1172, IS 2470, IS 3304, CPCB & MOEFCC Guidelines<br>
+Report Date: ${inp.date}
+</p>
+
+</body></html>`;
+
+  const blob = new Blob(['\ufeff' + content], { type: 'application/msword' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${inp.projectName.replace(/\s+/g, '_')}_STP_Design.doc`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// ============================================================
+//  INITIALIZATION
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  initAppGrid();
+  console.log('STP Design Calculator initialized.');
+});
+</script>
+</body>
+</html>

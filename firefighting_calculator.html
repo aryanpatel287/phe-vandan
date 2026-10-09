@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fire Fighting Design Calculator | NBC Part F</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/firefighting_calculator.css">
+
+<script src="assets/vendor/jspdf.umd.min.js"></script>
+<script src="assets/vendor/jspdf.plugin.autotable.min.js"></script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+<div class="appbar">
+  <div class="appbar-inner">
+    <a href="index.html" class="aet-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to All Tools
+    </a>
+    <span class="appbar-tag">FIRE PROTECTION ENGINEERING</span>
+    <h1>Fire Fighting System Design Calculator</h1>
+    <p>Precise water demand, storage, pump, riser and hydraulic calculations based on the National Building Construction Standards 2026 (NBCS) — Part F, Fire and Life Safety, Section 5 (Fire Protection) and associated Tables 7A–7M &amp; Table 8.</p>
+  </div>
+</div>
+
+<div class="projectbar">
+  <div class="projectcard" id="projectCard">
+    <div class="field" id="fld-projectName">
+      <label>Project Name <span class="req">*</span></label>
+      <input type="text" id="projectName" placeholder="e.g. Riverside Heights, Tower A" oninput="onProjectNameInput()">
+      <div class="err-msg">Project name is required before results / export.</div>
+    </div>
+    <div class="field">
+      <label>Project Location</label>
+      <input type="text" id="projectLocation" placeholder="City, State">
+    </div>
+    <div class="field">
+      <label>Prepared By</label>
+      <input type="text" id="preparedBy" placeholder="Engineer name">
+    </div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="projectDate">
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="tabs" id="tabNav"></div>
+
+  <!-- ============ TAB 1 : BUILDING DETAILS ============ -->
+  <section class="panel" data-panel="1">
+    <div class="card">
+      <h2>Building &amp; Occupancy Details</h2>
+      <p class="sub">These parameters drive riser sizing, protection level, hydrant count and hydraulic head throughout the tool.</p>
+      <div class="grid cols-3">
+        <div class="field-block">
+          <label>Occupancy Type <span class="p-firefighting_calculator_html-s1">*</span></label>
+          <select id="occType" onchange="recalcAll()"></select>
+        </div>
+        <div class="field-block">
+          <label>Building Height (m, top floor above ground)</label>
+          <input type="number" id="bHeight" value="45" min="0" step="0.1" oninput="recalcAll()">
+          <div class="hint">Measured per NBC as height of building for fire access purposes.</div>
+        </div>
+        <div class="field-block">
+          <label>Number of Floors (above ground)</label>
+          <input type="number" id="numFloors" value="15" min="1" step="1" oninput="recalcAll()">
+        </div>
+        <div class="field-block">
+          <label>Number of Basements</label>
+          <input type="number" id="numBasements" value="1" min="0" step="1" oninput="recalcAll()">
+        </div>
+        <div class="field-block">
+          <label>Typical Floor Plate Area (m²)</label>
+          <input type="number" id="floorArea" value="800" min="0" step="1" oninput="recalcAll()">
+        </div>
+        <div class="field-block">
+          <label>Number of Fire Exit Staircases</label>
+          <input type="number" id="numStairs" value="2" min="1" step="1" oninput="recalcAll()">
+        </div>
+        <div class="field-block">
+          <label>Plot / Building Perimeter (m)</label>
+          <input type="number" id="perimeter" value="180" min="0" step="1" oninput="recalcAll()">
+          <div class="hint">Used for yard hydrant spacing (Tab 08).</div>
+        </div>
+        <div class="field-block">
+          <label>Number of Buildings in Cluster</label>
+          <input type="number" id="numBuildings" value="1" min="1" step="1" oninput="recalcAll()">
+        </div>
+        <div class="field-block">
+          <label>Basement used for EV Parking / Charging?</label>
+          <select id="evParking" onchange="recalcAll()">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+      </div>
+      <div id="heightBand" class="note-box"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 2 : RISER SIZING (TABLE 8) ============ -->
+  <section class="panel" data-panel="2">
+    <div class="card">
+      <h2>Wet Riser / Down-Comer Main Sizing<span class="clause">Table 8, Cl. 5.1.1(a)</span></h2>
+      <p class="sub">Minimum size of firefighting mains determined from occupancy class and building height.</p>
+      <div id="riserResult"></div>
+      <table class="datatable" id="table8ref">
+        <thead><tr><th>Sl</th><th>Minimum Main Size</th><th>Occupancy</th><th>Height Condition</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ TAB 3 : PROTECTION LEVEL & DEMAND (TABLE 7K/7M) ============ -->
+  <section class="panel" data-panel="3">
+    <div class="card">
+      <h2>Level of Protection &amp; Water / Pump Demand <span class="clause">Table 7K &amp; 7M, Cl. 5.1.1(a)</span></h2>
+      <p class="sub">Select the protection system and hazard classification applicable to the occupancy (per Table 7A–7J requirement columns), then the demand is computed exactly per the NBC base-calculation method.</p>
+
+      <div class="radio-row">
+        <div class="radio-opt" id="opt-combined" onclick="setProtType('combined')">Combined Protection<br><span class="p-firefighting_calculator_html-s2">Sprinkler System + Hose Stream (Table 7K)</span></div>
+        <div class="radio-opt" id="opt-hose" onclick="setProtType('hose')">Hose Stream Only<br><span class="p-firefighting_calculator_html-s3">No sprinklers (Table 7M)</span></div>
+      </div>
+
+      <div class="field-block p-firefighting_calculator_html-s4">
+        <label>Hazard / Protection Level</label>
+        <select id="hazardLevel" onchange="recalcAll()"></select>
+      </div>
+
+      <table class="datatable" id="hazardTable"></table>
+
+      <div class="divider"></div>
+      <h3 class="p-firefighting_calculator_html-s5">Design Calculation</h3>
+      <div class="grid cols-2">
+        <div class="field-block">
+          <label>Firefighting Duration (min)</label>
+          <select id="duration" onchange="recalcAll()"></select>
+          <div class="hint" id="durationHint"></div>
+        </div>
+        <div class="field-block">
+          <label>Overflow / Safety Margin</label>
+          <input type="text" id="marginDisplay" readonly>
+          <div class="hint">Fixed by Table 7K (20%) / Table 7M (40%) — Note 2.</div>
+        </div>
+      </div>
+      <div id="demandFormula"></div>
+      <div class="result-grid" id="demandResults"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 4 : WATER STORAGE ============ -->
+  <section class="panel" data-panel="4">
+    <div class="card">
+      <h2>Static Water Storage Tank <span class="clause">Cl. 5.1.2.1</span></h2>
+      <p class="sub">Storage capacity = Selected Pump Capacity × Firefighting Duration, stored in two or more interconnected compartments of equal size.</p>
+      <div id="storageFormula"></div>
+      <div class="result-grid" id="storageResults"></div>
+
+      <div class="divider"></div>
+      <h3 class="p-firefighting_calculator_html-s6">Tank Sizing (Underground Compartment)</h3>
+      <div class="grid cols-3">
+        <div class="field-block">
+          <label>Usable Water Depth (m)</label>
+          <input type="number" id="tankDepth" value="3.0" min="0.5" max="7" step="0.1" oninput="recalcAll()">
+          <div class="hint">Max 7 m from fire-brigade draw-out level per Cl. 5.1.2.1.</div>
+        </div>
+        <div class="field-block">
+          <label>Freeboard Allowance (mm)</label>
+          <input type="number" id="freeboard" value="300" min="0" step="50" oninput="recalcAll()">
+        </div>
+        <div class="field-block">
+          <label>Number of Compartments</label>
+          <input type="number" id="numCompartments" value="2" min="2" step="1" oninput="recalcAll()">
+        </div>
+      </div>
+      <div id="tankDimResult"></div>
+
+      <div class="divider"></div>
+      <h3 class="p-firefighting_calculator_html-s7">Terrace / Gravity Tank <span class="clause p-firefighting_calculator_html-s8">Good practice</span></h3>
+      <p class="sub">A terrace-level tank fed by a terrace pump (≥ 3.5 kg/cm² at remotest landing valve) provides gravity back-up on power/pump failure. NBC Fig. 15–17 show the arrangement; capacity is a design decision — a common allowance is shown below and is fully editable.</p>
+      <div class="field-block p-firefighting_calculator_html-s9">
+        <label>Terrace Tank — % of Total Demand</label>
+        <input type="number" id="terracePct" value="25" min="0" max="100" step="1" oninput="recalcAll()">
+      </div>
+      <div class="result-grid" id="terraceResults"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 5 : PUMP SET ============ -->
+  <section class="panel" data-panel="5">
+    <div class="card">
+      <h2>Fire Pump Set — Main / Standby / Jockey <span class="clause">Table 7K/7M Note 1, Cl. 5.1.2.2</span></h2>
+      <p class="sub">Electric main pump with a standby pump of equal capacity (diesel-engine driven, independent power) and a jockey pump to compensate minor leakage.</p>
+      <div class="result-grid" id="pumpResults"></div>
+
+      <div class="divider"></div>
+      <div class="grid cols-3">
+        <div class="field-block">
+          <label>Required Pump Duty Head (from Tab 06)</label>
+          <input type="text" id="pumpDutyHeadDisplay" readonly>
+        </div>
+        <div class="field-block">
+          <label>Jockey Pump Capacity (lpm)</label>
+          <input type="number" id="jockeyCapacity" value="180" min="0" step="10" oninput="recalcAll()">
+          <div class="hint">180 lpm is the standard value referenced throughout NBC Part F.</div>
+        </div>
+        <div class="field-block">
+          <label>Jockey Cut-in Pressure Margin (bar above main pump)</label>
+          <input type="number" id="jockeyMargin" value="0.5" min="0" step="0.1" oninput="recalcAll()">
+        </div>
+      </div>
+      <div id="shutoffCheck"></div>
+      <div class="note-box"><b>Notes (Table 7K/7M, Note 1 &amp; various):</b> "Pump" implies an electric pump plus a standby pump of equivalent capacity. Diesel-engine driven pump batteries require an independent starter battery/charger circuit. Fire pump shutoff pressure should generally not exceed 12 bar. Pumps require soft-starter / VFD starters (Cl. 5.1.2.2(m)).</div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 6 : HYDRAULICS ============ -->
+  <section class="panel" data-panel="6">
+    <div class="card">
+      <h2>Hydraulic Calculation — Total Dynamic Head</h2>
+      <p class="sub">Total Dynamic Head (TDH) = Static Head + Friction Head Loss + Residual Pressure at hydraulically remotest hydrant (min. 3.5 bar, max. 7.0 bar — Cl. 5.1.1(f)).</p>
+      <div class="grid cols-3">
+        <div class="field-block">
+          <label>Suction Lift / Tank Depth below Pump (m)</label>
+          <input type="number" id="suctionLift" value="2.0" min="0" step="0.1" oninput="recalcAll()">
+        </div>
+        <div class="field-block">
+          <label>Equivalent Pipe Length (m)</label>
+          <input type="number" id="pipeLength" value="220" min="1" step="1" oninput="recalcAll()">
+          <div class="hint">Riser run + fittings equivalent length (rule of thumb: actual length × 1.2–1.3).</div>
+        </div>
+        <div class="field-block">
+          <label>Hazen-Williams C (pipe roughness)</label>
+          <input type="number" id="hwC" value="120" min="80" max="150" step="1" oninput="recalcAll()">
+          <div class="hint">C = 120 typical for new MS/GI fire protection pipe.</div>
+        </div>
+        <div class="field-block">
+          <label>Pipe Internal Diameter (mm)</label>
+          <input type="number" id="pipeDia" value="150" min="25" step="1" oninput="pipeDiaManuallySet=true; recalcAll()">
+          <div class="hint">Auto-filled from Table 8 riser size (Tab 02). Editing this locks it — <a class="p-firefighting_calculator_html-s10" href="#" onclick="pipeDiaManuallySet=false; recalcAll(); return false;">resync to Table 8</a>.</div>
+        </div>
+        <div class="field-block">
+          <label>Residual Pressure Required at Remotest Hydrant (bar)</label>
+          <input type="number" id="residualPressure" value="3.5" min="3.5" max="7.0" step="0.1" oninput="recalcAll()">
+          <div class="hint">Min 3.5 bar, max 7.0 bar per Cl. 5.1.1(f).</div>
+        </div>
+        <div class="field-block">
+          <label>Design Flow (from Tab 03)</label>
+          <input type="text" id="designFlowDisplay" readonly>
+        </div>
+      </div>
+      <div id="hydraulicFormula"></div>
+      <div class="result-grid" id="hydraulicResults"></div>
+      <div id="velocityCheck"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 7 : FIRE BRIGADE INLET ============ -->
+  <section class="panel" data-panel="7">
+    <div class="card">
+      <h2>Fire Brigade Collecting Head / Inlet <span class="clause">Cl. 5.1.2.1</span></h2>
+      <p class="sub">Street-level connections allowing the fire brigade to boost or draw from the static storage tank.</p>
+      <div class="field-block p-firefighting_calculator_html-s11">
+        <label>Static tank in basement / not fire-engine accessible?</label>
+        <select id="tankAccessible" onchange="recalcAll()">
+          <option value="yes">Yes — surface tank, directly accessible</option>
+          <option value="no">No — basement / inaccessible tank</option>
+        </select>
+      </div>
+      <div class="result-grid" id="inletResults"></div>
+      <div class="note-box"><b>Cl. 5.1.2.1:</b> Collecting head instantaneous male inlets — 4 nos. of 63 mm dia. (2 nos. of 63 mm dia. where pump capacity ≤ 1 400 lpm), connected to the tank via minimum 150 mm dia. GI pipe delivering at 2 250 lpm where the tank is in a basement or otherwise not approachable by fire engines. A separate draw-out collecting head (63 mm instantaneous male) connects to the tank via 100 mm dia. GI pipe with foot valve.</div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 8 : HYDRANT & HOSE REEL LAYOUT ============ -->
+  <section class="panel" data-panel="8">
+    <div class="card">
+      <h2>Yard Hydrant Layout</h2>
+      <p class="sub">External yard hydrants provide fire-brigade access around the building periphery. Spacing per accepted practice (IS 3844) — default 45 m, editable per Authority Having Jurisdiction (AHJ) requirement.</p>
+      <div class="grid cols-2">
+        <div class="field-block">
+          <label>Yard Hydrant Spacing (m)</label>
+          <input type="number" id="hydrantSpacing" value="45" min="15" step="1" oninput="recalcAll()">
+        </div>
+        <div class="field-block">
+          <label>Minimum Hydrants (regardless of spacing)</label>
+          <input type="number" id="minHydrants" value="2" min="1" step="1" oninput="recalcAll()">
+        </div>
+      </div>
+      <div class="result-grid" id="yardResults"></div>
+    </div>
+
+    <div class="card">
+      <h2>Internal Hydrant (Landing Valve) &amp; Hose Reel Count <span class="clause">Cl. 5.1.1(d), (g)</span></h2>
+      <p class="sub">One landing valve with first-aid hose reel is typically provided per fire exit staircase, per floor. Hose reel connected directly to riser/down-comer, minimum 19 mm dia (Cl. 5.1.1(d)); hydrant cabinet located within 5 m of the fire exit door (Cl. 5.1.1(g)).</p>
+      <div class="result-grid" id="internalResults"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 9 : SUMMARY REPORT ============ -->
+  <section class="panel" data-panel="9">
+    <div class="card">
+      <h2>Design Summary Report</h2>
+      <p class="sub">Consolidated calculation sheet — export below in PDF, Word or Excel format for submission / record.</p>
+      <div class="btn-row">
+        <button class="btn" onclick="exportPDF()">⬇ Download PDF</button>
+        <button class="btn secondary" onclick="exportWord()">⬇ Download Word (.doc)</button>
+        <button class="btn secondary" onclick="exportExcel()">⬇ Download Excel (.xlsx)</button>
+        <button class="btn secondary" onclick="window.print()">🖨 Print</button>
+      </div>
+      <div id="exportError" class="warn-box" style="display:none;">Please enter the <b>Project Name</b> at the top of the page before exporting.</div>
+    </div>
+    <div id="reportContainer"></div>
+  </section>
+
+  <div class="footer-disclaimer">
+    <b>Disclaimer:</b> This calculator provides preliminary/design-stage fire-fighting system sizing based on the National Building Construction Standards 2026 (NBCS), Part F — Fire and Life Safety, and standard engineering practice (Hazen-Williams hydraulics, IS pump/pipe conventions) for items not explicitly tabulated in the referenced clauses (flagged inline where used). Final hydraulic design, equipment selection and drawings must be verified against the complete code, relevant Indian Standards, and approved by the local Fire Department / Authority Having Jurisdiction before construction or submission.
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   DATA TABLES — extracted verbatim from NBCS 2026 Part F
+   ====================================================================== */
+
+const OCCUPANCIES = [
+  {key:'resDorm', label:'Residential — Dormitories (A-II)'},
+  {key:'resApt', label:'Residential — Apartments (A-III)'},
+  {key:'resHotel', label:'Residential — Hotels, non-starred (A-IV)'},
+  {key:'resStarredHotel', label:'Residential — Starred Hotels (A-V)'},
+  {key:'edu', label:'Educational Buildings (B)'},
+  {key:'inst', label:'Institutional Buildings (C)'},
+  {key:'assembly', label:'Assembly Buildings (D)'},
+  {key:'business', label:'Business Buildings (E)'},
+  {key:'mercantile', label:'Mercantile Buildings (F)'},
+  {key:'industrial', label:'Industrial Buildings (G)'},
+  {key:'storage', label:'Storage Buildings (H)'},
+  {key:'hazardous', label:'Hazardous Buildings (J)'}
+];
+
+// Table 8 — Size of Mains [Clause 5.1.1(a)]
+function getRiserSize(key, height){
+  const H = parseFloat(height)||0;
+  switch(key){
+    case 'resDorm':
+      return {size:100, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (i)(a)(1): applicable at any height (no upper limit tabulated for dormitories).'};
+    case 'resApt':
+      if(H<=15) return {size:100, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (i)(a)(2): Apartments up to 15 m.'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 tabulates apartments only up to 15 m at 100 mm. 150 mm is adopted above 15 m, consistent with the Hotel/Institutional/Business rows in row (ii) and the wet-riser requirement for apartments above 24 m in Table 7A — verify by hydraulic calculation.'};
+    case 'resHotel':
+      if(H<=15) return {size:100, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (i)(a)(3): Hotels up to 15 m.'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (ii)(a): Hotels above 15 m.'};
+    case 'resStarredHotel':
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (ii)(b): Starred hotels — 150 mm at any height.'};
+    case 'edu':
+      if(H<=15) return {size:100, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (i)(b): Educational buildings up to 15 m.'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Not explicitly tabulated above 15 m; 150 mm adopted per general practice consistent with other row-(ii) occupancies — verify hydraulically.'};
+    case 'inst':
+      if(H<=15) return {size:100, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (i)(c): Institutional buildings up to 15 m.'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (ii)(c): Institutional buildings above 15 m.'};
+    case 'assembly':
+      if(H<=15) return {size:100, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (i)(d): Assembly buildings up to 15 m.'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Not explicitly tabulated above 15 m; 150 mm adopted per general practice — verify hydraulically.'};
+    case 'business':
+      if(H<=15) return {size:100, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (i)(e): Business buildings up to 15 m.'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (ii)(d): Business buildings above 15 m.'};
+    case 'mercantile':
+      if(H<=9) return {size:100, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (i)(f): Mercantile buildings up to 9 m.'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 tabulates mercantile only up to 9 m; 150 mm adopted above 9 m per general practice — verify hydraulically.'};
+    case 'industrial':
+      if(H<=9) return {size:100, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (i)(g): Industrial buildings up to 9 m.'};
+      if(H<=15) return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (ii)(e): Industrial buildings up to 15 m (150 mm).'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Above 15 m not explicitly tabulated for industrial occupancy; 150 mm minimum adopted, with multi-zone riser per Note 5/8 to be considered for tall structures — verify hydraulically.'};
+    case 'storage':
+      if(H<=15) return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (ii)(f): Storage buildings up to 15 m.'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Above 15 m not explicitly tabulated; 150 mm minimum adopted — verify hydraulically.'};
+    case 'hazardous':
+      if(H<=15) return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Table 8 row (ii)(g): Hazardous buildings up to 15 m.'};
+      return {size:150, outlet:'Single outlet, 63 mm landing valve', note:'Above 15 m not explicitly tabulated; 150 mm minimum adopted — verify hydraulically.'};
+    default:
+      return {size:100, outlet:'Single outlet, 63 mm landing valve', note:''};
+  }
+}
+
+const TABLE8_ROWS = [
+  ['i','100 mm, single outlet, 63 mm landing valve','Residential — Dormitories (A-II)','Any height'],
+  ['i','100 mm, single outlet, 63 mm landing valve','Residential — Apartments (A-III)','Up to 15 m'],
+  ['i','100 mm, single outlet, 63 mm landing valve','Residential — Hotels (A-IV)','Up to 15 m'],
+  ['i','100 mm, single outlet, 63 mm landing valve','Educational Buildings (B)','Up to 15 m'],
+  ['i','100 mm, single outlet, 63 mm landing valve','Institutional Buildings (C)','Up to 15 m'],
+  ['i','100 mm, single outlet, 63 mm landing valve','Assembly Buildings (D)','Up to 15 m'],
+  ['i','100 mm, single outlet, 63 mm landing valve','Business Buildings (E)','Up to 15 m'],
+  ['i','100 mm, single outlet, 63 mm landing valve','Mercantile Buildings (F)','Up to 9 m'],
+  ['i','100 mm, single outlet, 63 mm landing valve','Industrial Buildings (G)','Up to 9 m'],
+  ['ii','150 mm, single outlet, 63 mm landing valve','Hotels (A-IV)','Above 15 m'],
+  ['ii','150 mm, single outlet, 63 mm landing valve','Starred Hotels (A-V)','Any height'],
+  ['ii','150 mm, single outlet, 63 mm landing valve','Institutional Buildings (C)','Above 15 m'],
+  ['ii','150 mm, single outlet, 63 mm landing valve','Business Buildings (E)','Above 15 m'],
+  ['ii','150 mm, single outlet, 63 mm landing valve','Industrial Buildings (G)','Up to 15 m'],
+  ['ii','150 mm, single outlet, 63 mm landing valve','Storage Buildings (H)','Up to 15 m'],
+  ['ii','150 mm, single outlet, 63 mm landing valve','Hazardous Buildings (J)','Up to 15 m']
+];
+
+// Table 7K — Combined Protection (Sprinkler + Hose Stream) [Clause 5.1.1(a)]
+const TABLE_7K = [
+  {id:'CL-1', hazard:'Extra Low Hazard – 1', density:2.25, area:84,  hoseFlow:50,   streams:2, pump:379,  pumpQty:1, durMin:30, durMax:60},
+  {id:'CL-2', hazard:'Extra Low Hazard – 2', density:4.1,  area:140, hoseFlow:170,  streams:2, pump:946,  pumpQty:1, durMin:30, durMax:60},
+  {id:'CL-3', hazard:'Low Hazard',           density:6.1,  area:230, hoseFlow:285,  streams:3, pump:1892, pumpQty:1, durMin:30, durMax:60},
+  {id:'CL-4', hazard:'Moderate Hazard – 1',  density:8.1,  area:230, hoseFlow:285,  streams:3, pump:2500, pumpQty:1, durMin:60, durMax:120},
+  {id:'CL-5', hazard:'Moderate Hazard – 2',  density:12.2, area:230, hoseFlow:475,  streams:3, pump:3785, pumpQty:1, durMin:60, durMax:120},
+  {id:'CL-6', hazard:'Extra Hazard – 1',     density:16.3, area:230, hoseFlow:475,  streams:3, pump:4731, pumpQty:1, durMin:60, durMax:120},
+  {id:'CL-7', hazard:'Extra Hazard – 2',     density:18.3, area:280, hoseFlow:670,  streams:4, pump:7570, pumpQty:1, durMin:60, durMax:120},
+  {id:'CL-8', hazard:'High Hazard',          density:24.5, area:280, hoseFlow:1050, streams:4, pump:4731, pumpQty:2, durMin:60, durMax:120}
+];
+const TABLE_7K_MARGIN = 20; // percent, per Table 7K worked example
+
+// Table 7M — Hose Stream Only [Clause 5.1.1(a) & D-6.1]
+const TABLE_7M = [
+  {id:'HL-1', hazard:'Extra Light – 1', hoseFlow:50,  streams:4, pump:379,  pumpQty:1, durMin:30, durMax:60},
+  {id:'HL-2', hazard:'Extra Light – 2', hoseFlow:170, streams:4, pump:946,  pumpQty:1, durMin:30, durMax:60},
+  {id:'HL-3', hazard:'Low Hazard',      hoseFlow:270, streams:4, pump:1514, pumpQty:1, durMin:30, durMax:60},
+  {id:'HL-4', hazard:'Moderate – 1',    hoseFlow:475, streams:4, pump:2839, pumpQty:1, durMin:60, durMax:120},
+  {id:'HL-5', hazard:'Moderate – 2',    hoseFlow:670, streams:5, pump:4731, pumpQty:1, durMin:60, durMax:120},
+  {id:'HL-6', hazard:'Extra Hazard',    hoseFlow:670, streams:6, pump:5677, pumpQty:1, durMin:60, durMax:120}
+];
+const TABLE_7M_MARGIN = 40; // percent, per Table 7M worked example
+
+/* ======================================================================
+   STATE
+   ====================================================================== */
+let protType = 'combined';
+let computed = {}; // holds latest computed values for export
+let pipeDiaManuallySet = false;
+
+/* ======================================================================
+   TAB NAVIGATION
+   ====================================================================== */
+const TABS = [
+  {id:1, label:'Building'},
+  {id:2, label:'Riser Sizing'},
+  {id:3, label:'Protection & Demand'},
+  {id:4, label:'Water Storage'},
+  {id:5, label:'Pump Set'},
+  {id:6, label:'Hydraulics'},
+  {id:7, label:'Brigade Inlet'},
+  {id:8, label:'Hydrant Layout'},
+  {id:9, label:'Summary Report'}
+];
+function buildTabs(){
+  const nav = document.getElementById('tabNav');
+  nav.innerHTML = TABS.map((t,i)=>`<button class="tab-btn${i===0?' active':''}" data-tab="${t.id}" onclick="showTab(${t.id})"><span class="sheetno">${String(t.id).padStart(2,'0')}</span>${t.label}</button>`).join('');
+}
+function showTab(n){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.dataset.panel==n));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab==n));
+  if(n===9) buildReport();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ======================================================================
+   INIT
+   ====================================================================== */
+function initOccupancyDropdown(){
+  const sel = document.getElementById('occType');
+  sel.innerHTML = OCCUPANCIES.map(o=>`<option value="${o.key}">${o.label}</option>`).join('');
+  sel.value = 'resApt';
+}
+function initTable8Ref(){
+  const tbody = document.querySelector('#table8ref tbody');
+  tbody.innerHTML = TABLE8_ROWS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="label-cell">${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+}
+function setProtType(t){
+  protType = t;
+  document.getElementById('opt-combined').classList.toggle('active', t==='combined');
+  document.getElementById('opt-hose').classList.toggle('active', t==='hose');
+  buildHazardDropdown();
+  recalcAll();
+}
+function buildHazardDropdown(){
+  const sel = document.getElementById('hazardLevel');
+  const src = protType==='combined' ? TABLE_7K : TABLE_7M;
+  sel.innerHTML = src.map(r=>`<option value="${r.id}">${r.id} — ${r.hazard}</option>`).join('');
+}
+
+/* ======================================================================
+   HELPERS
+   ====================================================================== */
+function nf(v, d=0){ // number format with thousands separator
+  if(v===null||v===undefined||isNaN(v)) return '—';
+  return Number(v).toLocaleString('en-IN', {minimumFractionDigits:d, maximumFractionDigits:d});
+}
+function barToKgcm2(bar){ return bar/0.980665; }
+function barToM(bar){ return bar*10.1972; }
+function mToBar(m){ return m/10.1972; }
+
+/* ======================================================================
+   MAIN RECALCULATION ENGINE
+   ====================================================================== */
+function recalcAll(){
+  const occKey = document.getElementById('occType').value;
+  const height = parseFloat(document.getElementById('bHeight').value)||0;
+  const numFloors = parseInt(document.getElementById('numFloors').value)||0;
+  const numBasements = parseInt(document.getElementById('numBasements').value)||0;
+  const floorArea = parseFloat(document.getElementById('floorArea').value)||0;
+  const numStairs = parseInt(document.getElementById('numStairs').value)||1;
+  const perimeter = parseFloat(document.getElementById('perimeter').value)||0;
+
+  // ---- height band note ----
+  const hb = document.getElementById('heightBand');
+  let band = height<=15?'Low-rise (≤15 m)': height<=24?'Mid-rise (15–24 m)': height<=45?'High-rise (24–45 m)': height<=60?'High-rise (45–60 m)':'Super high-rise (>60 m)';
+  let bandNote = `<b>Height band:</b> ${band}. `;
+  if(height>60) bandNote += 'Per Table 7A Notes: buildings above 60 m require multi-level pumping and storage with a gravity-redundant down-comer, with individual pump shutoff pressure not exceeding 12 bar. Water storage should be provided at every 45 m of additional height.';
+  else if(height>45) bandNote += 'Consider multi-level pumping/storage per Note 8 for cluster buildings above 45 m.';
+  else bandNote += 'Standard single-zone pumping arrangement is generally adequate — confirm against hydraulic calculation (Tab 06).';
+  hb.innerHTML = bandNote;
+
+  // ---- TAB 2: riser sizing ----
+  const riser = getRiserSize(occKey, height);
+  const occLabel = OCCUPANCIES.find(o=>o.key===occKey).label;
+  document.getElementById('riserResult').innerHTML = `
+    <div class="result-grid">
+      <div class="result-box">
+        <div class="rlabel">Minimum Riser / Main Size</div>
+        <div class="rvalue">${riser.size}<span class="runit">mm</span></div>
+        <div class="rnote">${riser.outlet}</div>
+      </div>
+      <div class="result-box alt">
+        <div class="rlabel">Occupancy</div>
+        <div class="rvalue" style="font-size:15px;">${occLabel.split('—')[1]||occLabel}</div>
+        <div class="rnote">Height: ${nf(height,1)} m</div>
+      </div>
+    </div>
+    <div class="note-box">${riser.note}</div>`;
+  if(!pipeDiaManuallySet){ document.getElementById('pipeDia').value = riser.size; }
+
+  // ---- TAB 3: hazard/demand ----
+  const src = protType==='combined' ? TABLE_7K : TABLE_7M;
+  let sel = src.find(r=>r.id===document.getElementById('hazardLevel').value);
+  if(!sel){ sel = src[0]; }
+
+  // hazard reference table
+  const htEl = document.getElementById('hazardTable');
+  if(protType==='combined'){
+    htEl.innerHTML = `<thead><tr><th>Level</th><th>Hazard Class</th><th>Density (mm/min)</th><th>Protected Area (m²)</th><th>Hose Flow (lpm)</th><th>Streams</th><th>Table Pump (lpm)</th><th>Duration (min)</th></tr></thead>
+    <tbody>${TABLE_7K.map(r=>`<tr class="${r.id===sel.id?'selected':''}"><td>${r.id}</td><td class="label-cell">${r.hazard}</td><td>${r.density}</td><td>${r.area}</td><td>${r.hoseFlow}</td><td>${r.streams}</td><td>${nf(r.pump)}${r.pumpQty>1?' × '+r.pumpQty:''}</td><td>${r.durMin}–${r.durMax}</td></tr>`).join('')}</tbody>`;
+  } else {
+    htEl.innerHTML = `<thead><tr><th>Level</th><th>Hazard Class</th><th>Hose Flow (lpm)</th><th>Streams</th><th>Table Pump (lpm)</th><th>Duration (min)</th></tr></thead>
+    <tbody>${TABLE_7M.map(r=>`<tr class="${r.id===sel.id?'selected':''}"><td>${r.id}</td><td class="label-cell">${r.hazard}</td><td>${r.hoseFlow}</td><td>${r.streams}</td><td>${nf(r.pump)}${r.pumpQty>1?' × '+r.pumpQty:''}</td><td>${r.durMin}–${r.durMax}</td></tr>`).join('')}</tbody>`;
+  }
+
+  // duration select
+  const durSel = document.getElementById('duration');
+  const curDur = durSel.value;
+  durSel.innerHTML = `<option value="${sel.durMin}">${sel.durMin} min (minimum)</option><option value="${sel.durMax}">${sel.durMax} min (maximum)</option>`;
+  if(curDur && (curDur==sel.durMin || curDur==sel.durMax)) durSel.value = curDur; else durSel.value = sel.durMax;
+  document.getElementById('durationHint').innerText = `Permitted range for ${sel.id}: ${sel.durMin}–${sel.durMax} min (Note 2).`;
+
+  const margin = protType==='combined' ? TABLE_7K_MARGIN : TABLE_7M_MARGIN;
+  document.getElementById('marginDisplay').value = margin + '% overflow, 140% pump operating capacity';
+
+  // raw demand calc
+  let sprinklerDemand = 0, formulaLines = [];
+  if(protType==='combined'){
+    sprinklerDemand = sel.density * sel.area;
+    formulaLines.push(`<span class="fname">Sprinkler demand</span> = density × protected area = ${sel.density} mm/min × ${sel.area} m² = <b>${nf(sprinklerDemand,1)} lpm</b>`);
+  }
+  const hoseDemand = sel.hoseFlow * sel.streams;
+  formulaLines.push(`<span class="fname">Hose stream demand</span> = hose flow × no. of streams = ${sel.hoseFlow} lpm × ${sel.streams} = <b>${nf(hoseDemand,1)} lpm</b>`);
+  const rawTotal = sprinklerDemand + hoseDemand;
+  formulaLines.push(`<span class="fname">Total calculated demand</span> = ${protType==='combined'?nf(sprinklerDemand,1)+' + ':''}${nf(hoseDemand,1)} = <b>${nf(rawTotal,1)} lpm</b>`);
+  const withMargin = rawTotal * (1 + margin/100);
+  formulaLines.push(`<span class="fname">+ ${margin}% overflow margin</span> = ${nf(rawTotal,1)} × ${(1+margin/100).toFixed(2)} = <b>${nf(withMargin,1)} lpm</b>`);
+  const checkFlow = withMargin/1.4;
+  formulaLines.push(`<span class="fname">Design flow at 140% pump operating capacity</span> = ${nf(withMargin,1)} ÷ 1.4 = <b>${nf(checkFlow,1)} lpm</b> (cross-check per Table 7K/7M worked example)`);
+
+  const duration = parseFloat(durSel.value);
+  const tablePump = sel.pump * (sel.pumpQty||1);
+  formulaLines.push(`<span class="result-line">Adopted pump capacity (Table ${protType==='combined'?'7K':'7M'}, ${sel.id})</span> = ${nf(sel.pump)} lpm${sel.pumpQty>1?' × '+sel.pumpQty+' pumps = '+nf(tablePump)+' lpm':''}`);
+
+  document.getElementById('demandFormula').innerHTML = `<div class="formula-box">${formulaLines.join('<br>')}</div>`;
+  document.getElementById('demandResults').innerHTML = `
+    <div class="result-box"><div class="rlabel">Calculated Demand (raw)</div><div class="rvalue">${nf(rawTotal,0)}<span class="runit">lpm</span></div></div>
+    <div class="result-box"><div class="rlabel">Demand + Margin</div><div class="rvalue">${nf(withMargin,0)}<span class="runit">lpm</span></div></div>
+    <div class="result-box alt"><div class="rlabel">Adopted Pump Capacity</div><div class="rvalue">${nf(sel.pump)}<span class="runit">lpm${sel.pumpQty>1?' ×'+sel.pumpQty:''}</span></div><div class="rnote">Nearest Indian Standard pump, Table ${protType==='combined'?'7K':'7M'}</div></div>
+    <div class="result-box alt"><div class="rlabel">Duration Adopted</div><div class="rvalue">${duration}<span class="runit">min</span></div></div>`;
+
+  // ---- TAB 4: water storage ----
+  const storageCapacity = tablePump * duration;
+  document.getElementById('storageFormula').innerHTML = `<div class="formula-box">
+    <span class="fname">Static Storage Capacity</span> = Adopted Pump Capacity × Duration = ${nf(tablePump)} lpm × ${duration} min<br>
+    <span class="result-line">= ${nf(storageCapacity)} litres  ( ${nf(storageCapacity/1000,1)} m³ )</span></div>`;
+  document.getElementById('storageResults').innerHTML = `
+    <div class="result-box"><div class="rlabel">Total Static Storage Required</div><div class="rvalue">${nf(storageCapacity)}<span class="runit">L</span></div><div class="rnote">${nf(storageCapacity/1000,1)} m³</div></div>
+    <div class="result-box alt"><div class="rlabel">Per Compartment (÷2 min.)</div><div class="rvalue">${nf(storageCapacity/2)}<span class="runit">L</span></div><div class="rnote">Two or more equal compartments — Cl. 5.1.2.1</div></div>`;
+
+  // tank dimensions
+  const depth = parseFloat(document.getElementById('tankDepth').value)||3;
+  const freeboard = parseFloat(document.getElementById('freeboard').value)||300;
+  const numComp = parseInt(document.getElementById('numCompartments').value)||2;
+  const volPerComp = storageCapacity/1000/numComp; // m3
+  const planAreaPerComp = volPerComp/depth;
+  const totalDepthWithFreeboard = depth + freeboard/1000;
+  let depthWarn = depth>7 ? `<div class="warn-box">Usable depth exceeds 7 m — Cl. 5.1.2.1 limits underground tank depth to 7 m from the fire-brigade draw-out level. Reduce depth and increase plan area.</div>` : '';
+  document.getElementById('tankDimResult').innerHTML = `
+    <div class="result-grid">
+      <div class="result-box"><div class="rlabel">Plan Area per Compartment</div><div class="rvalue">${nf(planAreaPerComp,1)}<span class="runit">m²</span></div><div class="rnote">e.g. ${nf(Math.sqrt(planAreaPerComp),1)} m × ${nf(Math.sqrt(planAreaPerComp),1)} m (square) — adjust to site</div></div>
+      <div class="result-box"><div class="rlabel">Total Tank Depth incl. Freeboard</div><div class="rvalue">${nf(totalDepthWithFreeboard,2)}<span class="runit">m</span></div></div>
+      <div class="result-box alt"><div class="rlabel">Volume per Compartment</div><div class="rvalue">${nf(volPerComp,1)}<span class="runit">m³</span></div></div>
+    </div>${depthWarn}`;
+
+  // terrace tank
+  const terracePct = parseFloat(document.getElementById('terracePct').value)||0;
+  const terraceVol = storageCapacity * terracePct/100;
+  document.getElementById('terraceResults').innerHTML = `
+    <div class="result-box"><div class="rlabel">Terrace Tank Capacity</div><div class="rvalue">${nf(terraceVol)}<span class="runit">L</span></div><div class="rnote">${nf(terraceVol/1000,1)} m³ (${terracePct}% of total demand)</div></div>
+    <div class="result-box alt"><div class="rlabel">Terrace Pump Minimum Pressure</div><div class="rvalue">3.5<span class="runit">kg/cm²</span></div><div class="rnote">At remotest location, per Fig. 15–17 arrangement</div></div>`;
+
+  // ---- TAB 5: pump set ----
+  document.getElementById('designFlowDisplay').value = nf(tablePump) + ' lpm';
+
+  // ---- TAB 6: hydraulics (compute first, needed for pump head) ----
+  const suctionLift = parseFloat(document.getElementById('suctionLift').value)||0;
+  const pipeLength = parseFloat(document.getElementById('pipeLength').value)||0;
+  const hwC = parseFloat(document.getElementById('hwC').value)||120;
+  const pipeDia = parseFloat(document.getElementById('pipeDia').value)||100;
+  const residualBar = parseFloat(document.getElementById('residualPressure').value)||3.5;
+
+  const staticHead = height + suctionLift;
+  const Q_m3s = (tablePump/1000)/60; // lpm -> m3/s
+  const D_m = pipeDia/1000;
+  const frictionSlope = 10.67 * Math.pow(Q_m3s, 1.852) / (Math.pow(hwC,1.852) * Math.pow(D_m,4.8704)); // m loss per m length
+  const frictionLoss = frictionSlope * pipeLength;
+  const residualHead = barToM(residualBar);
+  const TDH_m = staticHead + frictionLoss + residualHead;
+  const TDH_bar = mToBar(TDH_m);
+  const TDH_kgcm2 = barToKgcm2(TDH_bar);
+
+  const area_m2 = Math.PI/4 * Math.pow(D_m,2);
+  const velocity = Q_m3s/area_m2;
+
+  document.getElementById('hydraulicFormula').innerHTML = `<div class="formula-box">
+    <span class="fname">Static Head</span> = Building Height + Suction Lift = ${nf(height,1)} + ${nf(suctionLift,1)} = <b>${nf(staticHead,2)} m</b><br>
+    <span class="fname">Flow, Q</span> = ${nf(tablePump)} lpm = ${Q_m3s.toFixed(5)} m³/s<br>
+    <span class="fname">Friction Loss (Hazen-Williams)</span>: hf = 10.67 × L × Q<sup>1.852</sup> ÷ (C<sup>1.852</sup> × D<sup>4.87</sup>)<br>
+    &nbsp;&nbsp;= 10.67 × ${nf(pipeLength,0)} × (${Q_m3s.toFixed(5)})<sup>1.852</sup> ÷ (${hwC}<sup>1.852</sup> × ${D_m.toFixed(3)}<sup>4.87</sup>) = <b>${nf(frictionLoss,2)} m</b><br>
+    <span class="fname">Residual Pressure Head</span> = ${residualBar} bar × 10.1972 = <b>${nf(residualHead,2)} m</b><br>
+    <span class="result-line">Total Dynamic Head = ${nf(staticHead,2)} + ${nf(frictionLoss,2)} + ${nf(residualHead,2)} = ${nf(TDH_m,2)} m  ( ${nf(TDH_bar,2)} bar / ${nf(TDH_kgcm2,2)} kg/cm² )</span></div>`;
+
+  document.getElementById('hydraulicResults').innerHTML = `
+    <div class="result-box"><div class="rlabel">Total Dynamic Head</div><div class="rvalue">${nf(TDH_m,1)}<span class="runit">m</span></div></div>
+    <div class="result-box alt"><div class="rlabel">Pump Duty Pressure</div><div class="rvalue">${nf(TDH_bar,2)}<span class="runit">bar</span></div><div class="rnote">${nf(TDH_kgcm2,2)} kg/cm²</div></div>
+    <div class="result-box"><div class="rlabel">Friction Loss</div><div class="rvalue">${nf(frictionLoss,2)}<span class="runit">m</span></div></div>
+    <div class="result-box alt"><div class="rlabel">Flow Velocity</div><div class="rvalue">${nf(velocity,2)}<span class="runit">m/s</span></div></div>`;
+
+  let velWarn = velocity>3 ? `<div class="warn-box">Velocity ${nf(velocity,2)} m/s exceeds the recommended 3 m/s design limit for fire protection piping (engineering practice). Consider increasing pipe diameter.</div>` :
+    `<div class="note-box"><b>Velocity check OK</b> — ${nf(velocity,2)} m/s is within the commonly adopted 3 m/s design limit for fire-fighting mains.</div>`;
+  document.getElementById('velocityCheck').innerHTML = velWarn;
+  document.getElementById('pumpDutyHeadDisplay').value = `${nf(TDH_m,1)} m  (${nf(TDH_bar,2)} bar)`;
+
+  // pump results (tab 5)
+  const jockeyCap = parseFloat(document.getElementById('jockeyCapacity').value)||180;
+  const jockeyMargin = parseFloat(document.getElementById('jockeyMargin').value)||0.5;
+  document.getElementById('pumpResults').innerHTML = `
+    <div class="result-box"><div class="rlabel">Main Electric Pump</div><div class="rvalue">${nf(sel.pump)}${sel.pumpQty>1?' ×'+sel.pumpQty:''}<span class="runit">lpm</span></div><div class="rnote">Duty head ${nf(TDH_bar,2)} bar (${nf(TDH_m,1)} m)</div></div>
+    <div class="result-box"><div class="rlabel">Standby Diesel Pump</div><div class="rvalue">${nf(sel.pump)}${sel.pumpQty>1?' ×'+sel.pumpQty:''}<span class="runit">lpm</span></div><div class="rnote">Equal capacity, independent diesel-engine drive</div></div>
+    <div class="result-box alt"><div class="rlabel">Jockey Pump</div><div class="rvalue">${nf(jockeyCap)}<span class="runit">lpm</span></div><div class="rnote">Cut-in ≈ ${nf(TDH_bar+jockeyMargin,2)} bar</div></div>`;
+
+  const shutoffEstimate = TDH_bar * 1.15; // typical shutoff ~15% above duty point on a standard fire pump curve
+  let shutoffHTML = shutoffEstimate>12 ?
+    `<div class="warn-box"><b>Check required:</b> Estimated shutoff pressure (~${nf(shutoffEstimate,2)} bar, at ~115% of duty head) exceeds the 12 bar cap referenced in NBC Notes for tall/high-rise buildings. Consider multi-zone pumping with pressure-reducing valves or a gravity-redundant down-comer arrangement.</div>` :
+    `<div class="note-box">Estimated pump shutoff pressure ~${nf(shutoffEstimate,2)} bar is within the 12 bar limit referenced in the NBC notes for cluster/high-rise buildings.</div>`;
+  document.getElementById('shutoffCheck').innerHTML = shutoffHTML;
+
+  // ---- TAB 7: fire brigade inlet ----
+  const tankAccessible = document.getElementById('tankAccessible').value;
+  const inletCount = tablePump<=1400 ? 2 : 4;
+  document.getElementById('inletResults').innerHTML = `
+    <div class="result-box"><div class="rlabel">Collecting Head Inlets</div><div class="rvalue">${inletCount}<span class="runit">× 63 mm</span></div><div class="rnote">${tablePump<=1400?'Pump capacity ≤1400 lpm':'Pump capacity >1400 lpm'}</div></div>
+    <div class="result-box alt"><div class="rlabel">Fill Pipe (if inaccessible)</div><div class="rvalue">150<span class="runit">mm GI</span></div><div class="rnote">@ 2,250 lpm fill rate${tankAccessible==='no'?' — required (tank inaccessible)':' — not required, tank directly accessible'}</div></div>
+    <div class="result-box"><div class="rlabel">Draw-out Connection</div><div class="rvalue">63<span class="runit">mm head</span></div><div class="rnote">via 100 mm dia. GI pipe with foot valve</div></div>`;
+
+  // ---- TAB 8: yard hydrants + internal ----
+  const spacing = parseFloat(document.getElementById('hydrantSpacing').value)||45;
+  const minHyd = parseInt(document.getElementById('minHydrants').value)||2;
+  const yardCount = Math.max(minHyd, Math.ceil(perimeter/spacing));
+  document.getElementById('yardResults').innerHTML = `
+    <div class="result-box"><div class="rlabel">Yard Hydrants Required</div><div class="rvalue">${yardCount}<span class="runit">nos.</span></div><div class="rnote">⌈ ${nf(perimeter,0)} m ÷ ${spacing} m ⌉, min. ${minHyd}</div></div>
+    <div class="result-box alt"><div class="rlabel">Perimeter Considered</div><div class="rvalue">${nf(perimeter,0)}<span class="runit">m</span></div></div>`;
+
+  const landingValvesPerFloor = numStairs;
+  const totalLandingValves = landingValvesPerFloor * (numFloors+numBasements);
+  const totalHoseReels = totalLandingValves; // co-located, one per landing valve
+  document.getElementById('internalResults').innerHTML = `
+    <div class="result-box"><div class="rlabel">Landing Valves / Floor</div><div class="rvalue">${landingValvesPerFloor}<span class="runit">nos.</span></div><div class="rnote">1 per fire exit staircase</div></div>
+    <div class="result-box"><div class="rlabel">Total Landing Valves</div><div class="rvalue">${totalLandingValves}<span class="runit">nos.</span></div><div class="rnote">${numFloors} floors + ${numBasements} basement(s)</div></div>
+    <div class="result-box alt"><div class="rlabel">Total First-Aid Hose Reels</div><div class="rvalue">${totalHoseReels}<span class="runit">nos.</span></div><div class="rnote">Min. 19 mm dia., direct off riser (Cl. 5.1.1(d))</div></div>`;
+
+  // ---- store computed values for export ----
+  computed = {
+    occLabel, height, numFloors, numBasements, floorArea, numStairs, perimeter,
+    riser, protType, sel, margin, sprinklerDemand, hoseDemand, rawTotal, withMargin, checkFlow,
+    duration, tablePump, storageCapacity, volPerComp, planAreaPerComp, totalDepthWithFreeboard, numComp,
+    terracePct, terraceVol, staticHead, pipeLength, hwC, pipeDia, residualBar, frictionLoss, TDH_m, TDH_bar, TDH_kgcm2,
+    velocity, jockeyCap, shutoffEstimate, inletCount, tankAccessible, spacing, yardCount,
+    landingValvesPerFloor, totalLandingValves, totalHoseReels, evParking: document.getElementById('evParking').value
+  };
+  if(document.getElementById('tabNav').querySelector('.tab-btn.active')?.dataset.tab=='9'){ buildReport(); }
+}
+
+/* ======================================================================
+   PROJECT NAME VALIDATION
+   ====================================================================== */
+function onProjectNameInput(){
+  const v = document.getElementById('projectName').value.trim();
+  document.getElementById('fld-projectName').classList.toggle('error', v.length===0);
+  document.getElementById('exportError').style.display = 'none';
+}
+function projectNameValid(){
+  const v = document.getElementById('projectName').value.trim();
+  if(v.length===0){
+    document.getElementById('fld-projectName').classList.add('error');
+    document.getElementById('exportError').style.display = 'block';
+    showTab(9);
+    document.getElementById('projectName').focus();
+    return false;
+  }
+  return true;
+}
+
+/* ======================================================================
+   SUMMARY REPORT BUILD
+   ====================================================================== */
+function buildReport(){
+  const c = computed;
+  if(!c || !c.sel) return;
+  const pName = document.getElementById('projectName').value.trim() || '(Project name not entered)';
+  const pLoc = document.getElementById('projectLocation').value.trim() || '—';
+  const pBy = document.getElementById('preparedBy').value.trim() || '—';
+  const pDate = document.getElementById('projectDate').value || new Date().toISOString().slice(0,10);
+
+  document.getElementById('reportContainer').innerHTML = `
+    <div class="report-head">
+      <span class="appbar-tag" style="background:var(--red-fire);">FIRE FIGHTING DESIGN CALCULATION SHEET</span>
+      <h2>${pName}</h2>
+      <div class="report-grid">
+        <div><span>Location</span><b>${pLoc}</b></div>
+        <div><span>Prepared By</span><b>${pBy}</b></div>
+        <div><span>Date</span><b>${pDate}</b></div>
+        <div><span>Occupancy</span><b>${c.occLabel}</b></div>
+        <div><span>Building Height</span><b>${nf(c.height,1)} m</b></div>
+        <div><span>Floors / Basements</span><b>${c.numFloors} / ${c.numBasements}</b></div>
+      </div>
+    </div>
+
+    <div class="section-title">1. Riser / Main Sizing — Table 8</div>
+    <table class="datatable"><tbody>
+      <tr><td class="label-cell">Minimum Main Size</td><td>${c.riser.size} mm</td></tr>
+      <tr><td class="label-cell">Outlet Configuration</td><td>${c.riser.outlet}</td></tr>
+    </tbody></table>
+
+    <div class="section-title">2. Level of Protection &amp; Water Demand — Table ${c.protType==='combined'?'7K':'7M'}</div>
+    <table class="datatable"><tbody>
+      <tr><td class="label-cell">Protection System</td><td>${c.protType==='combined'?'Combined (Sprinkler + Hose Stream)':'Hose Stream Only'}</td></tr>
+      <tr><td class="label-cell">Hazard Classification</td><td>${c.sel.id} — ${c.sel.hazard}</td></tr>
+      ${c.protType==='combined'?`<tr><td class="label-cell">Sprinkler Demand</td><td>${nf(c.sprinklerDemand,1)} lpm</td></tr>`:''}
+      <tr><td class="label-cell">Hose Stream Demand</td><td>${nf(c.hoseDemand,1)} lpm</td></tr>
+      <tr><td class="label-cell">Total Calculated Demand</td><td>${nf(c.rawTotal,1)} lpm</td></tr>
+      <tr><td class="label-cell">Demand + ${c.margin}% Margin</td><td>${nf(c.withMargin,1)} lpm</td></tr>
+      <tr><td class="label-cell">Adopted Pump Capacity</td><td>${nf(c.tablePump)} lpm</td></tr>
+      <tr><td class="label-cell">Firefighting Duration</td><td>${c.duration} min</td></tr>
+    </tbody></table>
+
+    <div class="section-title">3. Water Storage</div>
+    <table class="datatable"><tbody>
+      <tr><td class="label-cell">Static Storage Capacity</td><td>${nf(c.storageCapacity)} L (${nf(c.storageCapacity/1000,1)} m³)</td></tr>
+      <tr><td class="label-cell">Compartments</td><td>${c.numComp}, ${nf(c.volPerComp,1)} m³ each</td></tr>
+      <tr><td class="label-cell">Plan Area / Compartment</td><td>${nf(c.planAreaPerComp,1)} m²</td></tr>
+      <tr><td class="label-cell">Terrace Tank Capacity</td><td>${nf(c.terraceVol)} L (${c.terracePct}% of demand)</td></tr>
+    </tbody></table>
+
+    <div class="section-title">4. Fire Pump Set</div>
+    <table class="datatable"><tbody>
+      <tr><td class="label-cell">Main Electric Pump</td><td>${nf(c.sel.pump)}${c.sel.pumpQty>1?' × '+c.sel.pumpQty:''} lpm @ ${nf(c.TDH_bar,2)} bar</td></tr>
+      <tr><td class="label-cell">Standby Diesel Pump</td><td>${nf(c.sel.pump)}${c.sel.pumpQty>1?' × '+c.sel.pumpQty:''} lpm (equal capacity)</td></tr>
+      <tr><td class="label-cell">Jockey Pump</td><td>${nf(c.jockeyCap)} lpm</td></tr>
+      <tr><td class="label-cell">Estimated Shutoff Pressure</td><td>${nf(c.shutoffEstimate,2)} bar</td></tr>
+    </tbody></table>
+
+    <div class="section-title">5. Hydraulic Calculation</div>
+    <table class="datatable"><tbody>
+      <tr><td class="label-cell">Static Head</td><td>${nf(c.staticHead,2)} m</td></tr>
+      <tr><td class="label-cell">Pipe Length / Diameter / C</td><td>${nf(c.pipeLength,0)} m / ${nf(c.pipeDia,0)} mm / C=${c.hwC}</td></tr>
+      <tr><td class="label-cell">Friction Loss</td><td>${nf(c.frictionLoss,2)} m</td></tr>
+      <tr><td class="label-cell">Residual Pressure Required</td><td>${c.residualBar} bar</td></tr>
+      <tr><td class="label-cell">Total Dynamic Head</td><td>${nf(c.TDH_m,1)} m / ${nf(c.TDH_bar,2)} bar / ${nf(c.TDH_kgcm2,2)} kg/cm²</td></tr>
+      <tr><td class="label-cell">Flow Velocity</td><td>${nf(c.velocity,2)} m/s</td></tr>
+    </tbody></table>
+
+    <div class="section-title">6. Fire Brigade Collecting Head</div>
+    <table class="datatable"><tbody>
+      <tr><td class="label-cell">Inlets</td><td>${c.inletCount} × 63 mm</td></tr>
+      <tr><td class="label-cell">Draw-out</td><td>63 mm via 100 mm dia. GI pipe</td></tr>
+    </tbody></table>
+
+    <div class="section-title">7. Hydrant &amp; Hose Reel Layout</div>
+    <table class="datatable"><tbody>
+      <tr><td class="label-cell">Yard Hydrants</td><td>${c.yardCount} nos. @ ${c.spacing} m spacing</td></tr>
+      <tr><td class="label-cell">Internal Landing Valves</td><td>${c.totalLandingValves} nos. (${c.landingValvesPerFloor}/floor)</td></tr>
+      <tr><td class="label-cell">First-Aid Hose Reels</td><td>${c.totalHoseReels} nos., min. 19 mm dia.</td></tr>
+    </tbody></table>
+  `;
+}
+
+/* ======================================================================
+   EXPORT — PDF
+   ====================================================================== */
+function exportPDF(){
+  if(!projectNameValid()) return;
+  buildReport();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a4'});
+  const c = computed;
+  const pName = document.getElementById('projectName').value.trim();
+  const pLoc = document.getElementById('projectLocation').value.trim()||'—';
+  const pBy = document.getElementById('preparedBy').value.trim()||'—';
+  const pDate = document.getElementById('projectDate').value || new Date().toISOString().slice(0,10);
+
+  doc.setFillColor(10,27,44); doc.rect(0,0,210,26,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('FIRE FIGHTING DESIGN CALCULATION SHEET', 14, 11);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text(pName, 14, 19);
+  doc.setTextColor(0,0,0);
+
+  let y = 34;
+  doc.setFontSize(9);
+  doc.text(`Location: ${pLoc}     Prepared By: ${pBy}     Date: ${pDate}`, 14, y);
+  y += 4;
+  doc.text(`Occupancy: ${c.occLabel}     Height: ${nf(c.height,1)} m     Floors/Basements: ${c.numFloors}/${c.numBasements}`, 14, y);
+  y += 6;
+
+  function section(title, rows){
+    doc.autoTable({
+      startY: y, margin:{left:14, right:14},
+      head:[[title,'']],
+      body: rows,
+      theme:'grid',
+      headStyles:{fillColor:[15,39,64], textColor:255, fontSize:10},
+      bodyStyles:{fontSize:9},
+      columnStyles:{0:{cellWidth:90, fontStyle:'bold'}, 1:{cellWidth:96}}
+    });
+    y = doc.lastAutoTable.finalY + 6;
+  }
+
+  section('1. Riser / Main Sizing (Table 8)', [
+    ['Minimum Main Size', c.riser.size+' mm'],
+    ['Outlet Configuration', c.riser.outlet]
+  ]);
+  section(`2. Protection Level & Demand (Table ${c.protType==='combined'?'7K':'7M'})`, [
+    ['Protection System', c.protType==='combined'?'Combined (Sprinkler + Hose)':'Hose Stream Only'],
+    ['Hazard Classification', c.sel.id+' — '+c.sel.hazard],
+    ...(c.protType==='combined'?[['Sprinkler Demand', nf(c.sprinklerDemand,1)+' lpm']]:[]),
+    ['Hose Stream Demand', nf(c.hoseDemand,1)+' lpm'],
+    ['Total Calculated Demand', nf(c.rawTotal,1)+' lpm'],
+    [`Demand + ${c.margin}% Margin`, nf(c.withMargin,1)+' lpm'],
+    ['Adopted Pump Capacity', nf(c.tablePump)+' lpm'],
+    ['Firefighting Duration', c.duration+' min']
+  ]);
+  section('3. Water Storage', [
+    ['Static Storage Capacity', nf(c.storageCapacity)+' L ('+nf(c.storageCapacity/1000,1)+' m³)'],
+    ['Compartments', c.numComp+' x '+nf(c.volPerComp,1)+' m³'],
+    ['Plan Area / Compartment', nf(c.planAreaPerComp,1)+' m²'],
+    ['Terrace Tank Capacity', nf(c.terraceVol)+' L ('+c.terracePct+'% of demand)']
+  ]);
+  section('4. Fire Pump Set', [
+    ['Main Electric Pump', nf(c.sel.pump)+(c.sel.pumpQty>1?' x '+c.sel.pumpQty:'')+' lpm @ '+nf(c.TDH_bar,2)+' bar'],
+    ['Standby Diesel Pump', nf(c.sel.pump)+(c.sel.pumpQty>1?' x '+c.sel.pumpQty:'')+' lpm'],
+    ['Jockey Pump', nf(c.jockeyCap)+' lpm'],
+    ['Estimated Shutoff Pressure', nf(c.shutoffEstimate,2)+' bar']
+  ]);
+  section('5. Hydraulic Calculation', [
+    ['Static Head', nf(c.staticHead,2)+' m'],
+    ['Pipe Length / Dia / C', nf(c.pipeLength,0)+' m / '+nf(c.pipeDia,0)+' mm / C='+c.hwC],
+    ['Friction Loss', nf(c.frictionLoss,2)+' m'],
+    ['Residual Pressure Required', c.residualBar+' bar'],
+    ['Total Dynamic Head', nf(c.TDH_m,1)+' m / '+nf(c.TDH_bar,2)+' bar / '+nf(c.TDH_kgcm2,2)+' kg/cm²'],
+    ['Flow Velocity', nf(c.velocity,2)+' m/s']
+  ]);
+  section('6. Fire Brigade Collecting Head', [
+    ['Inlets', c.inletCount+' x 63 mm'],
+    ['Draw-out', '63 mm via 100 mm dia. GI pipe']
+  ]);
+  section('7. Hydrant & Hose Reel Layout', [
+    ['Yard Hydrants', c.yardCount+' nos. @ '+c.spacing+' m spacing'],
+    ['Internal Landing Valves', c.totalLandingValves+' nos. ('+c.landingValvesPerFloor+'/floor)'],
+    ['First-Aid Hose Reels', c.totalHoseReels+' nos., min. 19 mm dia.']
+  ]);
+
+  doc.setFontSize(7.5); doc.setTextColor(90,90,90);
+  const disc = 'Preliminary design-stage calculation per NBCS 2026 Part F. Final design must be verified by complete hydraulic calculation and approved by the local Fire Department / AHJ.';
+  doc.text(doc.splitTextToSize(disc, 182), 14, 288);
+
+  doc.save(sanitizeFileName(pName)+'_FireFighting_Design.pdf');
+}
+
+/* ======================================================================
+   EXPORT — WORD (.doc via HTML)
+   ====================================================================== */
+function exportWord(){
+  if(!projectNameValid()) return;
+  buildReport();
+  const reportHTML = document.getElementById('reportContainer').innerHTML;
+  const pName = document.getElementById('projectName').value.trim();
+  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+  <head><meta charset="utf-8"><title>${pName}</title>
+  <style>
+    body{font-family:Calibri,Arial,sans-serif; font-size:11pt; color:#182229;}
+    h2{color:#0A1B2C; border-bottom:2px solid #B3241C; padding-bottom:4px;}
+    table{border-collapse:collapse; width:100%; margin-bottom:14px;}
+    td,th{border:1px solid #ccc; padding:6px 8px; font-size:10.5pt;}
+    .section-title{background:#0F2740; color:#fff; padding:6px 10px; font-weight:bold; margin-top:16px;}
+    .report-head{border:2px solid #0A1B2C; padding:14px;}
+    .report-grid{display:block;}
+    .report-grid div{display:inline-block; width:32%; vertical-align:top; margin-bottom:6px;}
+    .report-grid span{display:block; font-size:8pt; color:#666; text-transform:uppercase;}
+    .appbar-tag{background:#B3241C; color:#fff; padding:2px 8px; font-size:9pt;}
+    .label-cell{font-weight:bold; width:45%;}
+  </style></head><body>
+
+<!-- Atomep Enteam Nav Bar -->
+<style id="aet-nav-style">
+.aet-nav{position:sticky;top:0;z-index:9990;background:linear-gradient(135deg,#1a237e 0%,#4a2c8a 30%,#0064a8 60%,#0094c4 100%);box-shadow:0 4px 24px rgba(0,40,80,.35);border-bottom:1px solid rgba(255,255,255,.08);font-family:'IBM Plex Sans',system-ui,sans-serif;}
+.aet-nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 24px}
+.aet-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.aet-logo-mark{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.05));border:1.5px solid rgba(255,255,255,.3);color:#7dd3fc;flex-shrink:0}
+.aet-logo-text{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:-.5px;white-space:nowrap}
+.aet-logo-text .aet-logo-sub{font-weight:300;opacity:.85}
+.aet-nav-links{display:flex;gap:4px;align-items:center}
+.aet-nav-links a{color:rgba(255,255,255,.85);text-decoration:none;font-size:.85rem;font-weight:600;padding:6px 14px;border-radius:20px;transition:.2s}
+.aet-nav-links a:hover{color:#fff;background:rgba(255,255,255,.15)}
+</style>
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home / All Tools</a>
+    </div>
+  </div>
+</nav>
+${reportHTML}
+  <p style="font-size:8pt;color:#666;margin-top:20px;">Preliminary design-stage calculation per NBCS 2026 Part F, Fire and Life Safety. Final design must be verified by complete hydraulic calculation and approved by the local Fire Department / Authority Having Jurisdiction.</p>
+  </body></html>`;
+  const blob = new Blob(['\ufeff', html], {type:'application/msword'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = sanitizeFileName(pName)+'_FireFighting_Design.doc';
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
+}
+
+/* ======================================================================
+   EXPORT — EXCEL
+   ====================================================================== */
+function exportExcel(){
+  if(!projectNameValid()) return;
+  const c = computed;
+  const pName = document.getElementById('projectName').value.trim();
+  const pLoc = document.getElementById('projectLocation').value.trim()||'—';
+  const pBy = document.getElementById('preparedBy').value.trim()||'—';
+  const pDate = document.getElementById('projectDate').value || new Date().toISOString().slice(0,10);
+
+  const wb = XLSX.utils.book_new();
+
+  const projSheet = [
+    ['FIRE FIGHTING DESIGN CALCULATION SHEET'],
+    [],
+    ['Project Name', pName],
+    ['Location', pLoc],
+    ['Prepared By', pBy],
+    ['Date', pDate],
+    ['Occupancy', c.occLabel],
+    ['Building Height (m)', c.height],
+    ['Floors', c.numFloors],
+    ['Basements', c.numBasements],
+    ['Typical Floor Area (m²)', c.floorArea],
+    ['Fire Exit Staircases', c.numStairs],
+    ['Perimeter (m)', c.perimeter]
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(projSheet), 'Project');
+
+  const riserSheet = [
+    ['RISER / MAIN SIZING — TABLE 8'],[],
+    ['Parameter','Value'],
+    ['Minimum Main Size (mm)', c.riser.size],
+    ['Outlet Configuration', c.riser.outlet],
+    ['Basis', c.riser.note]
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(riserSheet), 'Riser Sizing');
+
+  const demandSheet = [
+    [`PROTECTION LEVEL & DEMAND — TABLE ${c.protType==='combined'?'7K':'7M'}`],[],
+    ['Parameter','Value'],
+    ['Protection System', c.protType==='combined'?'Combined (Sprinkler + Hose)':'Hose Stream Only'],
+    ['Hazard Classification', c.sel.id+' — '+c.sel.hazard],
+    ...(c.protType==='combined'?[['Sprinkler Density (mm/min)', c.sel.density],['Protected Area (m²)', c.sel.area],['Sprinkler Demand (lpm)', Math.round(c.sprinklerDemand*10)/10]]:[]),
+    ['Hose Flow per Stream (lpm)', c.sel.hoseFlow],
+    ['No. of Streams', c.sel.streams],
+    ['Hose Stream Demand (lpm)', Math.round(c.hoseDemand*10)/10],
+    ['Total Calculated Demand (lpm)', Math.round(c.rawTotal*10)/10],
+    ['Overflow Margin (%)', c.margin],
+    ['Demand + Margin (lpm)', Math.round(c.withMargin*10)/10],
+    ['Adopted Pump Capacity (lpm)', c.tablePump],
+    ['Firefighting Duration (min)', c.duration]
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(demandSheet), 'Protection & Demand');
+
+  const storageSheet = [
+    ['WATER STORAGE'],[],
+    ['Parameter','Value'],
+    ['Static Storage Capacity (L)', c.storageCapacity],
+    ['Static Storage Capacity (m³)', Math.round(c.storageCapacity/100)/10],
+    ['Number of Compartments', c.numComp],
+    ['Volume per Compartment (m³)', Math.round(c.volPerComp*10)/10],
+    ['Plan Area per Compartment (m²)', Math.round(c.planAreaPerComp*10)/10],
+    ['Total Tank Depth incl. Freeboard (m)', Math.round(c.totalDepthWithFreeboard*100)/100],
+    ['Terrace Tank % of Demand', c.terracePct],
+    ['Terrace Tank Capacity (L)', c.terraceVol]
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(storageSheet), 'Water Storage');
+
+  const pumpSheet = [
+    ['FIRE PUMP SET'],[],
+    ['Parameter','Value'],
+    ['Main Electric Pump (lpm)', c.sel.pump+(c.sel.pumpQty>1?' x '+c.sel.pumpQty:'')],
+    ['Standby Diesel Pump (lpm)', c.sel.pump+(c.sel.pumpQty>1?' x '+c.sel.pumpQty:'')],
+    ['Jockey Pump (lpm)', c.jockeyCap],
+    ['Pump Duty Head (bar)', Math.round(c.TDH_bar*100)/100],
+    ['Pump Duty Head (m)', Math.round(c.TDH_m*10)/10],
+    ['Estimated Shutoff Pressure (bar)', Math.round(c.shutoffEstimate*100)/100]
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(pumpSheet), 'Pump Set');
+
+  const hydSheet = [
+    ['HYDRAULIC CALCULATION'],[],
+    ['Parameter','Value'],
+    ['Static Head (m)', Math.round(c.staticHead*100)/100],
+    ['Pipe Length (m)', c.pipeLength],
+    ['Pipe Diameter (mm)', c.pipeDia],
+    ['Hazen-Williams C', c.hwC],
+    ['Friction Loss (m)', Math.round(c.frictionLoss*100)/100],
+    ['Residual Pressure Required (bar)', c.residualBar],
+    ['Total Dynamic Head (m)', Math.round(c.TDH_m*10)/10],
+    ['Total Dynamic Head (bar)', Math.round(c.TDH_bar*100)/100],
+    ['Total Dynamic Head (kg/cm²)', Math.round(c.TDH_kgcm2*100)/100],
+    ['Flow Velocity (m/s)', Math.round(c.velocity*100)/100]
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(hydSheet), 'Hydraulics');
+
+  const layoutSheet = [
+    ['FIRE BRIGADE INLET & HYDRANT / HOSE REEL LAYOUT'],[],
+    ['Parameter','Value'],
+    ['Collecting Head Inlets', c.inletCount+' x 63 mm'],
+    ['Fill Pipe', '150 mm GI @ 2250 lpm'],
+    ['Draw-out Connection', '63 mm via 100 mm dia. GI pipe'],
+    ['Yard Hydrant Spacing (m)', c.spacing],
+    ['Yard Hydrants Required (nos.)', c.yardCount],
+    ['Internal Landing Valves per Floor', c.landingValvesPerFloor],
+    ['Total Internal Landing Valves', c.totalLandingValves],
+    ['Total First-Aid Hose Reels', c.totalHoseReels]
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(layoutSheet), 'Hydrant Layout');
+
+  XLSX.writeFile(wb, sanitizeFileName(pName)+'_FireFighting_Design.xlsx');
+}
+
+function sanitizeFileName(s){
+  return s.replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'') || 'FireFighting_Project';
+}
+
+/* ======================================================================
+   BOOTSTRAP
+   ====================================================================== */
+window.addEventListener('DOMContentLoaded', ()=>{
+  buildTabs();
+  initOccupancyDropdown();
+  initTable8Ref();
+  buildHazardDropdown();
+  document.getElementById('projectDate').value = new Date().toISOString().slice(0,10);
+  setProtType('combined');
+  recalcAll();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+======================================================
+Atomep Enteam — Inline CSS Audit Report
+======================================================
+
+Timestamp: 2026-09-30T15:45:34.896Z
+Pages scanned: 13
+Total inline style="" attributes found: 360
+
+Overall Classification:
+  - Static candidates (Safe to migrate): 311
+  - Dynamic candidates (Must preserve inline / runtime): 10
+  - Review-required candidates: 39
+
+------------------------------------------------------
+Page-by-Page Breakdown
+------------------------------------------------------
+
+[index.html]
+  Total inline styles: 18
+  Static: 16 | Dynamic: 1 | Review: 1
+  Sample items:
+    - <div id="pwa-install-banner"> style="display:none;background:linear-gradient(135deg,#0d6efd,#06b6d4);color:#fff;padding:12px 20px;border-radius:12px;margin:20px auto;max-width:900px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 14px rgba(13,110,253,0.3);" -> [DYNAMIC] (ID 'pwa-install-banner' style is directly manipulated by JS)
+    - <div> style="display:flex;align-items:center;gap:12px;" -> [STATIC] (Static styling attribute)
+    - <span> style="font-size:1.8rem;" -> [STATIC] (Static styling attribute)
+    - <strong> style="display:block;font-size:1rem;" -> [STATIC] (Static styling attribute)
+    - <small> style="opacity:0.9;" -> [STATIC] (Static styling attribute)
+    - <button id="pwa-install-btn"> style="background:#fff;color:#0d6efd;font-weight:700;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;white-space:nowrap;font-size:0.9rem;" -> [REVIEW] (ID 'pwa-install-btn' is referenced by JS)
+    - <a class="tool-card"> style="--grad:linear-gradient(135deg,#b3241c,#7e1712)" -> [STATIC] (Static styling attribute)
+    - <a class="tool-card"> style="--grad:linear-gradient(135deg,#0d6efd,#3b82f6)" -> [STATIC] (Static styling attribute)
+    - <a class="tool-card"> style="--grad:linear-gradient(135deg,#0ea5e9,#06b6d4)" -> [STATIC] (Static styling attribute)
+    - <a class="tool-card"> style="--grad:linear-gradient(135deg,#475569,#64748b)" -> [STATIC] (Static styling attribute)
+    ... and 8 more items
+
+[AI_DM_Plant_Platform.html]
+  Total inline styles: 30
+  Static: 19 | Dynamic: 3 | Review: 8
+  Sample items:
+    - <div> style="max-width:1400px;margin:0 auto;padding:8px 24px" -> [STATIC] (Static styling attribute)
+    - <div class="kpi-card"> style="--i:0" -> [STATIC] (Static styling attribute)
+    - <div class="kpi-card"> style="--i:1" -> [STATIC] (Static styling attribute)
+    - <div class="kpi-card"> style="--i:2" -> [STATIC] (Static styling attribute)
+    - <div id="k-ai-grade" class="kpi-card__hint"> style="color:var(--green)" -> [REVIEW] (ID 'k-ai-grade' is referenced by JS)
+    - <div class="kpi-card"> style="--i:3" -> [STATIC] (Static styling attribute)
+    - <div id="k-risk-hint" class="kpi-card__hint"> style="color:var(--green)" -> [REVIEW] (ID 'k-risk-hint' is referenced by JS)
+    - <div class="kpi-card"> style="--i:4" -> [STATIC] (Static styling attribute)
+    - <div class="kpi-card"> style="--i:5" -> [STATIC] (Static styling attribute)
+    - <div class="kpi-card"> style="--i:6" -> [STATIC] (Static styling attribute)
+    ... and 20 more items
+
+[NBC2026_Water_Demand_Calculator_v2.html]
+  Total inline styles: 15
+  Static: 11 | Dynamic: 1 | Review: 3
+  Sample items:
+    - <input id="dwellingUnits"> style="margin-top:8px" -> [REVIEW] (ID 'dwellingUnits' is referenced by JS)
+    - <div id="perCapitaInfo"> style="font-size:.85rem;opacity:.9" -> [REVIEW] (ID 'perCapitaInfo' is referenced by JS)
+    - <div id="breakdownCard" class="card"> style="display:none" -> [DYNAMIC] (ID 'breakdownCard' style is directly manipulated by JS)
+    - <div> style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px" -> [STATIC] (Static styling attribute)
+    - <p> style="font-size:.85rem;color:var(--muted);margin-bottom:16px" -> [STATIC] (Static styling attribute)
+    - <div id="commInfo"> style="font-size:.85rem;opacity:.9" -> [REVIEW] (ID 'commInfo' is referenced by JS)
+    - <div> style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px" -> [STATIC] (Static styling attribute)
+    - <tr> style="font-weight:700;background:#f8f9fa" -> [STATIC] (Static styling attribute)
+    - <tr> style="background:#fff4e6" -> [STATIC] (Static styling attribute)
+    - <tr> style="font-weight:700;background:#d3f9d8" -> [STATIC] (Static styling attribute)
+    ... and 5 more items
+
+[NBCS_2026_Drainage_Calculator.html]
+  Total inline styles: 74
+  Static: 56 | Dynamic: 3 | Review: 15
+  Sample items:
+    - <div class="value"> style="font-size:1rem" -> [STATIC] (Static styling attribute)
+    - <div class="value"> style="font-size:1rem" -> [STATIC] (Static styling attribute)
+    - <div class="value"> style="font-size:1rem" -> [STATIC] (Static styling attribute)
+    - <div class="form-group"> style="justify-content:flex-end" -> [STATIC] (Static styling attribute)
+    - <div> style="overflow-x:auto" -> [STATIC] (Static styling attribute)
+    - <th> style="width:28px" -> [STATIC] (Static styling attribute)
+    - <th> style="text-align:left" -> [STATIC] (Static styling attribute)
+    - <div id="internalNote" class="alert alert-success"> style="display:none" -> [REVIEW] (ID 'internalNote' is referenced by JS)
+    - <div id="hTable" class="value"> style="font-size:1rem" -> [REVIEW] (ID 'hTable' is referenced by JS)
+    - <div> style="overflow-x:auto" -> [STATIC] (Static styling attribute)
+    ... and 64 more items
+
+[NBCS_2026_Pipe_Size_Calculator.html]
+  Total inline styles: 25
+  Static: 21 | Dynamic: 0 | Review: 4
+  Sample items:
+    - <div class="toggle-group"> style="padding-top:4px" -> [STATIC] (Static styling attribute)
+    - <div class="chk-row"> style="padding-top:4px" -> [STATIC] (Static styling attribute)
+    - <div class="grid-2"> style="margin-top:12px" -> [STATIC] (Static styling attribute)
+    - <div> style="margin:14px 0;font-size:.82rem;color:var(--muted)" -> [STATIC] (Static styling attribute)
+    - <div id="totalFixtures" class="big"> style="color:var(--accent)" -> [REVIEW] (ID 'totalFixtures' is referenced by JS)
+    - <div class="grid-3"> style="margin-top:12px" -> [STATIC] (Static styling attribute)
+    - <div class="grid-3"> style="margin-top:12px" -> [STATIC] (Static styling attribute)
+    - <div class="grid-2"> style="margin-top:12px" -> [STATIC] (Static styling attribute)
+    - <div class="summary-bar"> style="margin-top:16px" -> [STATIC] (Static styling attribute)
+    - <div id="dispWsfu" class="big"> style="font-size:1.6rem" -> [REVIEW] (ID 'dispWsfu' is referenced by JS)
+    ... and 15 more items
+
+[RO_Plant_Sizing_Calculator.html]
+  Total inline styles: 57
+  Static: 57 | Dynamic: 0 | Review: 0
+  Sample items:
+    - <p> style="color: var(--text-dim); margin-bottom: 1rem; font-size: 0.9rem;" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top: 1rem;" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top: 1rem;" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top: 1rem;" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top: 1rem;" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top: 1rem;" -> [STATIC] (Static styling attribute)
+    - <p> style="color: var(--text-dim); margin-bottom: 1rem; font-size: 0.9rem;" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top: 1rem;" -> [STATIC] (Static styling attribute)
+    - <p> style="color: var(--text-dim); margin-bottom: 1rem; font-size: 0.9rem;" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top: 1rem;" -> [STATIC] (Static styling attribute)
+    ... and 47 more items
+
+[STP_Design_Calculator.html]
+  Total inline styles: 37
+  Static: 35 | Dynamic: 1 | Review: 1
+  Sample items:
+    - <div class="panel-title"> style="margin-top:20px" -> [STATIC] (Static styling attribute)
+    - <div class="form-group"> style="margin-top:16px" -> [STATIC] (Static styling attribute)
+    - <div id="customPeakGroup" class="form-group"> style="display:none" -> [DYNAMIC] (ID 'customPeakGroup' style is directly manipulated by JS)
+    - <p> style="margin-top:8px;font-size:13px" -> [STATIC] (Static styling attribute)
+    - <div id="resultsContent"> style="display:none" -> [REVIEW] (ID 'resultsContent' is referenced by JS)
+    - <div class="panel"> style="margin-bottom:16px" -> [STATIC] (Static styling attribute)
+    - <div> style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px" -> [STATIC] (Static styling attribute)
+    - <div> style="font-size:20px;font-weight:700" -> [STATIC] (Static styling attribute)
+    - <div> style="font-size:12px;color:var(--text-dim);margin-top:4px;font-family:var(--font-mono)" -> [STATIC] (Static styling attribute)
+    - <div class="download-bar"> style="margin:0" -> [STATIC] (Static styling attribute)
+    ... and 27 more items
+
+[Storm_Sump_Design_Tool.html]
+  Total inline styles: 20
+  Static: 18 | Dynamic: 0 | Review: 2
+  Sample items:
+    - <div class="results-grid"> style="margin-top:16px" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top:14px" -> [STATIC] (Static styling attribute)
+    - <div class="results-grid"> style="margin-top:16px" -> [STATIC] (Static styling attribute)
+    - <div class="input-grid"> style="margin-top:18px" -> [STATIC] (Static styling attribute)
+    - <div class="results-grid"> style="margin-top:14px" -> [STATIC] (Static styling attribute)
+    - <div class="input-grid"> style="margin-top:18px" -> [STATIC] (Static styling attribute)
+    - <div class="results-grid"> style="margin-top:14px" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top:14px" -> [STATIC] (Static styling attribute)
+    - <div class="results-grid"> style="margin-top:16px" -> [STATIC] (Static styling attribute)
+    - <div> style="margin-top:18px;padding:16px;background:var(--result-bg);border:1px solid var(--border);border-radius:var(--radius)" -> [STATIC] (Static styling attribute)
+    ... and 10 more items
+
+[Water_Softener_Plant_Designer.html]
+  Total inline styles: 15
+  Static: 14 | Dynamic: 0 | Review: 1
+  Sample items:
+    - <div> style="max-width:1400px;margin:0 auto;padding:8px 24px" -> [STATIC] (Static styling attribute)
+    - <div class="section-tab"> style="margin-top:16px" -> [STATIC] (Static styling attribute)
+    - <div class="section-tab"> style="margin-top:16px" -> [STATIC] (Static styling attribute)
+    - <div id="warnBox" class="warn"> style="display:none" -> [REVIEW] (ID 'warnBox' is referenced by JS)
+    - <i> style="background:#3b82c4" -> [STATIC] (Static styling attribute)
+    - <i> style="background:#3fbf7f" -> [STATIC] (Static styling attribute)
+    - <i> style="background:#e0a23a" -> [STATIC] (Static styling attribute)
+    - <i> style="background:#9fb0c4" -> [STATIC] (Static styling attribute)
+    - <i> style="background:#2bb3c0" -> [STATIC] (Static styling attribute)
+    - <i> style="background:#e0597a" -> [STATIC] (Static styling attribute)
+    ... and 5 more items
+
+[Water_Treatment_Plant_Designer.html]
+  Total inline styles: 23
+  Static: 22 | Dynamic: 0 | Review: 1
+  Sample items:
+    - <hr> style="margin:4px;border:none;border-top:1px dashed #aaa" -> [STATIC] (Static styling attribute)
+    - <div class="card"> style="margin-top:8px;padding:10px;background:#e8f5e9;border:1px solid #a5d6a7" -> [STATIC] (Static styling attribute)
+    - <h2> style="font-size:13px;border:none" -> [STATIC] (Static styling attribute)
+    - <span> style="color:var(--muted);margin-left:8px" -> [STATIC] (Static styling attribute)
+    - <5 id="threeCanvas"> style="width:100%;height:100%;display:block" -> [REVIEW] (ID 'threeCanvas' is referenced by JS)
+    - <h1> style="color:#0d4a6e" -> [STATIC] (Static styling attribute)
+    - <p> style="color:#666" -> [STATIC] (Static styling attribute)
+    - <h2> style="color:#1976D2" -> [STATIC] (Static styling attribute)
+    - <table> style="border-collapse:collapse;width:100%;font-size:12px" -> [STATIC] (Static styling attribute)
+    - <tr> style="background:#0d4a6e;color:#fff" -> [STATIC] (Static styling attribute)
+    ... and 13 more items
+
+[firefighting_calculator.html]
+  Total inline styles: 16
+  Static: 15 | Dynamic: 1 | Review: 0
+  Sample items:
+    - <span> style="color:#B3241C" -> [STATIC] (Static styling attribute)
+    - <table id="table8ref" class="datatable"> style="margin-top:18px;" -> [STATIC] (Static styling attribute)
+    - <span> style="font-weight:400;font-size:11.5px;" -> [STATIC] (Static styling attribute)
+    - <span> style="font-weight:400;font-size:11.5px;" -> [STATIC] (Static styling attribute)
+    - <div class="field-block"> style="max-width:420px;" -> [STATIC] (Static styling attribute)
+    - <h3> style="font-size:15px;color:var(--navy-900);" -> [STATIC] (Static styling attribute)
+    - <h3> style="font-size:15px;color:var(--navy-900);" -> [STATIC] (Static styling attribute)
+    - <h3> style="font-size:15px;color:var(--navy-900);" -> [STATIC] (Static styling attribute)
+    - <span class="clause"> style="background:#FBF3E4;color:#6B4B1A;" -> [STATIC] (Static styling attribute)
+    - <div class="field-block"> style="max-width:300px;" -> [STATIC] (Static styling attribute)
+    ... and 6 more items
+
+[heat_pump_sizing_tool.html]
+  Total inline styles: 3
+  Static: 3 | Dynamic: 0 | Review: 0
+  Sample items:
+    - <div> style="max-width:1400px;margin:0 auto;padding:8px 24px" -> [STATIC] (Static styling attribute)
+    - <div class="l"> style="margin-bottom:6px" -> [STATIC] (Static styling attribute)
+    - <div class="col2"> style="margin-top:18px" -> [STATIC] (Static styling attribute)
+
+[pump-head-calculator.html]
+  Total inline styles: 27
+  Static: 24 | Dynamic: 0 | Review: 3
+  Sample items:
+    - <input id="designFlow" class="input"> style="font-size:20px;font-weight:600;" -> [REVIEW] (ID 'designFlow' is referenced by JS)
+    - <div> style="font-family:var(--font-mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent);margin-bottom:10px;" -> [STATIC] (Static styling attribute)
+    - <div id="flowResult"> style="font-family:var(--font-mono);font-size:42px;font-weight:700;color:var(--text-bright);line-height:1;" -> [REVIEW] (ID 'flowResult' is referenced by JS)
+    - <div> style="font-size:14px;color:var(--text-dim);margin-top:4px;" -> [STATIC] (Static styling attribute)
+    - <div class="callout"> style="margin-top:16px;" -> [STATIC] (Static styling attribute)
+    - <div> style="font-family:var(--font-mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:14px;" -> [STATIC] (Static styling attribute)
+    - <div class="grid-2"> style="margin-top:14px;" -> [STATIC] (Static styling attribute)
+    - <div> style="font-family:var(--font-mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:14px;" -> [STATIC] (Static styling attribute)
+    - <div class="grid-2"> style="margin-top:14px;" -> [STATIC] (Static styling attribute)
+    - <div> style="font-family:var(--font-mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent);margin-bottom:8px;" -> [STATIC] (Static styling attribute)
+    ... and 17 more items

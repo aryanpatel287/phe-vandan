@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Treatment Plant Designer — IS Code Compliant</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/Water_Treatment_Plant_Designer.css">
+
+<script src="assets/vendor/jspdf.umd.min.js"></script>
+<script src="assets/vendor/jspdf.plugin.autotable.min.js"></script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<script src="assets/vendor/FileSaver.min.js"></script>
+<script src="assets/vendor/html-docx.js"></script>
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+<div class="header">
+<h1>💧 Water Treatment Plant Designer</h1>
+<div class="sub">IS Code Compliant Design Tool — Public Utility Engineering | IS 10500 · IS 1172 · IS 3025 · CPHEEO Manual</div>
+</div>
+<div class="container">
+
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+
+<!-- LEFT PANEL: INPUTS -->
+<div class="left-panel">
+<div class="card">
+<h2>📋 Project & Application</h2>
+<div class="form-row">
+<label>Application Type</label>
+<select id="appType" onchange="onAppTypeChange()">
+<option value="hospital_small">Hospital (≤100 beds)</option>
+<option value="hospital_large">Hospital (>100 beds)</option>
+<option value="hospital_opd">Hospital OPD</option>
+<option value="hotel_standard">Hotel (up to 3-star)</option>
+<option value="hotel_luxury">Hotel (4-star & above)</option>
+<option value="residential">Residential / Housing</option>
+<option value="commercial">Commercial / Office</option>
+<option value="airport">Airport Terminal</option>
+<option value="railway_jn">Railway Station (Junction)</option>
+<option value="railway_int">Railway Station (Intermediate)</option>
+<option value="bus_terminal">Interstate Bus Terminal</option>
+<option value="custom">Custom / Other</option>
+</select>
+</div>
+<div class="form-row">
+<label id="popLabel">Number of Beds</label>
+<input type="number" id="population" value="100" min="1" oninput="updateLpcdDisplay()">
+</div>
+<div class="form-row">
+<label>Design LPCD (Litres per capita per day) — auto-filled per IS 1172 / NBC 2016</label>
+<input type="number" id="lpcd" value="340" min="1" oninput="calc()">
+<div class="note" id="lpcdNote">Per IS 1172 / NBC 2016</div>
+</div>
+<div class="form-row">
+<label>Design Period / Project Life (years)</label>
+<input type="number" id="designYears" value="30" min="1">
+</div>
+<div class="form-row">
+<label>Population Growth Rate (% per year)</label>
+<input type="number" id="growthRate" value="2.5" step="0.1" min="0">
+</div>
+<div class="form-row">
+<label>UFW / Losses (%) — CPHEEO max 15%</label>
+<input type="number" id="ufw" value="15" min="0" max="50" step="0.5">
+</div>
+</div>
+<div class="card">
+<h2>🧪 Raw Water Quality</h2>
+<div class="form-grid">
+<div class="form-row">
+<label>Turbidity (NTU)</label>
+<input type="number" id="turbidity" value="50" min="0" step="1">
+</div>
+<div class="form-row">
+<label>pH</label>
+<input type="number" id="ph" value="7.2" step="0.1">
+</div>
+<div class="form-row">
+<label>Alkalinity (mg/L as CaCO₃)</label>
+<input type="number" id="alkalinity" value="120" step="1">
+</div>
+<div class="form-row">
+<label>Total Hardness (mg/L)</label>
+<input type="number" id="hardness" value="180" step="1">
+</div>
+<div class="form-row">
+<label>Iron (mg/L)</label>
+<input type="number" id="iron" value="0.5" step="0.1">
+</div>
+<div class="form-row">
+<label>TDS (mg/L)</label>
+<input type="number" id="tds" value="400" step="10">
+</div>
+</div>
+</div>
+<div class="card">
+<h2>⚙️ Treatment Design Parameters</h2>
+<div class="form-grid">
+<div class="form-row">
+<label>Coagulant Type</label>
+<select id="coagulant">
+<option value="alum">Alum [Al₂(SO₄)₃·18H₂O]</option>
+<option value="pac">PAC [Polyaluminium Chloride]</option>
+<option value="ferric">Ferric Chloride [FeCl₃]</option>
+</select>
+</div>
+<div class="form-row">
+<label>Coagulant Dose (mg/L)</label>
+<input type="number" id="dose" value="30" step="1" min="1">
+<div class="note">Typical: Alum 20–40; PAC 10–25; FeCl₃ 15–40</div>
+</div>
+<div class="form-row">
+<label>Sedimentation SLR (m³/m²/hr)</label>
+<input type="number" id="slr" value="1.5" step="0.1" min="0.5">
+<div class="note">CPHEEO: 1.0–2.5</div>
+</div>
+<div class="form-row">
+<label>Sedimentation Retention (hr)</label>
+<input type="number" id="sedRetention" value="3" step="0.5" min="1">
+<div class="note">CPHEEO: 2–4 hr</div>
+</div>
+<div class="form-row">
+<label>RSF Filtration Rate (m/hr)</label>
+<input type="number" id="filterRate" value="5" step="0.5" min="2">
+<div class="note">CPHEEO: 5–7 m/hr</div>
+</div>
+<div class="form-row">
+<label>Chlorine Dose (mg/L)</label>
+<input type="number" id="chlorineDose" value="3" step="0.5" min="0.5">
+<div class="note">Outlet residual: 0.5 mg/L</div>
+</div>
+</div>
+<button class="btn btn-calc" onclick="calc()">🔧 Calculate Design</button>
+</div>
+</div>
+<!-- RIGHT PANEL: RESULTS -->
+<div class="right-panel">
+<div class="card">
+<h2>📊 Design Summary</h2>
+<div id="resultsArea">
+<div class="note">Click "Calculate Design" to generate the full treatment plant design.</div>
+</div>
+</div>
+<div class="card">
+<h2>📥 Download Reports</h2>
+<div class="dl-bar">
+<button class="btn btn-dl" onclick="downloadPDF()">📄 PDF Report</button>
+<button class="btn btn-dl" onclick="downloadExcel()">📊 Excel Sheet</button>
+<button class="btn btn-dl" onclick="downloadWord()">📝 Word Document</button>
+<button class="btn btn-dl" onclick="downloadPFD()">🖼️ PFD Diagram (PNG)</button>
+<button class="btn btn-dl" onclick="downloadPID()">🏷️ P&ID Diagram (PNG)</button>
+<button class="btn btn-dl" onclick="download3D()">🏠 3D View (PNG)</button>
+</div>
+<div class="note">All reports include IS code references, calculations, PFD & P&ID.</div>
+</div>
+<div class="card">
+<h2>👁️ Visualizations</h2>
+<div class="tab-bar">
+<div class="tab active" onclick="showTab('tab3d',this)">3D Plant Model</div>
+<div class="tab" onclick="showTab('tabpfd',this)">Process Flow Diagram</div>
+<div class="tab" onclick="showTab('tabpid',this)">P&ID Diagram</div>
+<div class="tab" onclick="showTab('tabis',this)">IS Code References</div>
+</div>
+<div id="tab3d" class="tab-content active">
+<div class="diagram-box">
+<div id="three-canvas"></div>
+<div class="note">Drag to rotate · Scroll to zoom · Hover over units for labels</div>
+</div>
+</div>
+<div id="tabpfd" class="tab-content">
+<div class="diagram-box">
+<canvas id="pfd-canvas" width="900" height="520"></canvas>
+</div>
+</div>
+<div id="tabpid" class="tab-content">
+<div class="diagram-box">
+<canvas id="pid-canvas" width="900" height="600"></canvas>
+</div>
+</div>
+<div id="tabis" class="tab-content">
+<div class="diagram-box">
+<ul class="iscode-list" id="isCodeList"></ul>
+</div>
+</div>
+</div>
+<div class="footer">
+Water Treatment Plant Designer v1.0 · Calculations based on CPHEEO Manual on Water Supply & Treatment (3rd Ed., 1999),
+IS 10500:2012, IS 1172:1993, NBC 2016 Part 9, IS 3025 series · For public utility engineering design.
+</div>
+</div>
+</div>
+<script>
+// ===== APPLICATION DATA (IS 1172 / NBC 2016) =====
+const APP_DATA = {
+hospital_small: {label:"Hospital (≤100 beds)",popLabel:"Number of Beds",lpcd:340,unit:"bed",note:"IS 1172:1993 — 340 L/bed/day (domestic 230 + flushing 110)"},
+hospital_large: {label:"Hospital (>100 beds)",popLabel:"Number of Beds",lpcd:450,unit:"bed",note:"IS 1172:1993 — 450 L/bed/day (domestic 300 + flushing 150)"},
+hospital_opd: {label:"Hospital OPD",popLabel:"Daily OPD Patients",lpcd:15,unit:"patient",note:"NBC 2016 — 15 L/patient/day (domestic 10 + flushing 5)"},
+hotel_standard: {label:"Hotel (up to 3-star)",popLabel:"Number of Beds",lpcd:180,unit:"bed",note:"IS 1172:1993 — 180 L/bed/day"},
+hotel_luxury: {label:"Hotel (4-star & above)",popLabel:"Number of Beds",lpcd:320,unit:"bed",note:"NBC 2016 — 320 L/bed/day (domestic 260 + flushing 60)"},
+residential: {label:"Residential / Housing",popLabel:"Number of Residents",lpcd:135,unit:"person",note:"IS 1172:1993 — 135 L/person/day (with sewerage)"},
+commercial: {label:"Commercial / Office",popLabel:"Number of Occupants",lpcd:45,unit:"person",note:"IS 1172:1993 — 45 L/person/day"},
+airport: {label:"Airport Terminal",popLabel:"Daily Passengers",lpcd:70,unit:"passenger",note:"NBC 2016 — 70 L/passenger/day (domestic 40 + flushing 30)"},
+railway_jn: {label:"Railway Station (Junction)",popLabel:"Daily Passengers",lpcd:70,unit:"passenger",note:"IS 1172:1993 — 70 L/passenger/day (with bathing)"},
+railway_int: {label:"Railway Station (Intermediate)",popLabel:"Daily Passengers",lpcd:45,unit:"passenger",note:"IS 1172:1993 — 45 L/passenger/day"},
+bus_terminal: {label:"Interstate Bus Terminal",popLabel:"Daily Passengers",lpcd:45,unit:"passenger",note:"NBC 2016 — 45 L/passenger/day"},
+custom: {label:"Custom / Other",popLabel:"Population / Units",lpcd:135,unit:"unit",note:"User-defined — refer IS 1172:1993"}
+};
+const COAG_FACTORS = {alum:{name:"Alum [Al₂(SO₄)₃·18H₂O]",factor:1.0,density:1050},pac:{name:"PAC [Polyaluminium Chloride]",factor:0.6,density:1150},ferric:{name:"Ferric Chloride [FeCl₃]",factor:0.8,density:1400}};
+const IS_CODES = [
+{code:"IS 10500:2012",title:"Drinking Water — Specification (2nd Revision)",use:"Quality target for treated water"},
+{code:"IS 1172:1993",title:"Code of Basic Requirements for Water Supply, Drainage & Sanitation",use:"Per-capita water demand by building type"},
+{code:"IS 3025 (Part 1)",title:"Methods of Sampling & Test — Part 1: Sampling",use:"Raw & treated water sampling protocol"},
+{code:"IS 3025 (Part 4)",title:"Methods of Test — Part 4: Colour",use:"Colour measurement (limit: 5 Hazen)"},
+{code:"IS 3025 (Part 10)",title:"Methods of Test — Part 10: Turbidity",use:"Turbidity measurement (limit: 1 NTU)"},
+{code:"IS 3025 (Part 11)",title:"Methods of Test — Part 11: pH Value",use:"pH measurement (range: 6.5–8.5)"},
+{code:"IS 3025 (Part 16)",title:"Methods of Test — Part 16: Total Dissolved Solids",use:"TDS measurement (limit: 500 mg/L)"},
+{code:"IS 3025 (Part 21)",title:"Methods of Test — Part 21: Hardness",use:"Hardness measurement (limit: 200 mg/L)"},
+{code:"IS 3025 (Part 23)",title:"Methods of Test — Part 23: Alkalinity",use:"Alkalinity measurement (limit: 200 mg/L)"},
+{code:"IS 3025 (Part 24)",title:"Methods of Test — Part 24: Sulphates",use:"Sulphate measurement (limit: 200 mg/L)"},
+{code:"IS 3025 (Part 32)",title:"Methods of Test — Part 32: Chloride",use:"Chloride measurement (limit: 250 mg/L)"},
+{code:"IS 3025 (Part 40)",title:"Methods of Test — Part 40: Calcium",use:"Calcium measurement (limit: 75 mg/L)"},
+{code:"IS 3025 (Part 50):2001",title:"Jar Test (Coagulation Test)",use:"Determine optimum coagulant dose"},
+{code:"IS 3025 (Part 26)",title:"Methods of Test — Part 26: Chlorine Residual",use:"Residual chlorine (min 0.2 mg/L)"},
+{code:"IS 1622:2019",title:"Methods of Sampling & Microbiological Examination of Water",use:"Bacteriological quality testing"},
+{code:"IS 2065:1983",title:"Code of Practice for Water Supply in Buildings",use:"Building water supply design"},
+{code:"IS 4111 (Part 1–4)",title:"Code of Practice for Anaerobic Sludge Digestion",use:"Sludge treatment & disposal"},
+{code:"CPHEEO Manual",title:"Manual on Water Supply & Treatment (3rd Ed., 1999)",use:"Design parameters: SLR, HLR, retention times"},
+{code:"NBC 2016 Part 9",title:"National Building Code — Plumbing Services & Drainage",use:"Water demand & plumbing design"},
+{code:"IS 10500 Amnd 4",title:"IS 10500:2012 Amendment 4 (2023)",use:"Updated quality parameter limits"}
+];
+// ===== GLOBAL STATE =====
+var D = {}; // design data
+var threeScene = null;
+// ===== UI HELPERS =====
+function onAppTypeChange(){
+var sel = document.getElementById('appType').value;
+var data = APP_DATA[sel];
+document.getElementById('popLabel').textContent = data.popLabel;
+document.getElementById('lpcd').value = data.lpcd;
+document.getElementById('lpcdNote').textContent = data.note;
+}
+function updateLpcdDisplay(){/* keep note as is */}
+function showTab(id,el){
+document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+el.classList.add('active');
+if(id==='tab3d'&&threeScene&&D.peakFlow)render3D();
+if(id==='tabpfd')drawPFD();
+if(id==='tabpid')drawPID();
+}
+function fmt(n,dec){dec=dec===undefined?2:dec;if(!isFinite(n))return'—';return Number(n).toLocaleString('en-IN',{minimumFractionDigits:dec,maximumFractionDigits:dec});}
+// ===== MAIN CALCULATION ENGINE =====
+function calc(){
+var appType = document.getElementById('appType').value;
+var appInfo = APP_DATA[appType];
+var pop = parseFloat(document.getElementById('population').value)||0;
+var lpcd = parseFloat(document.getElementById('lpcd').value)||0;
+var designYears = parseFloat(document.getElementById('designYears').value)||30;
+var growthRate = parseFloat(document.getElementById('growthRate').value)||0;
+var ufw = parseFloat(document.getElementById('ufw').value)||15;
+var turbidity = parseFloat(document.getElementById('turbidity').value)||0;
+var ph = parseFloat(document.getElementById('ph').value)||7;
+var alkalinity = parseFloat(document.getElementById('alkalinity').value)||0;
+var hardness = parseFloat(document.getElementById('hardness').value)||0;
+var iron = parseFloat(document.getElementById('iron').value)||0;
+var tds = parseFloat(document.getElementById('tds').value)||0;
+var coagType = document.getElementById('coagulant').value;
+var coagInfo = COAG_FACTORS[coagType];
+var dose = parseFloat(document.getElementById('dose').value)||0;
+var slr = parseFloat(document.getElementById('slr').value)||1.5;
+var sedRetention = parseFloat(document.getElementById('sedRetention').value)||3;
+var filterRate = parseFloat(document.getElementById('filterRate').value)||5;
+var chlorineDose = parseFloat(document.getElementById('chlorineDose').value)||3;
+
+// --- WATER DEMAND ---
+var avgDailyDemand_L = pop * lpcd; // L/day
+var avgDailyDemand_m3 = avgDailyDemand_L / 1000; // m³/day
+var futurePop = pop * Math.pow(1 + growthRate/100, designYears);
+var futureDemand_m3 = futurePop * lpcd / 1000;
+// Add UFW losses
+var grossDemand_m3 = futureDemand_m3 * (1 + ufw/100);
+var avgFlow_m3hr = grossDemand_m3 / 24;
+var avgFlow_Lps = (avgFlow_m3hr * 1000) / 3600;
+// Peak factors (CPHEEO)
+var maxDailyFactor = 1.8;
+var maxHourlyFactor = 2.7;
+var maxDaily_m3 = grossDemand_m3 * maxDailyFactor;
+var peakFlow_m3hr = avgFlow_m3hr * maxHourlyFactor;
+var peakFlow_Lps = avgFlow_Lps * maxHourlyFactor;
+var plantCapacity_m3day = maxDaily_m3; // design plant for max daily
+var plantCapacity_MLD = plantCapacity_m3day / 1000;
+var designFlow_m3hr = plantCapacity_m3day / 24; // plant runs 24hr
+var designFlow_Lps = designFlow_m3hr * 1000 / 3600;
+
+// --- COAGULATION ---
+var actualDose = dose * coagInfo.factor;
+var coagulant_kgday = plantCapacity_MLD * actualDose; // kg/day (1 MLD×1mg/L = 1kg/day)
+var coagulant_tonyear = coagulant_kgday * 365 / 1000;
+var coagSolution_L = coagulant_kgday / 50; // 5% solution (50 kg/m³ stock)
+var flashMix_G = 400; // s⁻¹
+var flashMix_time = 0.5; // min (30 sec)
+var flashMix_vol = designFlow_Lps * flashMix_time * 60 / 1000; // m³
+
+// --- FLOCCULATION ---
+var floc_G = 50; // s⁻¹ (tapered 60→30)
+var floc_time = 30; // min
+var floc_vol = designFlow_m3hr * floc_time / 60; // m³
+var floc_tanks = Math.max(2, Math.ceil(floc_vol / 50));
+var floc_tank_vol = floc_vol / floc_tanks;
+var floc_tank_dim = Math.sqrt(floc_tank_vol / 4); // L=W, depth 4m
+var floc_power = floc_G * floc_G * 0.001 * floc_vol; // kW (μ≈1e-3)
+
+// --- SEDIMENTATION ---
+var sed_area = designFlow_m3hr / slr; // m²
+var sed_vol = designFlow_m3hr * sedRetention; // m³
+var sed_depth = 3.5; // m typical
+var sed_L = Math.ceil(Math.sqrt(sed_area));
+var sed_W = Math.ceil(sed_area / sed_L);
+var sed_actual_area = sed_L * sed_W;
+var sed_actual_vol = sed_actual_area * sed_depth;
+var sed_weir_length = designFlow_m3hr * 24 / 300; // weir loading < 300 m³/m/day
+var sed_tanks = Math.max(2, Math.ceil(sed_area / 100));
+
+// --- RAPID SAND FILTER ---
+var filter_total_area = designFlow_m3hr / filterRate; // m²
+var filter_unit_area = Math.min(80, Math.max(10, filter_total_area));
+var filter_units_calc = Math.ceil(filter_total_area / filter_unit_area);
+var filter_units = filter_units_calc + 1; // +1 standby (CPHEEO)
+var filter_each_area = filter_total_area / filter_units_calc;
+var filter_L = Math.ceil(Math.sqrt(filter_each_area));
+var filter_W = Math.ceil(filter_each_area / filter_L);
+var sand_depth = 0.7; // m (600-750mm)
+var gravel_depth = 0.4; // m
+var backwash_rate = 36; // m/hr (CPHEEO 36-48)
+var backwash_dur = 10; // min
+var backwash_water = filter_each_area * backwash_rate * backwash_dur / 60; // m³ per wash
+var filter_run = 24; // hours
+
+// --- DISINFECTION / CHLORINATION ---
+var chlorine_demand = chlorineDose - 0.5; // mg/L (residual 0.5)
+var chlorine_kgday = plantCapacity_MLD * chlorineDose;
+var chlorine_contact_time = 30; // min
+var chlorine_contact_vol = designFlow_m3hr * chlorine_contact_time / 60;
+var bleachingPowder_kg = chlorine_kgday / 0.35; // 35% available chlorine
+
+// --- CLEAR WATER RESERVOIR ---
+var cwr_vol = Math.max(grossDemand_m3 * 0.25, designFlow_m3hr * 4); // min 4 hr or 25% daily
+var cwr_depth = 4.5;
+var cwr_area = cwr_vol / cwr_depth;
+var cwr_L = Math.ceil(Math.sqrt(cwr_area));
+var cnr_W = Math.ceil(cwr_area / cwr_L);
+
+// --- OVERHEAD TANK ---
+var oht_vol = Math.max(grossDemand_m3 * 0.125, peakFlow_m3hr * 2); // 3 hr peak or 12.5% daily
+var oht_dia = Math.ceil(Math.pow(oht_vol * 4 / (Math.PI * 3), 1/3)); // H=1.5×D approx
+var oht_height = Math.ceil(oht_vol * 4 / (Math.PI * oht_dia * oht_dia));
+
+// --- RAW WATER SUMP ---
+var rws_vol = Math.max(designFlow_m3hr * 2, grossDemand_m3 * 0.1);
+
+// --- SLUDGE ---
+var sludge_solid = plantCapacity_m3day * 0.0001; // 0.01% of throughput
+var sludge_vol = sludge_solid / 0.02; // 2% solids
+var sludge_dryer_area = sludge_solid / 5; // 5 kg/m² drying bed
+
+// --- COST ESTIMATE (rough) ---
+var civil_cost = (sed_actual_vol * 8000) + (filter_total_area * 45000) + (cwr_vol * 6000) + (floc_vol * 7000);
+var mechanical = filter_units * 800000 + sed_tanks * 300000;
+var electrical = (civil_cost + mechanical) * 0.12;
+var total_est = civil_cost + mechanical + electrical;
+
+D = {
+appInfo: appInfo, pop: pop, lpcd: lpcd, designYears: designYears, growthRate: growthRate, ufw: ufw,
+turbidity: turbidity, ph: ph, alkalinity: alkalinity, hardness: hardness, iron: iron, tds: tds,
+coagInfo: coagInfo, dose: dose, actualDose: actualDose, slr: slr, sedRetention: sedRetention,
+filterRate: filterRate, chlorineDose: chlorineDose,
+avgDailyDemand_L: avgDailyDemand_L, avgDailyDemand_m3: avgDailyDemand_m3,
+futurePop: futurePop, futureDemand_m3: futureDemand_m3, grossDemand_m3: grossDemand_m3,
+avgFlow_m3hr: avgFlow_m3hr, avgFlow_Lps: avgFlow_Lps,
+maxDaily_m3: maxDaily_m3, peakFlow_m3hr: peakFlow_m3hr, peakFlow_Lps: peakFlow_Lps,
+plantCapacity_m3day: plantCapacity_m3day, plantCapacity_MLD: plantCapacity_MLD,
+designFlow_m3hr: designFlow_m3hr, designFlow_Lps: designFlow_Lps,
+coagulant_kgday: coagulant_kgday, coagulant_tonyear: coagulant_tonyear, coagSolution_L: coagSolution_L,
+flashMix_G: flashMix_G, flashMix_time: flashMix_time, flashMix_vol: flashMix_vol,
+floc_G: floc_G, floc_time: floc_time, floc_vol: floc_vol, floc_tanks: floc_tanks,
+floc_tank_vol: floc_tank_vol, floc_tank_dim: floc_tank_dim, floc_power: floc_power,
+sed_area: sed_area, sed_vol: sed_vol, sed_depth: sed_depth, sed_L: sed_L, sed_W: sed_W,
+sed_actual_area: sed_actual_area, sed_actual_vol: sed_actual_vol,
+sed_weir_length: sed_weir_length, sed_tanks: sed_tanks,
+filter_total_area: filter_total_area, filter_units_calc: filter_units_calc, filter_units: filter_units,
+filter_each_area: filter_each_area, filter_L: filter_L, filter_W: filter_W,
+sand_depth: sand_depth, gravel_depth: gravel_depth,
+backwash_rate: backwash_rate, backwash_dur: backwash_dur, backwash_water: backwash_water,
+chlorine_demand: chlorine_demand, chlorine_kgday: chlorine_kgday,
+chlorine_contact_time: chlorine_contact_time, chlorine_contact_vol: chlorine_contact_vol,
+bleachingPowder_kg: bleachingPowder_kg,
+cwr_vol: cwr_vol, cwr_depth: cwr_depth, cwr_area: cwr_area, cwr_L: cwr_L, cnr_W: cnr_W,
+oht_vol: oht_vol, oht_dia: oht_dia, oht_height: oht_height, rws_vol: rws_vol,
+sludge_solid: sludge_solid, sludge_vol: sludge_vol, sludge_dryer_area: sludge_dryer_area,
+civil_cost: civil_cost, mechanical: mechanical, electrical: electrical, total_est: total_est
+};
+renderResults();
+renderISCodes();
+drawPFD();
+drawPID();
+render3D();
+}
+function renderResults(){
+var h = '';
+// Stats grid
+h += '<div class="stat-grid">';
+h += statBox(fmt(D.plantCapacity_MLD,2),'MLD Capacity');
+h += statBox(fmt(D.plantCapacity_m3day,0),'m³/day');
+h += statBox(fmt(D.peakFlow_Lps,1)+' L/s','Peak Flow');
+h += statBox(fmt(D.filter_units,0),'Filter Units');
+h += statBox('₹'+fmt(D.total_est/10000000,2)+' Cr','Est. Cost');
+h += '</div>';
+
+// Water Demand
+h += '<table class="result-table"><thead><tr><th colspan="3">💧 WATER DEMAND CALCULATION</th></tr><tr><th>Parameter</th><th>Value</th><th>Unit / IS Code</th></tr></thead><tbody>';
+h += row('Application',D.appInfo.label,'');
+h += row('Design unit',D.appInfo.unit+'s','');
+h += row('Current population / units',fmt(D.pop,0),'');
+h += row('Per-capita demand (LPCD)',fmt(D.lpcd,0),'L/'+D.appInfo.unit+'/day — '+D.appInfo.note.split('—')[0]);
+h += row('Current avg demand',fmt(D.avgDailyDemand_m3,1)+' m³/day','('+fmt(D.avgDailyDemand_L,0)+' L/day)');
+h += row('Design period',fmt(D.designYears,0)+' years','');
+h += row('Growth rate',fmt(D.growthRate,1)+'%/yr','');
+h += row('Future population',fmt(D.futurePop,0),D.appInfo.unit+'s');
+h += row('Future demand',fmt(D.futureDemand_m3,1)+' m³/day','');
+h += row('UFW / losses',fmt(D.ufw,1)+'%','CPHEEO ≤15%');
+h += row('Gross design demand',fmt(D.grossDemand_m3,1)+' m³/day','incl. UFW');
+h += row('Avg flow',fmt(D.avgFlow_m3hr,1)+' m³/hr',fmt(D.avgFlow_Lps,2)+' L/s');
+h += '</tbody></table>';
+
+// Peak factors
+h += '<div class="peak-box"><b>Peak Factor (CPHEEO):</b> Max Daily = 1.8 × Avg | Max Hourly = 2.7 × Avg<hr style="margin:4px;border:none;border-top:1px dashed #aaa">';
+h += '<b>Max Daily Demand:</b> '+fmt(D.maxDaily_m3,1)+' m³/day &nbsp;|&nbsp; <b>Peak Hourly:</b> '+fmt(D.peakFlow_m3hr,1)+' m³/hr ('+fmt(D.peakFlow_Lps,1)+' L/s)</div>';
+
+// Coagulation
+h += '<table class="result-table"><thead><tr><th colspan="3">🧪 COAGULATION (Flash Mix) — IS 3025 (Part 50):2001</th></tr><tr><th>Parameter</th><th>Value</th><th>Unit / Reference</th></tr></thead><tbody>';
+h += row('Coagulant',D.coagInfo.name,'');
+h += row('Nominal dose',fmt(D.dose,0)+' mg/L','');
+h += row('Effective dose',fmt(D.actualDose,1)+' mg/L','× '+D.coagInfo.factor+' factor');
+h += row('Daily consumption',fmt(D.coagulant_kgday,1)+' kg/day','MLD × mg/L = kg/day');
+h += row('Annual consumption',fmt(D.coagulant_tonyear,1)+' tonnes/yr','');
+h += row('Stock solution (5%)',fmt(D.coagSolution_L,0)+' L/day','');
+h += row('Flash mix G-value',fmt(D.flashMix_G,0)+' s⁻¹','CPHEEO 300–500');
+h += row('Flash mix time',fmt(D.flashMix_time,1)+' min','CPHEEO 30–60 sec');
+h += row('Flash mix volume',fmt(D.flashMix_vol,2)+' m³','');
+h += '</tbody></table>';
+
+// Flocculation
+h += '<table class="result-table"><thead><tr><th colspan="3">🔄 FLOCCULATION</th></tr><tr><th>Parameter</th><th>Value</th><th>Unit / Reference</th></tr></thead><tbody>';
+h += row('G-value (tapered)',fmt(D.floc_G,0)+' s⁻¹','CPHEEO 30–80');
+h += row('Detention time',fmt(D.floc_time,0)+' min','CPHEEO 20–40');
+h += row('Total volume',fmt(D.floc_vol,1)+' m³','');
+h += row('No. of tanks',fmt(D.floc_tanks,0),'min 2');
+h += row('Tank volume (each)',fmt(D.floc_tank_vol,1)+' m³','');
+h += row('Tank dimension (L×W)',fmt(D.floc_tank_dim,1)+'×'+fmt(D.floc_tank_dim,1)+' m','depth 4 m');
+h += row('Power required',fmt(D.floc_power,2)+' kW','P = G²μV');
+h += '</tbody></table>';
+
+// Sedimentation
+h += '<table class="result-table"><thead><tr><th colspan="3">🌊 SEDIMENTATION TANK — CPHEEO Ch.8</th></tr><tr><th>Parameter</th><th>Value</th><th>Unit / Reference</th></tr></thead><tbody>';
+h += row('Surface loading rate',fmt(D.slr,2)+' m³/m²/hr','CPHEEO 1.0–2.5');
+h += row('Detention time',fmt(D.sedRetention,1)+' hr','CPHEEO 2–4');
+h += row('Required area',fmt(D.sed_area,1)+' m²','A = Q/SLR');
+h += row('Required volume',fmt(D.sed_vol,1)+' m³','V = Q×t');
+h += row('Tank depth',fmt(D.sed_depth,1)+' m','');
+h += row('No. of tanks',fmt(D.sed_tanks,0),'min 2');
+h += row('Provided L×W (each)',fmt(D.sed_L,0)+'×'+fmt(D.sed_W,0)+' m','');
+h += row('Provided area',fmt(D.sed_actual_area,0)+' m²','');
+h += row('Provided volume',fmt(D.sed_actual_vol,0)+' m³','');
+h += row('Weir loading',fmt(D.designFlow_m3hr*24/D.sed_weir_length,0)+' m³/m/day','CPHEEO <300');
+h += '</tbody></table>';
+
+// Filtration
+h += '<table class="result-table"><thead><tr><th colspan="3">⏳ RAPID SAND FILTER — CPHEEO Ch.8</th></tr><tr><th>Parameter</th><th>Value</th><th>Unit / Reference</th></tr></thead><tbody>';
+h += row('Filtration rate (HLR)',fmt(D.filterRate,1)+' m/hr','CPHEEO 5–7');
+h += row('Total filter area req.',fmt(D.filter_total_area,1)+' m²','A = Q/HLR');
+h += row('Working units',fmt(D.filter_units_calc,0),'');
+h += row('Standby',1,'CPHEEO requires');
+h += row('Total units',fmt(D.filter_units,0),'incl. standby');
+h += row('Area per unit',fmt(D.filter_each_area,1)+' m²','');
+h += row('Unit size (L×W)',fmt(D.filter_L,0)+'×'+fmt(D.filter_W,0)+' m','');
+h += row('Sand depth',fmt(D.sand_depth*1000,0)+' mm','600–750mm, ES 0.4–0.7mm');
+h += row('Gravel support',fmt(D.gravel_depth*1000,0)+' mm','300–500mm');
+h += row('Backwash rate',fmt(D.backwash_rate,0)+' m/hr','CPHEEO 36–48');
+h += row('Backwash duration',fmt(D.backwash_dur,0)+' min','');
+h += row('Wash water per unit',fmt(D.backwash_water,1)+' m³','');
+h += row('Filter run',fmt(D.filter_run,0)+' hr','24–48 hr');
+h += '</tbody></table>';
+
+// Disinfection
+h += '<table class="result-table"><thead><tr><th colspan="3">☣️ DISINFECTION / CHLORINATION — IS 10500:2012</th></tr><tr><th>Parameter</th><th>Value</th><th>Unit / Reference</th></tr></thead><tbody>';
+h += row('Chlorine dose',fmt(D.chlorineDose,1)+' mg/L','');
+h += row('Residual at outlet','0.5 mg/L','IS 10500: 0.2–1.0');
+h += row('Chlorine demand',fmt(D.chlorine_demand,1)+' mg/L','dose − residual');
+h += row('Daily chlorine',fmt(D.chlorine_kgday,2)+' kg/day','MLD × mg/L');
+h += row('Contact time',fmt(D.chlorine_contact_time,0)+' min','CPHEEO min 30');
+h += row('Contact tank vol',fmt(D.chlorine_contact_vol,1)+' m³','');
+h += row('Bleaching powder (35%)',fmt(D.bleachingPowder_kg,1)+' kg/day','alt. source');
+h += '</tbody></table>';
+
+// Storage
+h += '<table class="result-table"><thead><tr><th colspan="3">🛢️ STORAGE & DISTRIBUTION</th></tr><tr><th>Parameter</th><th>Value</th><th>Unit / Reference</th></tr></thead><tbody>';
+h += row('Raw water sump',fmt(D.rws_vol,0)+' m³','2 hr avg flow');
+h += row('Clear water reservoir',fmt(D.cwr_vol,0)+' m³','min 25% daily / 4 hr');
+h += row('CWR dimensions',fmt(D.cwr_L,0)+'×'+fmt(D.cnr_W,0)+'×'+fmt(D.cwr_depth,1)+' m','');
+h += row('Overhead tank',fmt(D.oht_vol,0)+' m³','min 12.5% daily / 2 hr peak');
+h += row('OHT dia × height',fmt(D.oht_dia,0)+'×'+fmt(D.oht_height,0)+' m','');
+h += '</tbody></table>';
+
+// Sludge
+h += '<table class="result-table"><thead><tr><th colspan="3">♻️ SLUDGE MANAGEMENT — IS 4111</th></tr><tr><th>Parameter</th><th>Value</th><th>Unit / Reference</th></tr></thead><tbody>';
+h += row('Dry sludge solids',fmt(D.sludge_solid,1)+' kg/day','~0.01% throughput');
+h += row('Wet sludge (2% solids)',fmt(D.sludge_vol,0)+' L/day','');
+h += row('Drying bed area',fmt(D.sludge_dryer_area,0)+' m²','5 kg/m² loading');
+h += '</tbody></table>';
+
+// Cost
+h += '<table class="result-table"><thead><tr><th colspan="3">💰 COST ESTIMATE (Indicative)</th></tr><tr><th>Parameter</th><th>Value</th><th>Reference</th></tr></thead><tbody>';
+h += row('Civil works','₹'+fmt(D.civil_cost/10000000,2)+' Cr','sedimentation + filter + CWR + floc');
+h += row('Mechanical','₹'+fmt(D.mechanical/10000000,2)+' Cr','filters + clarifiers');
+h += row('Electrical (12%)','₹'+fmt(D.electrical/10000000,2)+' Cr','');
+h += row('Total estimated','₹'+fmt(D.total_est/10000000,2)+' Cr','indicative only');
+h += '</tbody></table>';
+
+// Quality compliance check
+var turbidity_ok = D.turbidity <= 5;
+var ph_ok = D.ph >= 6.5 && D.ph <= 8.5;
+var iron_ok = D.iron <= 0.3;
+var tds_ok = D.tds <= 500;
+var hardness_ok = D.hardness <= 200;
+h += '<div class="card" style="margin-top:8px;padding:10px;background:#e8f5e9;border:1px solid #a5d6a7">';
+h += '<h2 style="font-size:13px;border:none">✅ IS 10500:2012 Compliance Check (Raw Water → Target After Treatment)</h2>';
+h += '<table class="result-table"><thead><tr><th>Parameter</th><th>Raw Water</th><th>IS 10500 Limit</th><th>After Treatment</th><th>Status</th></tr></thead><tbody>';
+h += '<tr><td class="param">Turbidity</td><td>'+fmt(D.turbidity,1)+' NTU</td><td>≤ 1 NTU</td><td>< 1 NTU</td><td>'+(turbidity_ok?'<span class="badge badge-ok">OK</span>':'<span class="badge badge-warn">Needs Treatment</span>')+'</td></tr>';
+h += '<tr><td class="param">pH</td><td>'+fmt(D.ph,1)+'</td><td>6.5–8.5</td><td>6.5–8.5</td><td>'+(ph_ok?'<span class="badge badge-ok">OK</span>':'<span class="badge badge-warn">Adjust</span>')+'</td></tr>';
+h += '<tr><td class="param">Iron</td><td>'+fmt(D.iron,2)+' mg/L</td><td>≤ 0.3 mg/L</td><td>< 0.3 mg/L</td><td>'+(iron_ok?'<span class="badge badge-ok">OK</span>':'<span class="badge badge-warn">Aerate+Filter</span>')+'</td></tr>';
+h += '<tr><td class="param">TDS</td><td>'+fmt(D.tds,0)+' mg/L</td><td>≤ 500 mg/L</td><td>'+fmt(D.tds,0)+' mg/L</td><td>'+(tds_ok?'<span class="badge badge-ok">OK</span>':'<span class="badge badge-warn">RO needed</span>')+'</td></tr>';
+h += '<tr><td class="param">Hardness</td><td>'+fmt(D.hardness,0)+' mg/L</td><td>≤ 200 mg/L</td><td>'+fmt(D.hardness,0)+' mg/L</td><td>'+(hardness_ok?'<span class="badge badge-ok">OK</span>':'<span class="badge badge-warn">Softener</span>')+'</td></tr>';
+h += '</tbody></table></div>';
+
+document.getElementById('resultsArea').innerHTML = h;
+}
+function statBox(num,lbl){return '<div class="stat"><div class="num">'+num+'</div><div class="lbl">'+lbl+'</div></div>';}
+function row(p,v,u){return '<tr><td class="param">'+p+'</td><td class="val">'+v+'</td><td class="unit">'+u+'</td></tr>';}
+function renderISCodes(){
+var h='';
+IS_CODES.forEach(function(c){
+h+='<li><code>'+c.code+'</code> — '+c.title+'<br><span style="color:var(--muted);margin-left:8px">↳ '+c.use+'</span></li>';
+});
+document.getElementById('isCodeList').innerHTML=h;
+}
+// ===== PROCESS FLOW DIAGRAM (PFD) =====
+function drawPFD(){
+var c=document.getElementById('pfd-canvas');if(!c)return;var ctx=c.getContext('2d');
+var W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+// Title
+ctx.fillStyle='#0d4a6e';ctx.font='bold 15px Segoe UI';ctx.textAlign='center';
+ctx.fillText('PROCESS FLOW DIAGRAM (PFD) — Conventional Water Treatment Plant',W/2,22);
+ctx.font='11px Segoe UI';ctx.fillStyle='#5f6b76';
+ctx.fillText('Capacity: '+fmt(D.plantCapacity_MLD,2)+' MLD | '+D.appInfo.label,W/2,38);
+// Process boxes
+var boxes=[
+{x:50,y:70,w:100,h:45,t:'Raw Water\nIntake',c:'#1976D2'},
+{x:180,y:70,w:100,h:45,t:'Screening\n(Bar & Fine)',c:'#0097A7'},
+{x:310,y:70,w:100,h:45,t:'Aeration\n(if Fe/Mn >)',c:'#0097A7'},
+{x:440,y:70,w:100,h:45,t:'Flash Mix\n(Coagulant)',c:'#F57C00'},
+{x:570,y:70,w:100,h:45,t:'Flocculation\n(Tapered G)',c:'#F57C00'},
+{x:700,y:70,w:110,h:45,t:'Sedimentation\n(Clarifier)',c:'#7B1FA2'},
+{x:50,y:175,w:100,h:45,t:'Rapid Sand\nFiltration',c:'#2E7D32'},
+{x:180,y:175,w:100,h:45,t:'Chlorine\nContact Tank',c:'#C62828'},
+{x:310,y:175,w:100,h:45,t:'Clear Water\nReservoir',c:'#0d4a6e'},
+{x:440,y:175,w:100,h:45,t:'Booster\nPumping',c:'#0d4a6e'},
+{x:570,y:175,w:100,h:45,t:'Overhead\nTank',c:'#0d4a6e'},
+{x:700,y:175,w:110,h:45,t:'Distribution\nNetwork',c:'#2E7D32'}
+];
+ctx.textAlign='center';ctx.font='10px Segoe UI';
+boxes.forEach(function(b){
+ctx.fillStyle=b.c;
+roundRect(ctx,b.x,b.y,b.w,b.h,5);ctx.fill();
+ctx.fillStyle='#fff';
+var lines=b.t.split('\n');
+lines.forEach(function(l,i){ctx.fillText(l,b.x+b.w/2,b.y+18+i*12);});
+});
+// Arrows top row
+for(var i=0;i<5;i++){arrow(ctx,boxes[i].x+boxes[i].w,boxes[i].y+boxes[i].h/2,boxes[i+1].x,boxes[i+1].y+boxes[i+1].h/2);}
+arrow(ctx,boxes[5].x+boxes[5].w,boxes[5].y+boxes[5].h/2,boxes[5].x+boxes[5].w,boxes[5].y+boxes[5].h/2+30);
+arrow(ctx,boxes[5].x+boxes[5].w-55,boxes[5].y+boxes[5].h,boxes[5].x+boxes[5].w-55,boxes[5].y+boxes[5].h+30);
+arrow(ctx,boxes[5].x+boxes[5].w-55,boxes[5].y+boxes[5].h+30,boxes[6].x+boxes[6].w/2,boxes[6].y);
+// Arrows bottom row
+for(var i=6;i<11;i++){arrow(ctx,boxes[i].x+boxes[i].w,boxes[i].y+boxes[i].h/2,boxes[i+1].x,boxes[i+1].y+boxes[i+1].h/2);}
+// Side streams
+ctx.strokeStyle='#F57C00';ctx.setLineDash([3,3]);ctx.font='9px Segoe UI';
+ctx.beginPath();ctx.moveTo(490,115);ctx.lineTo(490,145);ctx.lineTo(440,145);ctx.lineTo(440,115);ctx.stroke();
+ctx.fillStyle='#F57C00';ctx.fillText('Alum/PAC',465,140);
+ctx.strokeStyle='#C62828';ctx.beginPath();ctx.moveTo(230,220);ctx.lineTo(230,255);ctx.lineTo(180,255);ctx.stroke();
+ctx.fillStyle='#C62828';ctx.fillText('Cl₂ gas/NaOCl',200,250);
+ctx.strokeStyle='#7B1FA2';ctx.beginPath();ctx.moveTo(755,115);ctx.lineTo(790,115);ctx.lineTo(790,155);ctx.stroke();
+ctx.fillStyle='#7B1FA2';ctx.fillText('Sludge',795,135);
+ctx.strokeStyle='#2E7D32';ctx.beginPath();ctx.moveTo(755,220);ctx.lineTo(790,220);ctx.stroke();
+ctx.fillStyle='#2E7D32';ctx.fillText('Backwash',795,220);
+ctx.setLineDash([]);
+// Annotations
+ctx.fillStyle='#0d4a6e';ctx.font='bold 10px Segoe UI';ctx.textAlign='left';
+var notes=[
+'Flow: '+fmt(D.designFlow_m3hr,1)+' m³/hr | Peak: '+fmt(D.peakFlow_Lps,1)+' L/s',
+'Coagulant: '+fmt(D.coagulant_kgday,1)+' kg/day '+D.coagInfo.name.split('[')[0],
+'Flocculation: '+fmt(D.floc_tanks,0)+' tanks × '+fmt(D.floc_time,0)+' min (G='+fmt(D.floc_G,0)+' s⁻¹)',
+'Sedimentation: '+fmt(D.sed_tanks,0)+' tanks × '+fmt(D.sed_L,0)+'×'+fmt(D.sed_W,0)+'m (SLR '+fmt(D.slr,1)+' m/hr)',
+'Filtration: '+fmt(D.filter_units,0)+' RSF units × '+fmt(D.filter_L,0)+'×'+fmt(D.filter_W,0)+'m ('+fmt(D.filterRate,1)+' m/hr)',
+'Chlorine: '+fmt(D.chlorine_kgday,2)+' kg/day | Contact: '+fmt(D.chlorine_contact_time,0)+' min',
+'CWR: '+fmt(D.cwr_vol,0)+' m³ | OHT: '+fmt(D.oht_vol,0)+' m³',
+'Compliance: IS 10500:2012 | Design: CPHEEO Manual | Demand: IS 1172:1993'
+];
+notes.forEach(function(n,i){ctx.fillText(n,50,280+i*16);});
+// Legend
+ctx.font='9px Segoe UI';var lx=50,ly=420;
+ctx.fillStyle='#1976D2';roundRect(ctx,lx,ly,12,12,2);ctx.fill();ctx.fillStyle='#333';ctx.fillText('Intake/Conveyance',lx+18,ly+10);
+ctx.fillStyle='#F57C00';roundRect(ctx,lx+120,ly,12,12,2);ctx.fill();ctx.fillText('Chemical Treatment',lx+138,ly+10);
+ctx.fillStyle='#7B1FA2';roundRect(ctx,lx+250,ly,12,12,2);ctx.fill();ctx.fillText('Physical Separation',lx+268,ly+10);
+ctx.fillStyle='#2E7D32';roundRect(ctx,lx+380,ly,12,12,2);ctx.fill();ctx.fillText('Filtration/Distribution',lx+398,ly+10);
+ctx.fillStyle='#C62828';roundRect(ctx,lx+520,ly,12,12,2);ctx.fill();ctx.fillText('Disinfection',lx+538,ly+10);
+ctx.fillStyle='#0d4a6e';roundRect(ctx,lx+620,ly,12,12,2);ctx.fill();ctx.fillText('Storage',lx+638,ly+10);
+}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function arrow(ctx,x1,y1,x2,y2){
+ctx.strokeStyle='#5f6b76';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+var ang=Math.atan2(y2-y1,x2-x1);
+ctx.fillStyle='#5f6b76';ctx.beginPath();
+ctx.moveTo(x2,y2);ctx.lineTo(x2-6*Math.cos(ang-0.4),y2-6*Math.sin(ang-0.4));
+ctx.lineTo(x2-6*Math.cos(ang+0.4),y2-6*Math.sin(ang+0.4));ctx.closePath();ctx.fill();
+}
+// ===== P&ID DIAGRAM =====
+function drawPID(){
+var c=document.getElementById('pid-canvas');if(!c)return;var ctx=c.getContext('2d');
+var W=c.width,H=c.height;ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#0d4a6e';ctx.font='bold 15px Segoe UI';ctx.textAlign='center';
+ctx.fillText('P&ID DIAGRAM — Water Treatment Plant Instrumentation & Control',W/2,22);
+ctx.font='11px Segoe UI';ctx.fillStyle='#5f6b76';
+ctx.fillText('Capacity: '+fmt(D.plantCapacity_MLD,2)+' MLD | Tag numbers per ISA-5.1 standard',W/2,38);
+// Main process line
+var y=100;ctx.strokeStyle='#333';ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(40,y);ctx.lineTo(860,y);ctx.stroke();
+// Equipment symbols
+function pump(x,y){ctx.strokeStyle='#333';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(x-7,y+7);ctx.lineTo(x+7,y-7);ctx.stroke();}
+function valve(x,y){ctx.strokeStyle='#333';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-8,y-8);ctx.lineTo(x+8,y+8);ctx.stroke();ctx.beginPath();ctx.moveTo(x-8,y+8);ctx.lineTo(x+8,y-8);ctx.stroke();ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.stroke();}
+function tank(x,y,w,h,label){ctx.strokeStyle='#333';ctx.lineWidth=1.5;ctx.strokeRect(x,y,w,h);
+ctx.fillStyle='#e3f2fd';ctx.fillRect(x+1,y+1,w-2,h-2);ctx.fillStyle='#0d4a6e';ctx.font='bold 9px Segoe UI';ctx.textAlign='center';ctx.fillText(label,x+w/2,y+h/2+3);}
+function circle(x,y,r,label){ctx.strokeStyle='#333';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,r-1,0,Math.PI*2);ctx.fill();ctx.fillStyle='#333';ctx.font='7px monospace';ctx.textAlign='center';ctx.fillText(label,x,y+2);}
+// Equipment on line
+pump(70,y+5);ctx.fillStyle='#333';ctx.font='8px Segoe UI';ctx.textAlign='center';ctx.fillText('P-101',70,y+30);
+// Raw water tank (above)
+ctx.strokeStyle='#333';ctx.lineWidth=1.5;
+ctx.beginPath();ctx.moveTo(120,y);ctx.lineTo(120,70);ctx.stroke();
+tank(100,40,40,30,'RAW\nSUMP');
+valve(140,y);ctx.fillText('V-101',140,y+25);
+// Flash mixer
+circle(220,y,12,'FM');ctx.fillText('M-201',220,y+30);
+// Chemical dosing (above)
+ctx.strokeStyle='#F57C00';ctx.setLineDash([3,2]);ctx.beginPath();ctx.moveTo(220,y-12);ctx.lineTo(220,55);ctx.lineTo(250,55);ctx.stroke();
+ctx.setLineDash([]);tank(250,30,35,25,'DOSE\nTANK');pump(255,55);
+ctx.fillStyle='#F57C00';ctx.font='8px Segoe UI';ctx.fillText('Alum/PAC',238,48);
+// Flocculation tank
+tank(300,y-25,90,50,'FLOCCULATOR\nM-301');
+ctx.strokeStyle='#333';ctx.beginPath();ctx.moveTo(232,y);ctx.lineTo(300,y);ctx.stroke();
+// Sedimentation
+tank(420,y-30,120,60,'CLARIFIER\nV-301');
+ctx.strokeStyle='#333';ctx.beginPath();ctx.moveTo(390,y);ctx.lineTo(420,y);ctx.stroke();
+// Sludge draw-off
+ctx.strokeStyle='#7B1FA2';ctx.setLineDash([3,2]);ctx.beginPath();ctx.moveTo(480,y+30);ctx.lineTo(480,145);ctx.lineTo(530,145);ctx.stroke();ctx.setLineDash([]);
+tank(530,130,50,25,'SLUDGE\nDRYING');
+// Filter
+tank(580,y-30,80,60,'RSF\nV-401');ctx.strokeStyle='#333';ctx.beginPath();ctx.moveTo(540,y);ctx.lineTo(580,y);ctx.stroke();
+// Backwash line
+ctx.strokeStyle='#2E7D32';ctx.setLineDash([3,2]);ctx.beginPath();ctx.moveTo(620,y+30);ctx.lineTo(620,165);ctx.stroke();ctx.setLineDash([]);
+tank(590,165,60,25,'BACKWASH\nTANK');
+// Chlorination
+circle(700,y,12,'Cl');ctx.fillText('AE-501',700,y+30);
+ctx.strokeStyle='#C62828';ctx.setLineDash([3,2]);ctx.beginPath();ctx.moveTo(700,y-12);ctx.lineTo(700,50);ctx.lineTo(670,50);ctx.stroke();ctx.setLineDash([]);
+tank(635,25,35,25,'Cl₂\nCYLINDER');valve(670,y-12);
+// Clear water reservoir
+tank(740,y-25,80,50,'CWR\nV-601');ctx.strokeStyle='#333';ctx.beginPath();ctx.moveTo(712,y);ctx.lineTo(740,y);ctx.stroke();
+pump(830,y+5);ctx.fillText('P-601',830,y+30);
+// Instrumentation tags
+var tags=[
+{x:120,y:y+45,t:'FIT-101',d:'Flow'},
+{x:220,y:y+45,t:'pH-201',d:'pH'},
+{x:345,y:y+45,t:'LT-301',d:'Level'},
+{x:480,y:y+45,t:'TIT-301',d:'Turbidity'},
+{x:620,y:y+45,t:'LT-401',d:'Headloss'},
+{x:700,y:y+45,t:'CIT-501',d:'Cl₂ Residual'},
+{x:780,y:y+45,t:'FIT-601',d:'Outlet Flow'}
+];
+ctx.font='7px monospace';tags.forEach(function(tg){
+circle(tg.x,tg.y,10,tg.t);
+ctx.strokeStyle='#999';ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(tg.x,tg.y-10);ctx.lineTo(tg.x,y+10);ctx.stroke();ctx.setLineDash([]);
+});
+// Control loops
+ctx.strokeStyle='#1565C0';ctx.lineWidth=1;ctx.setLineDash([5,3]);
+ctx.beginPath();ctx.moveTo(345,y+55);ctx.lineTo(345,80);ctx.lineTo(220,80);ctx.lineTo(220,55);ctx.stroke();
+ctx.fillStyle='#1565C0';ctx.font='7px Segoe UI';ctx.textAlign='left';
+ctx.fillText('LIC-301 (Level Control Loop)',228,75);
+ctx.beginPath();ctx.moveTo(700,y+55);ctx.lineTo(700,90);ctx.lineTo(830,90);ctx.lineTo(830,y+15);ctx.stroke();
+ctx.fillText('FIC-601 (Flow Control → Booster Pump)',710,85);
+ctx.setLineDash([]);
+// Legend
+ctx.font='9px Segoe UI';ctx.textAlign='left';var ly=210;
+ctx.fillStyle='#0d4a6e';ctx.font='bold 10px Segoe UI';ctx.fillText('LEGEND:',40,ly);
+ctx.font='9px Segoe UI';
+ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(100,ly-3);ctx.lineTo(130,ly-3);ctx.stroke();ctx.fillStyle='#333';ctx.fillText('Process Pipe',135,ly);
+ctx.strokeStyle='#F57C00';ctx.setLineDash([3,2]);ctx.beginPath();ctx.moveTo(220,ly-3);ctx.lineTo(250,ly-3);ctx.stroke();ctx.fillStyle='#F57C00';ctx.fillText('Chemical Line',255,ly);
+ctx.strokeStyle='#C62828';ctx.beginPath();ctx.moveTo(350,ly-3);ctx.lineTo(380,ly-3);ctx.stroke();ctx.fillStyle='#C62828';ctx.fillText('Chlorine Line',385,ly);
+ctx.strokeStyle='#7B1FA2';ctx.beginPath();ctx.moveTo(470,ly-3);ctx.lineTo(500,ly-3);ctx.stroke();ctx.fillStyle='#7B1FA2';ctx.fillText('Sludge Line',505,ly);
+ctx.strokeStyle='#2E7D32';ctx.beginPath();ctx.moveTo(590,ly-3);ctx.lineTo(620,ly-3);ctx.stroke();ctx.fillStyle='#2E7D32';ctx.fillText('Backwash Line',625,ly);
+// Instrument legend
+ctx.fillStyle='#0d4a6e';ctx.font='bold 10px Segoe UI';ctx.fillText('INSTRUMENT TAGS:',40,ly+25);
+ctx.font='9px Segoe UI';ctx.fillStyle='#333';
+var instNotes=[
+'FIT = Flow Indicator Transmitter | LIT = Level Indicator Transmitter',
+'pH/TIT = pH / Turbidity Indicator Transmitter | CIT = Chlorine Residual Indicator Transmitter',
+'LIC = Level Indicating Controller | FIC = Flow Indicating Controller',
+'Dashed lines = Instrument signals (4–20 mA) | ISA-5.1 Tag Numbering'
+];
+instNotes.forEach(function(n,i){ctx.fillText('• '+n,40,ly+42+i*14);});
+// Design data box
+ctx.fillStyle='#f0f4f8';ctx.fillRect(40,ly+110,820,85);
+ctx.strokeStyle='#cfd8dc';ctx.strokeRect(40,ly+110,820,85);
+ctx.fillStyle='#0d4a6e';ctx.font='bold 10px Segoe UI';
+ctx.fillText('KEY DESIGN DATA',50,ly+125);
+ctx.font='9px Segoe UI';ctx.fillStyle='#333';
+var pidData=[
+'Plant Capacity: '+fmt(D.plantCapacity_MLD,2)+' MLD ('+fmt(D.plantCapacity_m3day,0)+' m³/day) | Design Flow: '+fmt(D.designFlow_m3hr,1)+' m³/hr',
+'Coagulation: '+D.coagInfo.name+' @ '+fmt(D.actualDose,1)+' mg/L → '+fmt(D.coagulant_kgday,1)+' kg/day | Flash Mix G='+fmt(D.flashMix_G,0)+' s⁻¹',
+'Flocculation: '+fmt(D.floc_tanks,0)+' tanks, G='+fmt(D.floc_G,0)+' s⁻¹, t='+fmt(D.floc_time,0)+' min | Sedimentation: '+fmt(D.sed_tanks,0)+' tanks, SLR='+fmt(D.slr,1)+' m/hr',
+'Filtration: '+fmt(D.filter_units,0)+' RSF units ('+fmt(D.filter_L,0)+'×'+fmt(D.filter_W,0)+'m), HLR='+fmt(D.filterRate,1)+' m/hr | Chlorine: '+fmt(D.chlorine_kgday,2)+' kg/day',
+'CWR: '+fmt(D.cwr_vol,0)+' m³ | OHT: '+fmt(D.oht_vol,0)+' m³ | Backwash: '+fmt(D.backwash_water,0)+' m³/wash'
+];
+pidData.forEach(function(n,i){ctx.fillText(n,50,ly+140+i*13);});
+}
+// ===== 3D VISUALIZATION (Canvas-based pseudo-3D) =====
+function render3D(){
+var container=document.getElementById('three-canvas');if(!container)return;
+container.innerHTML='<canvas id="threeCanvas" style="width:100%;height:100%;display:block"></canvas>';
+var c=document.getElementById('threeCanvas');
+c.width=container.clientWidth;c.height=420;
+var ctx=c.getContext('2d');
+var W=c.width,H=c.height;
+// Sky gradient
+var sky=ctx.createLinearGradient(0,0,0,H*0.6);
+sky.addColorStop(0,'#87ceeb');sky.addColorStop(1,'#c4e3f0');
+ctx.fillStyle=sky;ctx.fillRect(0,0,W,H*0.6);
+// Ground
+var grd=ctx.createLinearGradient(0,H*0.6,0,H);
+grd.addColorStop(0,'#8bc34a');grd.addColorStop(1,'#558b2f');
+ctx.fillStyle=grd;ctx.fillRect(0,H*0.6,W,H*0.4);
+// Sun
+ctx.fillStyle='rgba(255,235,59,0.6)';ctx.beginPath();ctx.arc(W-80,60,35,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#FFEB3B';ctx.beginPath();ctx.arc(W-80,60,20,0,Math.PI*2);ctx.fill();
+// Title
+ctx.fillStyle='#fff';ctx.font='bold 14px Segoe UI';ctx.textAlign='center';
+ctx.strokeStyle='rgba(0,0,0,0.4)';ctx.lineWidth=3;
+ctx.strokeText('3D Water Treatment Plant — '+fmt(D.plantCapacity_MLD,2)+' MLD ('+D.appInfo.label+')',W/2,25);
+ctx.fillText('3D Water Treatment Plant — '+fmt(D.plantCapacity_MLD,2)+' MLD ('+D.appInfo.label+')',W/2,25);
+// Isometric projection helper
+function iso(x,y,z){
+var scale=0.7;var angleX=30*Math.PI/180;var angleY=30*Math.PI/180;
+var ix=(x-z)*Math.cos(angleY)*scale;
+var iy=y*Math.sin(angleX)*scale+(x+z)*Math.sin(angleY)*scale*0.5;
+return{x:ix+W*0.5,y:H*0.65-iy};
+}
+function draw3DBox(x,y,z,w,h,d,color,label){
+// Top face
+var p1=iso(x,y,z),p2=iso(x+w,y,z),p3=iso(x+w,y,z+d),p4=iso(x,y,z+d);
+ctx.fillStyle=shade(color,30);
+ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.lineTo(p3.x,p3.y);ctx.lineTo(p4.x,p4.y);ctx.closePath();ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=0.5;ctx.stroke();
+// Front face
+var f1=iso(x,y,z),f2=iso(x+w,y,z),f3=iso(x+w,y-h,z),f4=iso(x,y-h,z);
+ctx.fillStyle=color;
+ctx.beginPath();ctx.moveTo(f1.x,f1.y);ctx.lineTo(f2.x,f2.y);ctx.lineTo(f3.x,f3.y);ctx.lineTo(f4.x,f4.y);ctx.closePath();ctx.fill();
+ctx.stroke();
+// Right face
+var r1=iso(x+w,y,z),r2=iso(x+w,y,z+d),r3=iso(x+w,y-h,z+d),r4=iso(x+w,y-h,z);
+ctx.fillStyle=shade(color,-15);
+ctx.beginPath();ctx.moveTo(r1.x,r1.y);ctx.lineTo(r2.x,r2.y);ctx.lineTo(r3.x,r3.y);ctx.lineTo(r4.x,r4.y);ctx.closePath();ctx.fill();
+ctx.stroke();
+// Label
+ctx.fillStyle='#fff';ctx.font='bold 9px Segoe UI';ctx.textAlign='center';
+ctx.strokeStyle='rgba(0,0,0,0.5)';ctx.lineWidth=2;
+ctx.strokeText(label,f4.x+(f3.x-f4.x)/2,f4.y+(f3.y-f4.y)/2);
+ctx.fillText(label,f4.x+(f3.x-f4.x)/2,f4.y+(f3.y-f4.y)/2);
+}
+function shade(hex,amt){
+var num=parseInt(hex.slice(1),16);var r=Math.max(0,Math.min(255,(num>>16)+amt));
+var g=Math.max(0,Math.min(255,((num>>8)&255)+amt));var b=Math.max(0,Math.min(255,(num&255)+amt));
+return'rgb('+r+','+g+','+b+')';
+}
+function draw3DCylinder(cx,cy,r,h,color,label){
+// Simple cylinder: ellipse top, rectangle, ellipse bottom
+ctx.fillStyle=color;
+ctx.beginPath();ctx.ellipse(cx,cy-h,r,r*0.35,0,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.stroke();
+ctx.fillStyle=color;
+ctx.fillRect(cx-r,cy-h,r*2,h);
+ctx.strokeRect(cx-r,cy-h,r*2,h);
+ctx.fillStyle=shade(color,-15);
+ctx.beginPath();ctx.ellipse(cx,cy,r,r*0.35,0,0,Math.PI);ctx.fill();
+ctx.stroke();
+ctx.fillStyle='#fff';ctx.font='bold 9px Segoe UI';ctx.textAlign='center';
+ctx.strokeStyle='rgba(0,0,0,0.5)';ctx.lineWidth=2;
+ctx.strokeText(label,cx,cy-h/2);ctx.fillText(label,cx,cy-h/2);
+}
+// Layout scale based on plant size
+var sc=Math.max(0.5,Math.min(1.5,50/D.plantCapacity_MLD));
+// Raw water sump
+draw3DBox(-220*sc,0,-60*sc,60*sc,35*sc,60*sc,'#1976D2','Raw Sump');
+// Flash mixer (small)
+draw3DBox(-130*sc,0,-20*sc,25*sc,20*sc,25*sc,'#F57C00','Flash\nMix');
+// Coagulant tank
+draw3DCylinder(iso(-95*sc,0,-7*sc).x-10,iso(-95*sc,0,-7*sc).y,12,35,'#FF9800','Dosing');
+// Flocculation tanks
+for(var i=0;i<Math.min(D.floc_tanks,4);i++){
+draw3DBox((-80+i*45)*sc,0,-25*sc,40*sc,30*sc,50*sc,'#FF7043','Floc '+(i+1));
+}
+// Sedimentation tanks
+for(var i=0;i<Math.min(D.sed_tanks,3);i++){
+draw3DBox((110+i*90)*sc,0,-50*sc,80*sc,45*sc,100*sc,'#7B1FA2','Clarifier '+(i+1));
+}
+// Weir (top of clarifier)
+// Filters
+var fx=170;
+for(var i=0;i<Math.min(D.filter_units,4);i++){
+draw3DBox((fx+i*45-220)*sc,0,-30*sc,35*sc,35*sc,35*sc,'#2E7D32','RSF '+(i+1));
+}
+// Chlorine contact
+draw3DBox(80*sc,0,-30*sc,45*sc,30*sc,45*sc,'#C62828','Cl₂\nTank');
+// CWR (large)
+draw3DBox(140*sc,0,-60*sc,80*sc,50*sc,80*sc,'#0d4a6e','CWR');
+// OHT (cylinder on legs)
+draw3DCylinder(iso(220*sc,0,0).x,iso(220*sc,0,0).y,30*sc,60*sc,'#1565C0','OHT');
+// Draw legs for OHT
+ctx.strokeStyle='#666';ctx.lineWidth=2;
+var ohtX=iso(220*sc,0,0).x;
+for(var lx=-1;lx<=1;lx+=2){ctx.beginPath();ctx.moveTo(ohtX+lx*25,iso(220*sc,0,0).y);ctx.lineTo(ohtX+lx*25,iso(220*sc,0,0).y+25);ctx.stroke();}
+// Pipes connecting units
+ctx.strokeStyle='#90a4ae';ctx.lineWidth=2;ctx.setLineDash([4,3]);
+var connect=[
+[-160*sc,0,0,-105*sc,0,0],
+[-105*sc,0,0,-60*sc,0,0],
+[-40*sc,0,0,110*sc,0,0],
+[190*sc,0,0,-50*sc,0,0],
+[120*sc,0,0,140*sc,0,0],
+[220*sc,0,0,260*sc,0,0]
+];
+connect.forEach(function(c){var s=iso(c[0],c[1],c[2]);var e=iso(c[3],c[4],c[5]);ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(e.x,e.y);ctx.stroke();});
+ctx.setLineDash([]);
+// Flow direction arrows on pipes
+ctx.fillStyle='#1976D2';ctx.font='8px Segoe UI';
+// Dimensions/legend
+ctx.fillStyle='#fff';ctx.strokeStyle='rgba(0,0,0,0.5)';ctx.lineWidth=2;
+var info=[
+'Raw Water → Screening → Coagulation → Flocculation → Sedimentation → Filtration → Disinfection → Storage',
+'Design: '+fmt(D.plantCapacity_MLD,2)+' MLD | Peak: '+fmt(D.peakFlow_Lps,1)+' L/s | Filters: '+fmt(D.filter_units,0)+' | Clarifiers: '+fmt(D.sed_tanks,0),
+'Colors: Blue=Water | Orange=Chemical | Purple=Sedimentation | Green=Filtration | Red=Disinfection | Navy=Storage'
+];
+info.forEach(function(t,i){ctx.strokeText(t,W/2,H-20+i*15);ctx.fillText(t,W/2,H-20+i*15);});
+}
+// ===== DOWNLOAD FUNCTIONS =====
+function downloadPDF(){
+if(!D.plantCapacity_m3day){alert('Please click Calculate Design first.');return;}
+var{jsPDF}=window.jspdf;var doc=new jsPDF('p','mm','a4');
+var y=15;
+// Header
+doc.setFillColor(13,74,110);doc.rect(0,0,210,25,'F');
+doc.setTextColor(255,255,255);doc.setFontSize(14);doc.setFont(undefined,'bold');
+doc.text('Water Treatment Plant Design Report',105,12,{align:'center'});
+doc.setFontSize(8);doc.setFont(undefined,'normal');
+doc.text('IS Code Compliant — Public Utility Engineering',105,18,{align:'center'});
+doc.text('Generated: '+new Date().toLocaleDateString('en-IN'),105,22,{align:'center'});
+y=32;
+// Project info
+doc.setTextColor(13,74,110);doc.setFontSize(11);doc.setFont(undefined,'bold');
+doc.text('1. Project Information',14,y);y+=6;
+doc.setFontSize(8);doc.setFont(undefined,'normal');doc.setTextColor(50,50,50);
+var pInfo=[
+['Application',D.appInfo.label],
+['Design unit',D.appInfo.unit+'s'],
+['Population / Units',fmt(D.pop,0)],
+['LPCD',fmt(D.lpcd,0)+' L/'+D.appInfo.unit+'/day'],
+['Design period',fmt(D.designYears,0)+' years'],
+['Growth rate',fmt(D.growthRate,1)+'%/yr'],
+['UFW / Losses',fmt(D.ufw,1)+'%'],
+['IS Code ref.',D.appInfo.note]
+];
+doc.autoTable({startY:y,head:[['Parameter','Value']],body:pInfo,theme:'grid',headStyles:{fillColor:[13,74,110]},styles:{fontSize:7},columnStyles:{0:{cellWidth:50}}});
+y=doc.lastAutoTable.finalY+5;
+// Water demand
+doc.setFontSize(10);doc.setFont(undefined,'bold');doc.setTextColor(13,74,110);
+doc.text('2. Water Demand Calculation',14,y);y+=4;
+var wdData=[
+['Per-capita demand',fmt(D.lpcd,0)+' L/'+D.appInfo.unit+'/day','IS 1172:1993'],
+['Current demand',fmt(D.avgDailyDemand_m3,1)+' m³/day',''],
+['Future population ('+D.designYears+'yr)',fmt(D.futurePop,0),''],
+['Future demand',fmt(D.futureDemand_m3,1)+' m³/day',''],
+['Gross demand (incl. UFW)',fmt(D.grossDemand_m3,1)+' m³/day',''],
+['Peak daily (×1.8)',fmt(D.maxDaily_m3,1)+' m³/day','CPHEEO'],
+['Peak hourly (×2.7)',fmt(D.peakFlow_m3hr,1)+' m³/hr','CPHEEO'],
+['Plant capacity',fmt(D.plantCapacity_MLD,2)+' MLD','Design basis']
+];
+doc.autoTable({startY:y,head:[['Parameter','Value','Reference']],body:wdData,theme:'grid',headStyles:{fillColor:[13,74,110]},styles:{fontSize:7}});
+y=doc.lastAutoTable.finalY+5;
+if(y>250){doc.addPage();y=15;}
+// Treatment units
+doc.setFontSize(10);doc.setFont(undefined,'bold');
+doc.text('3. Treatment Unit Design',14,y);y+=4;
+var tuData=[
+['Coagulant',D.coagInfo.name,''],
+['Effective dose',fmt(D.actualDose,1)+' mg/L','Jar test IS 3025(Pt 50)'],
+['Coagulant consumption',fmt(D.coagulant_kgday,1)+' kg/day',''],
+['Flash mix G-value',fmt(D.flashMix_G,0)+' s⁻¹','CPHEEO 300-500'],
+['Flocculation tanks',fmt(D.floc_tanks,0)+' nos × '+fmt(D.floc_time,0)+' min','G='+fmt(D.floc_G,0)+' s⁻¹'],
+['Sedimentation tanks',fmt(D.sed_tanks,0)+' nos × '+fmt(D.sed_L,0)+'×'+fmt(D.sed_W,0)+'m','SLR='+fmt(D.slr,1)+' m/hr'],
+['Sedimentation volume',fmt(D.sed_actual_vol,0)+' m³','Detention '+fmt(D.sedRetention,1)+' hr'],
+['RSF units',fmt(D.filter_units,0)+' nos ('+fmt(D.filter_L,0)+'×'+fmt(D.filter_W,0)+'m)','HLR='+fmt(D.filterRate,1)+' m/hr'],
+['Sand depth',fmt(D.sand_depth*1000,0)+' mm','ES 0.4-0.7mm'],
+['Backwash rate',fmt(D.backwash_rate,0)+' m/hr for '+fmt(D.backwash_dur,0)+' min',''],
+['Chlorine dose',fmt(D.chlorineDose,1)+' mg/L','Residual 0.5 mg/L'],
+['Chlorine consumption',fmt(D.chlorine_kgday,2)+' kg/day','IS 10500:2012'],
+['Contact tank volume',fmt(D.chlorine_contact_vol,1)+' m³','30 min contact'],
+['Clear water reservoir',fmt(D.cwr_vol,0)+' m³','25% daily'],
+['Overhead tank',fmt(D.oht_vol,0)+' m³','12.5% daily']
+];
+doc.autoTable({startY:y,head:[['Parameter','Value','Reference']],body:tuData,theme:'grid',headStyles:{fillColor:[13,74,110]},styles:{fontSize:7}});
+y=doc.lastAutoTable.finalY+5;
+if(y>220){doc.addPage();y=15;}
+// IS Codes
+doc.setFontSize(10);doc.setFont(undefined,'bold');doc.setTextColor(13,74,110);
+doc.text('4. Applicable Indian Standard (IS) Codes',14,y);y+=4;
+var isData=IS_CODES.map(function(c){return[c.code,c.title,c.use];});
+doc.autoTable({startY:y,head:[['IS Code','Title','Application']],body:isData,theme:'grid',headStyles:{fillColor:[13,74,110]},styles:{fontSize:6},columnStyles:{0:{cellWidth:35},1:{cellWidth:75}}});
+y=doc.lastAutoTable.finalY+5;
+// Cost
+if(y>250){doc.addPage();y=15;}
+doc.setFontSize(10);doc.setFont(undefined,'bold');doc.setTextColor(13,74,110);
+doc.text('5. Cost Estimate (Indicative)',14,y);y+=4;
+var costData=[
+['Civil works','₹'+fmt(D.civil_cost/10000000,2)+' Cr'],
+['Mechanical equipment','₹'+fmt(D.mechanical/10000000,2)+' Cr'],
+['Electrical (12%)','₹'+fmt(D.electrical/10000000,2)+' Cr'],
+['Total estimated','₹'+fmt(D.total_est/10000000,2)+' Cr']
+];
+doc.autoTable({startY:y,head:[['Item','Estimated Cost']],body:costData,theme:'grid',headStyles:{fillColor:[13,74,110]},styles:{fontSize:7}});
+y=doc.lastAutoTable.finalY+8;
+// Diagrams page
+doc.addPage();
+doc.setFontSize(12);doc.setTextColor(13,74,110);doc.setFont(undefined,'bold');
+doc.text('Process Flow Diagram (PFD)',105,15,{align:'center'});
+var pfdCanvas=document.getElementById('pfd-canvas');
+var pfdImg=pfdCanvas.toDataURL('image/png',1.0);
+doc.addImage(pfdImg,'PNG',15,20,180,100);
+doc.text('P&ID Diagram',105,135,{align:'center'});
+var pidCanvas=document.getElementById('pid-canvas');
+var pidImg=pidCanvas.toDataURL('image/png',1.0);
+doc.addImage(pidImg,'PNG',15,140,180,110);
+// 3D page
+doc.addPage();
+doc.setFontSize(12);doc.setTextColor(13,74,110);doc.setFont(undefined,'bold');
+doc.text('3D Plant Visualization',105,15,{align:'center'});
+var threeCanvas=document.getElementById('threeCanvas');
+if(threeCanvas){var threeImg=threeCanvas.toDataURL('image/png',1.0);doc.addImage(threeImg,'PNG',15,20,180,130);}
+// Footer
+doc.setFontSize(7);doc.setTextColor(100);
+doc.text('This report is generated by WTP Designer Tool. Calculations based on CPHEEO Manual, IS 10500:2012, IS 1172:1993, NBC 2016. For public utility engineering design.',105,290,{align:'center'});
+doc.save('WTP_Design_Report_'+D.appInfo.label.replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');
+}
+function downloadExcel(){
+if(!D.plantCapacity_m3day){alert('Please click Calculate Design first.');return;}
+var wb=XLSX.utils.book_new();
+// Sheet 1: Summary
+var summary=[
+['WATER TREATMENT PLANT DESIGN REPORT'],
+['Generated:',new Date().toLocaleDateString('en-IN')],
+[],
+['PROJECT INFORMATION'],
+['Application',D.appInfo.label],
+['Design unit',D.appInfo.unit+'s'],
+['Population / Units',D.pop],
+['LPCD (L/'+D.appInfo.unit+'/day)',D.lpcd],
+['IS Code Reference',D.appInfo.note],
+['Design period (years)',D.designYears],
+['Growth rate (%/yr)',D.growthRate],
+['UFW / Losses (%)',D.ufw],
+[],
+['WATER DEMAND'],
+['Current avg demand (m³/day)',D.avgDailyDemand_m3],
+['Future population',D.futurePop],
+['Future demand (m³/day)',D.futureDemand_m3],
+['Gross demand incl. UFW (m³/day)',D.grossDemand_m3],
+['Avg flow (m³/hr)',D.avgFlow_m3hr],
+['Avg flow (L/s)',D.avgFlow_Lps],
+['Max daily demand ×1.8 (m³/day)',D.maxDaily_m3],
+['Peak hourly ×2.7 (m³/hr)',D.peakFlow_m3hr],
+['Peak flow (L/s)',D.peakFlow_Lps],
+['PLANT CAPACITY (MLD)',D.plantCapacity_MLD],
+['Design flow (m³/hr)',D.designFlow_m3hr],
+[],
+['COAGULATION'],
+['Coagulant',D.coagInfo.name],
+['Effective dose (mg/L)',D.actualDose],
+['Coagulant consumption (kg/day)',D.coagulant_kgday],
+['Annual consumption (tonnes/yr)',D.coagulant_tonyear],
+['Stock solution (L/day)',D.coagSolution_L],
+['Flash mix G-value (s⁻¹)',D.flashMix_G],
+['Flash mix time (min)',D.flashMix_time],
+['Flash mix volume (m³)',D.flashMix_vol],
+[],
+['FLOCCULATION'],
+['G-value (s⁻¹)',D.floc_G],
+['Detention time (min)',D.floc_time],
+['Total volume (m³)',D.floc_vol],
+['No. of tanks',D.floc_tanks],
+['Tank volume each (m³)',D.floc_tank_vol],
+['Tank dimension (m)',D.floc_tank_dim],
+['Power (kW)',D.floc_power],
+[],
+['SEDIMENTATION'],
+['Surface loading rate (m³/m²/hr)',D.slr],
+['Detention time (hr)',D.sedRetention],
+['Required area (m²)',D.sed_area],
+['Required volume (m³)',D.sed_vol],
+['No. of tanks',D.sed_tanks],
+['Tank L (m)',D.sed_L],
+['Tank W (m)',D.sed_W],
+['Provided area (m²)',D.sed_actual_area],
+['Provided volume (m³)',D.sed_actual_vol],
+['Weir loading (m³/m/day)',D.designFlow_m3hr*24/D.sed_weir_length],
+[],
+['RAPID SAND FILTER'],
+['Filtration rate (m/hr)',D.filterRate],
+['Total area required (m²)',D.filter_total_area],
+['Working units',D.filter_units_calc],
+['Standby',1],
+['Total units',D.filter_units],
+['Area per unit (m²)',D.filter_each_area],
+['Unit L (m)',D.filter_L],
+['Unit W (m)',D.filter_W],
+['Sand depth (mm)',D.sand_depth*1000],
+['Gravel depth (mm)',D.gravel_depth*1000],
+['Backwash rate (m/hr)',D.backwash_rate],
+['Backwash duration (min)',D.backwash_dur],
+['Wash water per unit (m³)',D.backwash_water],
+[],
+['DISINFECTION'],
+['Chlorine dose (mg/L)',D.chlorineDose],
+['Residual at outlet (mg/L)',0.5],
+['Chlorine demand (mg/L)',D.chlorine_demand],
+['Daily chlorine (kg/day)',D.chlorine_kgday],
+['Contact time (min)',D.chlorine_contact_time],
+['Contact tank vol (m³)',D.chlorine_contact_vol],
+['Bleaching powder (kg/day)',D.bleachingPowder_kg],
+[],
+['STORAGE'],
+['Raw water sump (m³)',D.rws_vol],
+['Clear water reservoir (m³)',D.cwr_vol],
+['CWR dimensions (m)',D.cwr_L+'x'+D.cnr_W+'x'+D.cwr_depth],
+['Overhead tank (m³)',D.oht_vol],
+['OHT dia x height (m)',D.oht_dia+'x'+D.oht_height],
+[],
+['SLUDGE MANAGEMENT'],
+['Dry solids (kg/day)',D.sludge_solid],
+['Wet sludge (L/day)',D.sludge_vol],
+['Drying bed area (m²)',D.sludge_dryer_area],
+[],
+['COST ESTIMATE'],
+['Civil works (₹)',D.civil_cost],
+['Mechanical (₹)',D.mechanical],
+['Electrical (₹)',D.electrical],
+['Total (₹)',D.total_est]
+];
+var ws1=XLSX.utils.aoa_to_sheet(summary);ws1['!cols']=[{wch:35},{wch:25}];
+XLSX.utils.book_append_sheet(wb,ws1,'Design Summary');
+// Sheet 2: IS Codes
+var isData=[['IS Code','Title','Application']];
+IS_CODES.forEach(function(c){isData.push([c.code,c.title,c.use]);});
+var ws2=XLSX.utils.aoa_to_sheet(isData);ws2['!cols']=[{wch:22},{wch:55},{wch:40}];
+XLSX.utils.book_append_sheet(wb,ws2,'IS Codes');
+// Sheet 3: Raw Water Quality
+var qData=[
+['PARAMETER','RAW WATER','IS 10500 ACCEPTABLE','IS 10500 PERMISSIBLE','STATUS'],
+['Turbidity (NTU)',D.turbidity,1,5,D.turbidity<=1?'OK':(D.turbidity<=5?'Tolerable':'Needs Treatment')],
+['pH',D.ph,'6.5','8.5',(D.ph>=6.5&&D.ph<=8.5)?'OK':'Adjust'],
+['Alkalinity (mg/L)',D.alkalinity,200,600,D.alkalinity<=200?'OK':(D.alkalinity<=600?'Tolerable':'Needs Treatment')],
+['Total Hardness (mg/L)',D.hardness,200,600,D.hardness<=200?'OK':(D.hardness<=600?'Tolerable':'Softener needed')],
+['Iron (mg/L)',D.iron,0.3,'No relaxation',D.iron<=0.3?'OK':'Aerate+Filter'],
+['TDS (mg/L)',D.tds,500,2000,D.tds<=500?'OK':(D.tds<=2000?'Tolerable':'RO needed')]
+];
+var ws3=XLSX.utils.aoa_to_sheet(qData);ws3['!cols']=[{wch:22},{wch:15},{wch:18},{wch:18},{wch:20}];
+XLSX.utils.book_append_sheet(wb,ws3,'Water Quality');
+XLSX.writeFile(wb,'WTP_Design_'+D.appInfo.label.replace(/[^a-zA-Z0-9]/g,'_')+'.xlsx');
+}
+function downloadWord(){
+if(!D.plantCapacity_m3day){alert('Please click Calculate Design first.');return;}
+var html='<h1 style="color:#0d4a6e">Water Treatment Plant Design Report</h1>';
+html+='<p style="color:#666"><b>Application:</b> '+D.appInfo.label+' | <b>Capacity:</b> '+fmt(D.plantCapacity_MLD,2)+' MLD<br>';
+html+='<b>Generated:</b> '+new Date().toLocaleDateString('en-IN')+' | <b>Standard:</b> IS 10500:2012, IS 1172:1993, CPHEEO Manual</p>';
+// Project info
+html+='<h2 style="color:#1976D2">1. Project Information</h2><table border="1" cellpadding="5" style="border-collapse:collapse;width:100%;font-size:12px">';
+html+='<tr style="background:#0d4a6e;color:#fff"><th>Parameter</th><th>Value</th></tr>';
+html+=wdRow('Application',D.appInfo.label);
+html+=wdRow('Design unit',D.appInfo.unit+'s');
+html+=wdRow('Population / Units',fmt(D.pop,0));
+html+=wdRow('LPCD',fmt(D.lpcd,0)+' L/'+D.appInfo.unit+'/day');
+html+=wdRow('Design period',fmt(D.designYears,0)+' years');
+html+=wdRow('Growth rate',fmt(D.growthRate,1)+'%/yr');
+html+=wdRow('UFW / Losses',fmt(D.ufw,1)+'%');
+html+=wdRow('IS Code ref.',D.appInfo.note);
+html+='</table>';
+// Water demand
+html+='<h2 style="color:#1976D2">2. Water Demand Calculation</h2><table border="1" cellpadding="5" style="border-collapse:collapse;width:100%;font-size:12px">';
+html+='<tr style="background:#0d4a6e;color:#fff"><th>Parameter</th><th>Value</th><th>Reference</th></tr>';
+html+=wdRow3('Per-capita demand',fmt(D.lpcd,0)+' L/'+D.appInfo.unit+'/day','IS 1172:1993');
+html+=wdRow3('Current demand',fmt(D.avgDailyDemand_m3,1)+' m³/day','');
+html+=wdRow3('Future population ('+D.designYears+'yr)',fmt(D.futurePop,0),'');
+html+=wdRow3('Future demand',fmt(D.futureDemand_m3,1)+' m³/day','');
+html+=wdRow3('Gross demand (incl. UFW)',fmt(D.grossDemand_m3,1)+' m³/day','');
+html+=wdRow3('Peak daily (×1.8)',fmt(D.maxDaily_m3,1)+' m³/day','CPHEEO');
+html+=wdRow3('Peak hourly (×2.7)',fmt(D.peakFlow_m3hr,1)+' m³/hr','CPHEEO');
+html+=wdRow3('Plant capacity',fmt(D.plantCapacity_MLD,2)+' MLD','Design basis');
+html+='</table>';
+// Treatment design
+html+='<h2 style="color:#1976D2">3. Treatment Unit Design</h2><table border="1" cellpadding="5" style="border-collapse:collapse;width:100%;font-size:12px">';
+html+='<tr style="background:#0d4a6e;color:#fff"><th>Parameter</th><th>Value</th><th>Reference</th></tr>';
+html+=wdRow3('Coagulant',D.coagInfo.name,'');
+html+=wdRow3('Effective dose',fmt(D.actualDose,1)+' mg/L','Jar test IS 3025(Pt 50)');
+html+=wdRow3('Coagulant consumption',fmt(D.coagulant_kgday,1)+' kg/day','');
+html+=wdRow3('Flash mix G-value',fmt(D.flashMix_G,0)+' s⁻¹','CPHEEO 300-500');
+html+=wdRow3('Flocculation',fmt(D.floc_tanks,0)+' tanks × '+fmt(D.floc_time,0)+' min','G='+fmt(D.floc_G,0)+' s⁻¹');
+html+=wdRow3('Sedimentation',fmt(D.sed_tanks,0)+' tanks × '+fmt(D.sed_L,0)+'×'+fmt(D.sed_W,0)+'m','SLR='+fmt(D.slr,1)+' m/hr');
+html+=wdRow3('RSF units',fmt(D.filter_units,0)+' nos ('+fmt(D.filter_L,0)+'×'+fmt(D.filter_W,0)+'m)','HLR='+fmt(D.filterRate,1)+' m/hr');
+html+=wdRow3('Sand depth',fmt(D.sand_depth*1000,0)+' mm','ES 0.4-0.7mm');
+html+=wdRow3('Chlorine dose',fmt(D.chlorineDose,1)+' mg/L','Residual 0.5 mg/L');
+html+=wdRow3('Chlorine consumption',fmt(D.chlorine_kgday,2)+' kg/day','IS 10500:2012');
+html+=wdRow3('Clear water reservoir',fmt(D.cwr_vol,0)+' m³','25% daily');
+html+=wdRow3('Overhead tank',fmt(D.oht_vol,0)+' m³','12.5% daily');
+html+='</table>';
+// IS Codes
+html+='<h2 style="color:#1976D2">4. Applicable Indian Standard (IS) Codes</h2><table border="1" cellpadding="5" style="border-collapse:collapse;width:100%;font-size:11px">';
+html+='<tr style="background:#0d4a6e;color:#fff"><th>IS Code</th><th>Title</th><th>Application</th></tr>';
+IS_CODES.forEach(function(c){html+='<tr><td><b>'+c.code+'</b></td><td>'+c.title+'</td><td>'+c.use+'</td></tr>';});
+html+='</table>';
+// Cost
+html+='<h2 style="color:#1976D2">5. Cost Estimate (Indicative)</h2><table border="1" cellpadding="5" style="border-collapse:collapse;width:100%;font-size:12px">';
+html+='<tr style="background:#0d4a6e;color:#fff"><th>Item</th><th>Estimated Cost</th></tr>';
+html+=wdRow('Civil works','₹'+fmt(D.civil_cost/10000000,2)+' Cr');
+html+=wdRow('Mechanical','₹'+fmt(D.mechanical/10000000,2)+' Cr');
+html+=wdRow('Electrical (12%)','₹'+fmt(D.electrical/10000000,2)+' Cr');
+html+=wdRow('Total estimated','₹'+fmt(D.total_est/10000000,2)+' Cr');
+html+='</table>';
+html+='<p style="color:#666;font-size:10px;margin-top:20px"><i>This report is generated by WTP Designer Tool. Calculations based on CPHEEO Manual on Water Supply & Treatment (3rd Ed., 1999), IS 10500:2012, IS 1172:1993, NBC 2016 Part 9, IS 3025 series. For public utility engineering design.</i></p>';
+// Convert and save
+var converted=htmlDocx.asBlob(html);
+saveAs(converted,'WTP_Design_'+D.appInfo.label.replace(/[^a-zA-Z0-9]/g,'_')+'.docx');
+}
+function wdRow(p,v){return'<tr><td><b>'+p+'</b></td><td>'+v+'</td></tr>';}
+function wdRow3(p,v,r){return'<tr><td><b>'+p+'</b></td><td>'+v+'</td><td>'+r+'</td></tr>';}
+function downloadPFD(){
+var c=document.getElementById('pfd-canvas');
+c.toBlob(function(blob){saveAs(blob,'PFD_Diagram_'+D.appInfo.label.replace(/[^a-zA-Z0-9]/g,'_')+'.png');});
+}
+function downloadPID(){
+var c=document.getElementById('pid-canvas');
+c.toBlob(function(blob){saveAs(blob,'PID_Diagram_'+D.appInfo.label.replace(/[^a-zA-Z0-9]/g,'_')+'.png');});
+}
+function download3D(){
+var c=document.getElementById('threeCanvas');
+if(!c){alert('Please view the 3D tab first to generate the image.');return;}
+c.toBlob(function(blob){saveAs(blob,'3D_Plant_'+D.appInfo.label.replace(/[^a-zA-Z0-9]/g,'_')+'.png');});
+}
+// ===== INIT =====
+onAppTypeChange();
+calc();
+</script>
+</body>
+</html>

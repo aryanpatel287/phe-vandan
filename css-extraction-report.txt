@@ -1,0 +1,116 @@
+======================================================
+Atomep Enteam — Page-Specific CSS Extraction Report
+======================================================
+
+Timestamp: 2026-09-30T15:36:33.350Z
+Mode: APPLIED
+Total files scanned: 13
+
+------------------------------------------------------
+File: index.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/index.css, 6.76 KB)
+  Page CSS size: 6.76 KB
+  Target stylesheet: css/pages/index.css
+  Inline style="" attributes: 18
+
+------------------------------------------------------
+File: AI_DM_Plant_Platform.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/AI_DM_Plant_Platform.css, 20.66 KB)
+  Page CSS size: 20.66 KB
+  Target stylesheet: css/pages/AI_DM_Plant_Platform.css
+  Inline style="" attributes: 30
+
+------------------------------------------------------
+File: NBC2026_Water_Demand_Calculator_v2.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/NBC2026_Water_Demand_Calculator_v2.css, 9.16 KB)
+  Page CSS size: 9.16 KB
+  Target stylesheet: css/pages/NBC2026_Water_Demand_Calculator_v2.css
+  Inline style="" attributes: 15
+
+------------------------------------------------------
+File: NBCS_2026_Drainage_Calculator.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/NBCS_2026_Drainage_Calculator.css, 9.55 KB)
+  Page CSS size: 9.55 KB
+  Target stylesheet: css/pages/NBCS_2026_Drainage_Calculator.css
+  Inline style="" attributes: 74
+
+------------------------------------------------------
+File: NBCS_2026_Pipe_Size_Calculator.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/NBCS_2026_Pipe_Size_Calculator.css, 7.97 KB)
+  Page CSS size: 7.97 KB
+  Target stylesheet: css/pages/NBCS_2026_Pipe_Size_Calculator.css
+  Inline style="" attributes: 25
+
+------------------------------------------------------
+File: RO_Plant_Sizing_Calculator.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/RO_Plant_Sizing_Calculator.css, 14.61 KB)
+  Page CSS size: 14.61 KB
+  Target stylesheet: css/pages/RO_Plant_Sizing_Calculator.css
+  Inline style="" attributes: 57
+
+------------------------------------------------------
+File: STP_Design_Calculator.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/STP_Design_Calculator.css, 19.48 KB)
+  Page CSS size: 19.48 KB
+  Target stylesheet: css/pages/STP_Design_Calculator.css
+  Inline style="" attributes: 37
+
+------------------------------------------------------
+File: Storm_Sump_Design_Tool.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/Storm_Sump_Design_Tool.css, 10.08 KB)
+  Page CSS size: 10.08 KB
+  Target stylesheet: css/pages/Storm_Sump_Design_Tool.css
+  Inline style="" attributes: 20
+
+------------------------------------------------------
+File: Water_Softener_Plant_Designer.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/Water_Softener_Plant_Designer.css, 11.29 KB)
+  Page CSS size: 11.29 KB
+  Target stylesheet: css/pages/Water_Softener_Plant_Designer.css
+  Inline style="" attributes: 15
+
+------------------------------------------------------
+File: Water_Treatment_Plant_Designer.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/Water_Treatment_Plant_Designer.css, 6.48 KB)
+  Page CSS size: 6.48 KB
+  Target stylesheet: css/pages/Water_Treatment_Plant_Designer.css
+  Inline style="" attributes: 23
+
+------------------------------------------------------
+File: firefighting_calculator.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/firefighting_calculator.css, 9.86 KB)
+  Page CSS size: 9.86 KB
+  Target stylesheet: css/pages/firefighting_calculator.css
+  Inline style="" attributes: 16
+
+------------------------------------------------------
+File: heat_pump_sizing_tool.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/heat_pump_sizing_tool.css, 6.75 KB)
+  Page CSS size: 6.75 KB
+  Target stylesheet: css/pages/heat_pump_sizing_tool.css
+  Inline style="" attributes: 3
+
+------------------------------------------------------
+File: pump-head-calculator.html
+Status: ALREADY_MIGRATED
+  Note: Already externalized (css/pages/pump-head-calculator.css, 16.47 KB)
+  Page CSS size: 16.47 KB
+  Target stylesheet: css/pages/pump-head-calculator.css
+  Inline style="" attributes: 27
+
+======================================================
+Summary: 0 newly extracted, 13 externalized & verified, 0 errors
+Playwright Smoke/Screenshots: 13/13 SUCCESS (0 errors)
+======================================================

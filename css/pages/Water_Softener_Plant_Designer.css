@@ -1,0 +1,477 @@
+/**
+ * Atomep Enteam — Water Softener Plant Designer Stylesheet
+ * Source of Truth: DESIGN.md (Campsite / Warm Paper Workspace)
+ */
+
+/* ==========================================================================
+   1. Header & Hero Layout
+   ========================================================================== */
+.wrap {
+  max-width: var(--page-max-width, 1340px);
+  margin: 0 auto;
+  padding: var(--spacing-24, 24px) var(--spacing-16, 16px) var(--spacing-48, 48px);
+}
+
+header.hero {
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-24, 24px);
+  margin-bottom: var(--spacing-20, 20px);
+  background-color: var(--color-pure-white, #ffffff);
+  box-shadow: var(--shadow-sm);
+}
+
+.hero h1 {
+  font-family: var(--font-inter);
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--text-heading, 26px);
+  letter-spacing: -0.4px;
+  color: var(--color-ink, #171717);
+}
+
+.hero .sub {
+  color: var(--color-graphite, #525252);
+  margin-top: var(--spacing-6, 6px);
+  max-width: 780px;
+  font-size: var(--text-body, 15px);
+}
+
+.hero .meta {
+  display: flex;
+  gap: var(--spacing-12, 12px);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-12, 12px);
+}
+
+.hero .meta b {
+  font-family: var(--font-inter);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: 0.5px;
+  color: var(--color-sienna-brand, #451a03);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  padding: 3px 10px;
+  border-radius: var(--radius-tags, 9999px);
+}
+
+/* ==========================================================================
+   2. Main Grid & Cards
+   ========================================================================== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: var(--spacing-20, 20px);
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+.card {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-20, 20px);
+  box-shadow: var(--shadow-sm);
+}
+
+.card h2 {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-steel, #737373);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card h2 .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-sienna-brand, #451a03);
+}
+
+.card .hint {
+  color: var(--color-steel, #737373);
+  font-size: 12px;
+  margin-bottom: var(--spacing-16, 16px);
+}
+
+/* ==========================================================================
+   3. Form Inputs & Application Buttons
+   ========================================================================== */
+label {
+  display: block;
+  font-size: 12px;
+  color: var(--color-graphite, #525252);
+  margin: var(--spacing-12, 12px) 0 4px;
+  font-weight: var(--font-weight-medium, 500);
+}
+
+select, input[type=number], input[type=text] {
+  width: 100%;
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-ink, #171717);
+  padding: 8px 12px;
+  border-radius: var(--radius-inputs, 8px);
+  font-size: 14px;
+  font-family: var(--font-inter);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+select:focus, input:focus {
+  border-color: var(--color-ink, #171717);
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.08);
+}
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+.app-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.app-btn {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  color: var(--color-graphite, #525252);
+  padding: 8px 6px;
+  border-radius: var(--radius-inputs, 8px);
+  font-size: 11px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.app-btn:hover {
+  border-color: var(--color-steel, #737373);
+  color: var(--color-ink, #171717);
+}
+
+.app-btn.active {
+  background-color: var(--color-highlight-wash, #fdf8f0);
+  border-color: var(--color-ink, #171717);
+  color: var(--color-ink, #171717);
+  font-weight: 600;
+}
+
+.app-btn .ic {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+button.primary {
+  width: 100%;
+  margin-top: var(--spacing-16, 16px);
+  background-color: var(--color-ink, #171717);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-buttons, 9999px);
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-subtle-2);
+  transition: background-color 0.15s ease;
+}
+
+button.primary:hover {
+  background-color: var(--color-charcoal, #262626);
+}
+
+/* ==========================================================================
+   4. Results, KPIs & Specification Tables
+   ========================================================================== */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16, 16px);
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-12, 12px);
+}
+
+@media (max-width: 780px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+.kpi {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-cards, 12px);
+  padding: var(--spacing-14, 14px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi .lbl {
+  font-size: var(--text-caption, 11px);
+  color: var(--color-steel, #737373);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.kpi .val {
+  font-size: var(--text-subheading, 22px);
+  font-weight: var(--font-weight-semibold, 600);
+  margin-top: 4px;
+  color: var(--color-ink, #171717);
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi .unit {
+  font-size: 12px;
+  color: var(--color-steel, #737373);
+  font-weight: 400;
+  margin-left: 3px;
+}
+
+.kpi.acc .val { color: var(--color-sienna-brand, #451a03); }
+.kpi.amb .val { color: #d97706; }
+.kpi.eme .val { color: #16a34a; }
+.kpi.ros .val { color: #dc2626; }
+
+.section-tab {
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold, 600);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-tab::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--color-soft-fog, #f0f0f0);
+}
+
+table.specs {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table.specs th, table.specs td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+table.specs th {
+  color: var(--color-steel, #737373);
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+table.specs td.v {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink, #171717);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  background-color: var(--color-ash-mist, #f5f5f5);
+  padding: 4px;
+  border-radius: var(--radius-buttons, 9999px);
+  margin-bottom: 14px;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+}
+
+.tab {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--color-graphite, #525252);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  border-radius: var(--radius-buttons, 9999px);
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.tab:hover { color: var(--color-ink, #171717); }
+.tab.active {
+  background-color: var(--color-ink, #171717);
+  color: #ffffff;
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.diagram-box {
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-inputs, 8px);
+  padding: 14px;
+  overflow: auto;
+}
+
+.diagram-box svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ==========================================================================
+   5. 3D Canvas Container — Dimensions Strictly Preserved
+   ========================================================================== */
+#threeD {
+  width: 100%;
+  height: 440px;
+  border-radius: var(--radius-cards, 12px);
+  overflow: hidden;
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  position: relative;
+}
+
+#threeD canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.three-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  padding: 8px 12px;
+  border-radius: var(--radius-inputs, 8px);
+  font-size: 11px;
+  color: var(--color-graphite, #525252);
+  max-width: 260px;
+  line-height: 1.5;
+  box-shadow: var(--shadow-sm);
+}
+
+.three-overlay b {
+  color: var(--color-sienna-brand, #451a03);
+}
+
+.three-hint {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  font-size: 11px;
+  color: var(--color-steel, #737373);
+}
+
+.dl-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 680px) {
+  .dl-row { grid-template-columns: 1fr; }
+}
+
+.dl-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-cards, 12px);
+  cursor: pointer;
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  background-color: var(--color-pure-white, #ffffff);
+  transition: all 0.15s ease;
+  text-align: left;
+  color: var(--color-ink, #171717);
+  box-shadow: var(--shadow-sm);
+}
+
+.dl-btn:hover {
+  border-color: var(--color-steel, #737373);
+  background-color: var(--color-ash-mist, #f5f5f5);
+}
+
+.dl-btn .icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-inputs, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.dl-btn.pdf .icon { background-color: #fef2f2; color: #dc2626; }
+.dl-btn.xls .icon { background-color: #ecfdf5; color: #16a34a; }
+.dl-btn.doc .icon { background-color: #eff6ff; color: #2563eb; }
+
+.codes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 780px) {
+  .codes { grid-template-columns: 1fr; }
+}
+
+.code-item {
+  padding: 10px 14px;
+  border-left: 3px solid var(--color-sienna-brand, #451a03);
+  background-color: var(--color-warm-canvas, #fffdf9);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-left-width: 3px;
+  border-radius: 0 var(--radius-inputs, 8px) var(--radius-inputs, 8px) 0;
+}
+
+.wireflow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 4px;
+}
+
+.wireflow .step {
+  background-color: var(--color-pure-white, #ffffff);
+  border: 1px solid var(--color-soft-fog, #f0f0f0);
+  border-radius: var(--radius-tags, 9999px);
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.wireflow .arr { color: var(--color-steel, #737373); font-size: 13px; }
+
+/* Migrated Page-Specific Inline Styles */
+.p-water_softener_plant_designer_html-s1 { background: #3b82c4; }
+.p-water_softener_plant_designer_html-s2 { background: #3fbf7f; }

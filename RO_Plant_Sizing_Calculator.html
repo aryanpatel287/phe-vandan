@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RO Plant Sizing Calculator — Public Utility Engineering Tool</title>
+<!-- Atomep Enteam Design System (Light Theme Only) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/utilities.css">
+<link rel="stylesheet" href="css/pages/RO_Plant_Sizing_Calculator.css">
+
+<!-- PWA & Offline Support -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d6efd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW registration note:', err);
+    });
+  });
+}
+</script>
+
+</head>
+<body>
+
+<!-- Atomep Enteam Nav Bar -->
+<nav class="aet-nav">
+  <div class="aet-nav-inner">
+    <a href="index.html" class="aet-logo">
+      <span class="aet-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="aet-logo-text">Atomep <span class="aet-logo-sub">Enteam</span></span>
+    </a>
+    <button class="aet-nav-toggle" onclick="document.body.classList.toggle('aet-menu-open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="aet-nav-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="index.html#tools">🛠️ Tools</a>
+      <a href="index.html#about">📖 About</a>
+      <a href="index.html#contact">✉️ Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+
+<header>
+  <div class="header-label">Public Utility Engineering Tool · v1.0</div>
+  <h1>RO Plant Sizing Calculator</h1>
+  <p class="subtitle">Reverse osmosis plant design and sizing for residential, commercial, hospital, hotel, and institutional applications. Calculates permeate flow, recovery, membrane count, pre-treatment train, and compliance against IS 10500 + WHO drinking water standards.</p>
+  <div class="standards-row">
+    <span class="badge">IS 10500:2012</span>
+    <span class="badge">WHO Guidelines</span>
+    <span class="badge warn">Source: Borewell (High TDS)</span>
+    <span class="badge success">Hospital-Optimized</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="active" data-tab="hospital">Hospital (Deep Dive)</button>
+  <button data-tab="residential">Residential</button>
+  <button data-tab="commercial">Commercial Building</button>
+  <button data-tab="hotel">Hotel (2–5 Star)</button>
+  <button data-tab="dormitory">Dormitory / Canteen</button>
+  <button data-tab="compare">Comparison</button>
+  <button data-tab="standards">Standards & Limits</button>
+</nav>
+
+<main>
+
+<a href="index.html" class="aet-back">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back to All Tools
+</a>
+
+
+<!-- ============ HOSPITAL TAB ============ -->
+<div class="tab-panel active" id="tab-hospital">
+  <div class="card card-hero">
+    <div class="card-label">Primary Design Module — Hospital Water System</div>
+    <h2>Hospital RO Plant Sizing</h2>
+    <p class="p-ro_plant_sizing_calculator_html-s1">Hospitals require the most critical water quality in any public utility. This module designs a multi-grade water system covering four departments with distinct purity requirements — from ultrapure dialysis water (AAMI/ISO 23500) to general drinking water (IS 10500).</p>
+
+    <div class="dept-tabs" id="hospital-dept-tabs">
+      <button class="dept-tab active" data-dept="overview">System Overview</button>
+      <button class="dept-tab" data-dept="dialysis">Dialysis (AAMI/ISO)</button>
+      <button class="dept-tab" data-dept="cssd">CSSD / Sterile Services</button>
+      <button class="dept-tab" data-dept="lab">Lab & Pathology</button>
+      <button class="dept-tab" data-dept="kitchen">Kitchen & General</button>
+    </div>
+
+    <!-- Overview panel -->
+    <div class="dept-panel active" id="dept-overview">
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Number of beds</label>
+          <input type="number" id="h-beds" value="150" min="10" max="2000">
+        </div>
+        <div class="input-group">
+          <label>Dialysis stations</label>
+          <input type="number" id="h-dialysis" value="8" min="0" max="100">
+        </div>
+        <div class="input-group">
+          <label>Daily dialysis shifts</label>
+          <input type="number" id="h-shifts" value="2" min="1" max="4">
+        </div>
+        <div class="input-group">
+          <label>Lab tests / day</label>
+          <input type="number" id="h-labtests" value="500" min="0" max="10000">
+        </div>
+        <div class="input-group">
+          <label>Staff & visitors / day</label>
+          <input type="number" id="h-staff" value="600" min="10" max="10000">
+        </div>
+        <div class="input-group">
+          <label>Source water TDS</label>
+          <div class="input-suffix">
+            <input type="number" id="h-tds" value="1500" min="200" max="5000">
+            <span>ppm</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Feed water temperature</label>
+          <div class="input-suffix">
+            <input type="number" id="h-temp" value="25" min="5" max="40">
+            <span>°C</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Operating hours / day</label>
+          <div class="input-suffix">
+            <input type="number" id="h-hours" value="16" min="8" max="24">
+            <span>hrs</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-1rem">
+        <button class="btn btn-primary" onclick="calcHospital()">Calculate Hospital System</button>
+      </div>
+    </div>
+
+    <!-- Dialysis panel -->
+    <div class="dept-panel" id="dept-dialysis">
+      <h3>.Dialysis Water — AAMI / ISO 23500-3</h3>
+      <div class="callout callout-danger">
+        <strong>Critical-grade water.</strong> Dialysis water must meet AAMI/ISO 23500-3 standards. Bacterial contamination can cause pyrogenic reactions and patient mortality. This requires a multi-barrier treatment train with continuous disinfection capability.
+      </div>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Dialysis stations</label>
+          <input type="number" id="d-stations" value="8" min="1" max="100">
+        </div>
+        <div class="input-group">
+          <label>Patients per station per shift</label>
+          <input type="number" id="d-patients" value="2" min="1" max="4">
+        </div>
+        <div class="input-group">
+          <label>Shifts per day</label>
+          <input type="number" id="d-shifts" value="2" min="1" max="3">
+        </div>
+        <div class="input-group">
+          <label>Hours per dialysis session</label>
+          <div class="input-suffix">
+            <input type="number" id="d-hours" value="4" min="2" max="6">
+            <span>hrs</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-1rem">
+        <button class="btn btn-primary" onclick="calcDialysis()">Calculate Dialysis System</button>
+      </div>
+      <div class="results-section hidden" id="dialysis-results"></div>
+    </div>
+
+    <!-- CSSD panel -->
+    <div class="dept-panel" id="dept-cssd">
+      <h3>Sterile Services Department (CSSD)</h3>
+      <div class="callout callout-info">
+        CSSD requires low-endotoxin, low-bacterial water for sterilizer feeds, washer-disinfectors, and final rinsing of surgical instruments. Endotoxin levels must remain below 0.25 EU/mL.
+      </div>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Surgical instrument sets / day</label>
+          <input type="number" id="c-sets" value="200" min="10" max="2000">
+        </div>
+        <div class="input-group">
+          <label>Steam sterilizers (autoclaves)</label>
+          <input type="number" id="c-autoclaves" value="3" min="1" max="20">
+        </div>
+        <div class="input-group">
+          <label>Washer-disinfectors</label>
+          <input type="number" id="c-washers" value="2" min="1" max="10">
+        </div>
+      </div>
+      <div class="mt-1rem">
+        <button class="btn btn-primary" onclick="calcCSSD()">Calculate CSSD System</button>
+      </div>
+      <div class="results-section hidden" id="cssd-results"></div>
+    </div>
+
+    <!-- Lab panel -->
+    <div class="dept-panel" id="dept-lab">
+      <h3>Laboratory & Pathology</h3>
+      <div class="callout callout-info">
+        Clinical labs require Type II (CLRW — Clinical Laboratory Reagent Water, per CLSI guidelines) for reagent preparation, analyser feeds, and glassware rinsing. Typical resistivity ≥ 1 MΩ·cm.
+      </div>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Lab tests / day</label>
+          <input type="number" id="l-tests" value="500" min="10" max="10000">
+        </div>
+        <div class="input-group">
+          <label>Number of analysers</label>
+          <input type="number" id="l-analysers" value="4" min="1" max="50">
+        </div>
+      </div>
+      <div class="mt-1rem">
+        <button class="btn btn-primary" onclick="calcLab()">Calculate Lab System</button>
+      </div>
+      <div class="results-section hidden" id="lab-results"></div>
+    </div>
+
+    <!-- Kitchen panel -->
+    <div class="dept-panel" id="dept-kitchen">
+      <h3>Kitchen & General Drinking Water</h3>
+      <div class="callout callout-info">
+        Hospital kitchen and general drinking water must meet IS 10500 + WHO. Separate distribution from critical-grade loops. Centralised drinking water stations with UV polish.
+      </div>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Meals served / day</label>
+          <input type="number" id="k-meals" value="800" min="50" max="10000">
+        </div>
+        <div class="input-group">
+          <label>Drinking water stations</label>
+          <input type="number" id="k-stations" value="10" min="1" max="100">
+        </div>
+      </div>
+      <div class="mt-1rem">
+        <button class="btn btn-primary" onclick="calcKitchen()">Calculate Kitchen System</button>
+      </div>
+      <div class="results-section hidden" id="kitchen-results"></div>
+    </div>
+
+    <!-- Hospital main results -->
+    <div class="results-section hidden" id="hospital-results"></div>
+  </div>
+</div>
+
+<!-- ============ RESIDENTIAL TAB ============ -->
+<div class="tab-panel" id="tab-residential">
+  <div class="card card-hero">
+    <div class="card-label">Residential Module</div>
+    <h2>Residential RO Plant Sizing</h2>
+    <p class="p-ro_plant_sizing_calculator_html-s2">Designs a central RO system for apartments, residential complexes, or gated communities. Sized for drinking + cooking water demand.</p>
+    <div class="input-grid">
+      <div class="input-group">
+        <label>Number of flats / units</label>
+        <input type="number" id="r-units" value="50" min="1" max="2000">
+      </div>
+      <div class="input-group">
+        <label>Persons per flat</label>
+        <input type="number" id="r-ppf" value="4" min="1" max="10">
+      </div>
+      <div class="input-group">
+        <label>Per-capita drinking+cooking demand</label>
+        <div class="input-suffix">
+          <input type="number" id="r-lpcd" value="10" min="3" max="30">
+          <span>L/day</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Source water TDS</label>
+        <div class="input-suffix">
+          <input type="number" id="r-tds" value="1500" min="200" max="5000">
+          <span>ppm</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Operating hours / day</label>
+        <div class="input-suffix">
+          <input type="number" id="r-hours" value="10" min="4" max="24">
+          <span>hrs</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-1rem">
+      <button class="btn btn-primary" onclick="calcResidential()">Calculate</button>
+    </div>
+    <div class="results-section hidden" id="residential-results"></div>
+  </div>
+</div>
+
+<!-- ============ COMMERCIAL TAB ============ -->
+<div class="tab-panel" id="tab-commercial">
+  <div class="card card-hero">
+    <div class="card-label">Commercial Building Module</div>
+    <h2>Commercial Building RO Sizing</h2>
+    <p class="p-ro_plant_sizing_calculator_html-s3">Office buildings, IT parks, commercial complexes. Covers drinking water, pantry, and HVAC make-up water.</p>
+    <div class="input-grid">
+      <div class="input-group">
+        <label>Number of occupants</label>
+        <input type="number" id="co-occ" value="300" min="10" max="10000">
+      </div>
+      <div class="input-group">
+        <label>Floors / zones</label>
+        <input type="number" id="co-floors" value="5" min="1" max="50">
+      </div>
+      <div class="input-group">
+        <label>Drinking demand per person</label>
+        <div class="input-suffix">
+          <input type="number" id="co-lpcd" value="5" min="2" max="15">
+          <span>L/day</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label> HVAC make-up (cooling tower) demand</label>
+        <div class="input-suffix">
+          <input type="number" id="co-hvac" value="2000" min="0" max="50000">
+          <span>L/day</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Source water TDS</label>
+        <div class="input-suffix">
+          <input type="number" id="co-tds" value="1500" min="200" max="5000">
+          <span>ppm</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Operating hours / day</label>
+        <div class="input-suffix">
+          <input type="number" id="co-hours" value="10" min="4" max="24">
+          <span>hrs</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-1rem">
+      <button class="btn btn-primary" onclick="calcCommercial()">Calculate</button>
+    </div>
+    <div class="results-section hidden" id="commercial-results"></div>
+  </div>
+</div>
+
+<!-- ============ HOTEL TAB ============ -->
+<div class="tab-panel" id="tab-hotel">
+  <div class="card card-hero">
+    <div class="card-label">Hotel Module — Star-rated</div>
+    <h2>Hotel RO Plant Sizing</h2>
+    <p class="p-ro_plant_sizing_calculator_html-s4">Covers 2-to-5 star hotels including guest rooms, kitchen, laundry, swimming pool, and spa. Star rating drives per-key demand and amenity requirements.</p>
+    <div class="input-grid">
+      <div class="input-group">
+        <label>Hotel star rating</label>
+        <select id="ht-star">
+          <option value="2">2 Star</option>
+          <option value="3">3 Star</option>
+          <option value="4" selected>4 Star</option>
+          <option value="5">5 Star</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Number of rooms (keys)</label>
+        <input type="number" id="ht-rooms" value="120" min="10" max="2000">
+      </div>
+      <div class="input-group">
+        <label>Average occupancy</label>
+        <div class="input-suffix">
+          <input type="number" id="ht-occ" value="70" min="20" max="100">
+          <span>%</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Covers / day (restaurant+banquet)</label>
+        <input type="number" id="ht-covers" value="400" min="0" max="5000">
+      </div>
+      <div class="input-group">
+        <label>Laundry load</label>
+        <div class="input-suffix">
+          <input type="number" id="ht-laundry" value="500" min="0" max="10000">
+          <span>kg/day</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Swimming pool volume</label>
+        <div class="input-suffix">
+          <input type="number" id="ht-pool" value="100000" min="0" max="2000000">
+          <span>L</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Source water TDS</label>
+        <div class="input-suffix">
+          <input type="number" id="ht-tds" value="1500" min="200" max="5000">
+          <span>ppm</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Operating hours / day</label>
+        <div class="input-suffix">
+          <input type="number" id="ht-hours" value="16" min="8" max="24">
+          <span>hrs</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-1rem">
+      <button class="btn btn-primary" onclick="calcHotel()">Calculate</button>
+    </div>
+    <div class="results-section hidden" id="hotel-results"></div>
+  </div>
+</div>
+
+<!-- ============ DORMITORY TAB ============ -->
+<div class="tab-panel" id="tab-dormitory">
+  <div class="card card-hero">
+    <div class="card-label">Institutional Module</div>
+    <h2>Dormitory / Canteen RO Sizing</h2>
+    <p class="p-ro_plant_sizing_calculator_html-s5">Hostels, student dormitories, factory canteens, mess facilities. Sized for drinking water at high-occupancy, short-burst demand patterns.</p>
+    <div class="input-grid">
+      <div class="input-group">
+        <label>Number of residents</label>
+        <input type="number" id="dm-residents" value="500" min="10" max="10000">
+      </div>
+      <div class="input-group">
+        <label>Meals served / day</label>
+        <input type="number" id="dm-meals" value="1500" min="50" max="30000">
+      </div>
+      <div class="input-group">
+        <label>Drinking demand per person</label>
+        <div class="input-suffix">
+          <input type="number" id="dm-lpcd" value="8" min="3" max="20">
+          <span>L/day</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Source water TDS</label>
+        <div class="input-suffix">
+          <input type="number" id="dm-tds" value="1500" min="200" max="5000">
+          <span>ppm</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Operating hours / day</label>
+        <div class="input-suffix">
+          <input type="number" id="dm-hours" value="12" min="4" max="24">
+          <span>hrs</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-1rem">
+      <button class="btn btn-primary" onclick="calcDormitory()">Calculate</button>
+    </div>
+    <div class="results-section hidden" id="dormitory-results"></div>
+  </div>
+</div>
+
+<!-- ============ COMPARISON TAB ============ -->
+<div class="tab-panel" id="tab-compare">
+  <div class="card card-hero">
+    <div class="card-label">Cross-Application Comparison</div>
+    <h2>RO Plant Comparison Matrix</h2>
+    <p class="p-ro_plant_sizing_calculator_html-s6">Side-by-side comparison of plant sizing across all five application types at typical design values. The reference basis column shows what each row assumes.</p>
+    <button class="btn btn-primary" onclick="calcCompare()">Generate Comparison</button>
+    <div class="results-section hidden" id="compare-results"></div>
+  </div>
+</div>
+
+<!-- ============ STANDARDS TAB ============ -->
+<div class="tab-panel" id="tab-standards">
+  <div class="card card-hero">
+    <div class="card-label">Reference — Water Quality Standards</div>
+    <h2>Drinking Water Quality Limits</h2>
+    <p class="p-ro_plant_sizing_calculator_html-s7">Conservative limits used for permeate design targets. Tool designs to the stricter of IS 10500 or WHO for each parameter.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th class="num">IS 10500:2012</th>
+            <th class="num">WHO Guideline</th>
+            <th class="num">Design Target</th>
+            <th>RO Rejection</th>
+          </tr>
+        </thead>
+        <tbody id="standards-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Critical-Grade Water Standards</div>
+    <h2>Hospital-Specific Water Quality</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Standard</th>
+            <th class="num">Bacterial Limit</th>
+            <th class="num">Endotoxin</th>
+            <th class="num">Resistivity</th>
+          </tr>
+        </thead>
+        <tbody id="hospital-standards-table"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <strong>Disclaimer:</strong> This tool provides preliminary engineering sizing for RO plant design based on established demand factors, membrane performance models, and IS 10500:2012 + WHO drinking water standards. All outputs should be verified by a qualified water treatment engineer before procurement or construction. Site-specific feed water analysis (full chemical panel including hardness, iron, silica, SDI) is essential for final design. Hospital dialysis systems must be validated against AAMI/ISO 23500 by a certified biomedical engineer. The tool author assumes no liability for design decisions made using this tool.
+</footer>
+
+<button class="btn btn-ghost print-btn" onclick="window.print()">Print / Save PDF</button>
+
+<script>
+// ============================================================
+// RO PLANT SIZING ENGINE
+// ============================================================
+
+// --- Constants ---
+const MEMBRANE_PERMEATE = 8000; // L/day at standard conditions (8-inch BWRO, ~4040 = 4000)
+const MEMBRANE_AREA_4 = 4000;   // 4-inch membrane permeate L/day
+const MEMBRANE_AREA_8 = 8000;   // 8-inch membrane permeate L/day
+const RECOVERY_BWRO = 0.75;     // 75% recovery for borewell (brackish)
+const REJECTION_TDS = 0.97;     // 97% TDS rejection
+const SAFETY_FACTOR = 1.20;     // 20% design margin
+const TEMP_CORRECTION_25 = 1.0; // at 25°C
+const PEAK_FACTOR_HOSPITAL = 2.0;
+const PEAK_FACTOR_RESIDENTIAL = 2.5;
+const PEAK_FACTOR_COMMERCIAL = 2.5;
+const PEAK_FACTOR_HOTEL = 2.0;
+const PEAK_FACTOR_DORM = 3.0;
+
+// Demand factors (L/unit) — industry standard references
+const DEMAND = {
+  hospital: {
+    bed_general: 400,      // L/bed/day total water (non-critical: drinking, kitchen, general)
+    bed_icu: 600,           // L/ICU bed/day
+    dialysis_per_station: 120, // L/station/hour (AAMI: ~500mL/min + rinse)
+    cssd_per_set: 5,        // L/instrument set
+    cssd_autoclave: 150,   // L/autoclave/cycle
+    cssd_washer: 200,      // L/washer/cycle
+    lab_per_test: 1.5,     // L/test (CLRW)
+    lab_analyser_purge: 50, // L/analyser/day
+    staff_visitor: 15,     // L/person/day (drinking)
+    kitchen_per_meal: 10,  // L/meal
+    drinking_station: 100,  // L/station/day
+  },
+  residential: {
+    per_capita: 10,        // L/person/day drinking+cooking
+  },
+  commercial: {
+    per_person: 5,         // L/person/day drinking
+    hvac: 1,               // L/day (direct input)
+  },
+  hotel: {
+    // Per-star per-key per-day total treated water demand (L)
+    star_demand: { 2: 300, 3: 400, 4: 550, 5: 700 },
+    kitchen_per_cover: 15,
+    laundry_per_kg: 15,
+    pool_turnover_pct: 0.02, // 2% of pool volume / day make-up
+  },
+  dormitory: {
+    per_resident: 8,      // L/day drinking
+    per_meal: 5,          // L/meal cooking water
+  }
+};
+
+// --- Helper: temp correction factor ---
+function tempCorrection(tempC) {
+  // Viscosity-based correction relative to 25°C
+  // Simplified: below 25°C reduces permeate
+  if (tempC >= 25) return 1.0 + (tempC - 25) * 0.025;
+  return 1.0 - (25 - tempC) * 0.03;
+}
+
+// --- Helper: membrane count ---
+function calcMembranes(permeateLday, membraneSize, tempC) {
+  const base = membraneSize === 4 ? MEMBRANE_AREA_4 : MEMBRANE_AREA_8;
+  const corrected = base * tempCorrection(tempC);
+  const count = Math.ceil(permeateLday / corrected);
+  return count;
+}
+
+// --- Helper: build treatment train ---
+function buildTreatmentTrain(feedTDS, application, isCritical) {
+  const stages = [];
+  
+  // Source
+  stages.push({ name: 'Borewell Feed', detail: `${feedTDS} ppm TDS`, type: 'source' });
+  
+  // Pre-treatment (always needed for borewell)
+  stages.push({ name: 'Raw Water Tank', detail: '500–1000 L', type: 'normal' });
+  stages.push({ name: 'Dual Media Filter', detail: 'Sand + Anthracite', type: 'normal' });
+  
+  if (feedTDS > 500) {
+    stages.push({ name: 'Softener', detail: 'Ion exchange, hardness removal', type: 'normal' });
+  }
+  stages.push({ name: 'Carbon Filter', detail: 'Activated carbon, chlorine + organics', type: 'normal' });
+  stages.push({ name: 'Cartridge Filter', detail: '5 μm, SDI reduction', type: 'normal' });
+  
+  // RO stage
+  if (isCritical) {
+    stages.push({ name: '1st Pass RO', detail: '97% TDS rejection', type: 'accent' });
+    stages.push({ name: '2nd Pass RO', detail: 'Polisher, 90% further rejection', type: 'accent' });
+  } else {
+    stages.push({ name: 'RO Membrane', detail: '97% TDS rejection', type: 'accent' });
+  }
+  
+  // Post-treatment
+  stages.push({ name: 'UV Disinfection', detail: '254 nm, log-4 reduction', type: 'normal' });
+  
+  if (isCritical) {
+    stages.push({ name: 'EDI / Polishing', detail: 'Electrodeionization', type: 'critical' });
+    stages.push({ name: '0.2 μm Final Filter', detail: 'Bacterial retention', type: 'critical' });
+  }
+  
+  stages.push({ name: 'Product Tank', detail: 'Distribution', type: 'normal' });
+  
+  return stages;
+}
+
+// --- Helper: render flow diagram ---
+function renderFlowDiagram(stages) {
+  let html = '<div class="flow-diagram">';
+  stages.forEach((s, i) => {
+    const cls = s.type === 'critical' ? ' critical' : (s.type === 'accent' ? ' accent' : '');
+    html += `<div class="flow-stage${cls}">${s.name}<br><small style="color:var(--text-faint);font-size:0.68rem">${s.detail}</small></div>`;
+    if (i < stages.length - 1) html += '<span class="flow-arrow">→</span>';
+  });
+  html += '</div>';
+  return html;
+}
+
+// --- Helper: render KPI grid ---
+function renderKPIs(kpis) {
+  let html = '<div class="kpi-grid">';
+  kpis.forEach(k => {
+    html += `<div class="kpi ${k.cls || ''}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}<span class="kpi-unit"> ${k.unit || ''}</span></div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+// --- Helper: render spec table ---
+function renderSpecTable(rows) {
+  let html = '<div class="table-wrap"><table><tbody>';
+  rows.forEach(r => {
+    const cls = r.critical ? ' class="critical"' : (r.warn ? ' class="warn-cell"' : (r.ok ? ' class="ok-cell"' : ''));
+    html += `<tr><td><strong>${r.label}</strong></td><td class="num"${cls}>${r.value}</td></tr>`;
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+// ============================================================
+// HOSPITAL CALCULATION
+// ============================================================
+function calcHospital() {
+  const beds = +document.getElementById('h-beds').value;
+  const dialysisStations = +document.getElementById('h-dialysis').value;
+  const shifts = +document.getElementById('h-shifts').value;
+  const labTests = +document.getElementById('h-labtests').value;
+  const staff = +document.getElementById('h-staff').value;
+  const tds = +document.getElementById('h-tds').value;
+  const temp = +document.getElementById('h-temp').value;
+  const hours = +document.getElementById('h-hours').value;
+
+  // Department-wise demand
+  const dialysisDemand = dialysisStations * shifts * 4 * DEMAND.hospital.dialysis_per_station; // L/day (4 hr/session default)
+  const cssdDemand = (beds * 0.8) * DEMAND.hospital.cssd_per_set + 3 * DEMAND.hospital.cssd_autoclave * 4 + 2 * DEMAND.hospital.cssd_washer * 4;
+  const labDemand = labTests * DEMAND.hospital.lab_per_test + 4 * DEMAND.hospital.lab_analyser_purge;
+  const generalDemand = beds * DEMAND.hospital.bed_general + staff * DEMAND.hospital.staff_visitor;
+
+  // Critical-grade water (dialysis + CSSD + lab)
+  const criticalDemand = dialysisDemand + cssdDemand + labDemand * 0.3; // lab needs CLRW ~30% of total
+  // General water (kitchen, drinking, general)
+  const generalKitchenDemand = generalDemand + beds * 2 * DEMAND.hospital.kitchen_per_meal;
+
+  // Apply safety factor
+  const criticalPermeate = criticalDemand * SAFETY_FACTOR;
+  const generalPermeate = generalKitchenDemand * SAFETY_FACTOR;
+
+  // Feed water (accounting for recovery)
+  const criticalFeed = criticalPermeate / RECOVERY_BWRO;
+  const generalFeed = generalPermeate / RECOVERY_BWRO;
+  const totalFeed = criticalFeed + generalFeed;
+
+  // Peak instantaneous flow
+  const peakFlow = (criticalPermeate + generalPermeate) * PEAK_FACTOR_HOSPITAL / hours / 60; // L/min
+
+  // Membrane sizing
+  // Critical: 2-pass system, use 4-inch for smaller or 8-inch for larger
+  const criticalMembraneSize = criticalPermeate > 5000 ? 8 : 4;
+  const generalMembraneSize = generalPermeate > 10000 ? 8 : 4;
+  const criticalMembranes = calcMembranes(criticalPermeate, criticalMembraneSize, temp);
+  const generalMembranes = calcMembranes(generalPermeate, generalMembraneSize, temp);
+  const criticalMembranes2ndPass = Math.ceil(criticalMembranes * 0.5); // 2nd pass smaller
+
+  // Permeate TDS
+  const permeateTDS_1pass = tds * (1 - REJECTION_TDS);
+  const permeateTDS_2pass = permeateTDS_1pass * (1 - 0.90);
+  const generalPermeateTDS = permeateTDS_1pass;
+
+  // Treatment trains
+  const criticalTrain = buildTreatmentTrain(tds, 'hospital', true);
+  const generalTrain = buildTreatmentTrain(tds, 'hospital', false);
+
+  // Recovery & reject
+  const totalReject = totalFeed - (criticalPermeate + generalPermeate);
+  const recoveryPct = ((criticalPermeate + generalPermeate) / totalFeed * 100).toFixed(1);
+
+  // HP pump power
+  const pumpPower = (totalFeed * 10 * 9.81) / (3600 * 1000 * 0.7); // kW (10 bar, 70% efficiency)
+
+  const html = `
+    ${renderKPIs([
+      { label: 'Total Permeate Demand', value: (criticalPermeate + generalPermeate).toLocaleString(), unit: 'L/day', cls: 'accent' },
+      { label: 'Critical-Grade Water', value: criticalPermeate.toLocaleString(), unit: 'L/day', cls: 'warn' },
+      { label: 'General Water', value: generalPermeate.toLocaleString(), unit: 'L/day' },
+      { label: 'Feed Water Required', value: Math.round(totalFeed).toLocaleString(), unit: 'L/day' },
+      { label: 'Peak Flow Rate', value: peakFlow.toFixed(1), unit: 'L/min' },
+      { label: 'Recovery', value: recoveryPct, unit: '%', cls: 'success' },
+      { label: 'Reject / Brine', value: Math.round(totalReject).toLocaleString(), unit: 'L/day', cls: 'warn' },
+      { label: 'HP Pump Power', value: pumpPower.toFixed(1), unit: 'kW' },
+    ])}
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 1rem;">
+      <h3 style="color:var(--warn);">Critical-Grade Treatment Train (Dialysis + CSSD + Lab)</h3>
+      <p style="color:var(--text-dim); font-size:0.82rem; margin-bottom:0.75rem;">2-pass RO + EDI polishing. Meets AAMI/ISO 23500 for dialysis, endotoxin < 0.25 EU/mL for CSSD, CLRW for lab.</p>
+      ${renderFlowDiagram(criticalTrain)}
+    </div>
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 0.75rem;">
+      <h3>General Water Treatment Train (Kitchen + Drinking + General)</h3>
+      <p style="color:var(--text-dim); font-size:0.82rem; margin-bottom:0.75rem;">Single-pass RO + UV. Meets IS 10500 + WHO drinking water standards.</p>
+      ${renderFlowDiagram(generalTrain)}
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <h3>System Specifications</h3>
+      ${renderSpecTable([
+        { label: 'Hospital beds', value: beds },
+        { label: 'Dialysis stations', value: `${dialysisStations} (${shifts} shifts)` },
+        { label: 'Dialysis water demand', value: `${dialysisDemand.toLocaleString()} L/day`, critical: true },
+        { label: 'CSSD water demand', value: `${Math.round(cssdDemand).toLocaleString()} L/day` },
+        { label: 'Lab (CLRW) demand', value: `${Math.round(labDemand).toLocaleString()} L/day` },
+        { label: 'General + kitchen demand', value: `${Math.round(generalKitchenDemand).toLocaleString()} L/day` },
+        { label: 'Critical system — 1st pass membranes', value: `${criticalMembranes} × ${criticalMembraneSize}" BWRO` },
+        { label: 'Critical system — 2nd pass membranes', value: `${criticalMembranes2ndPass} × ${criticalMembraneSize}" BWRO` },
+        { label: 'General system membranes', value: `${generalMembranes} × ${generalMembraneSize}" BWRO` },
+        { label: 'Critical permeate TDS (2-pass)', value: `${Math.round(permeateTDS_2pass)} ppm`, ok: true },
+        { label: 'General permeate TDS (1-pass)', value: `${Math.round(generalPermeateTDS)} ppm`, ok: true },
+        { label: 'Feed TDS', value: `${tds} ppm` },
+        { label: 'Design recovery', value: `${(RECOVERY_BWRO * 100).toFixed(0)} %` },
+        { label: 'Safety factor applied', value: `${((SAFETY_FACTOR - 1) * 100).toFixed(0)} % margin` },
+        { label: 'Temperature correction', value: tempCorrection(temp).toFixed(3) },
+        { label: 'Estimated HP pump power', value: `${pumpPower.toFixed(1)} kW` },
+      ])}
+    </div>
+
+    <div class="callout callout-warn" style="margin-top: 1rem;">
+      <strong>Design notes:</strong> The critical-grade loop must be a closed-loop recirculating system with continuous disinfection (heat or chemical). Dialysis water must be sampled weekly for bacterial count (<100 CFU/mL) and endotoxin (<0.25 EU/mL). CSSD and dialysis loops should be physically separated from the general water distribution. A bypass line with UV is recommended for the general system to maintain supply during RO maintenance.
+    </div>
+  `;
+  document.getElementById('hospital-results').innerHTML = html;
+  document.getElementById('hospital-results').classList.remove('hidden');
+}
+
+// ============================================================
+// DIALYSIS DEEP-DIVE
+// ============================================================
+function calcDialysis() {
+  const stations = +document.getElementById('d-stations').value;
+  const patients = +document.getElementById('d-patients').value;
+  const shifts = +document.getElementById('d-shifts').value;
+  const hours = +document.getElementById('d-hours').value;
+  const tds = +document.getElementById('h-tds').value;
+  const temp = +document.getElementById('h-temp').value;
+
+  // AAMI: 500 mL/min dialysate flow + replacement/rinse water
+  // Typical: 120 L/station/hour (includes concentrate + rinse)
+  const sessionDemand = 120; // L/hour per station
+  const dailyDemand = stations * patients * shifts * hours * (sessionDemand / 120); 
+  const actualDaily = stations * shifts * hours * sessionDemand / 60 * 60; // simplified
+  const cleanDaily = stations * shifts * hours * 120 / 1; // L/day
+  const demand = stations * shifts * hours * 120;
+
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const reject = feed - permeate;
+  const peakFlow = permeate * 2.0 / (hours * shifts) / 60; // L/min during operation
+
+  // 2-pass RO
+  const membranes1 = calcMembranes(permeate, 4, temp);
+  const membranes2 = Math.ceil(membranes1 * 0.5);
+  const permeateTDS = tds * (1 - REJECTION_TDS) * (1 - 0.90);
+  const pumpPower = (feed * 12 * 9.81) / (3600 * 1000 * 0.7); // 12 bar for 2-pass
+
+  const train = buildTreatmentTrain(tds, 'dialysis', true);
+
+  const html = `
+    ${renderKPIs([
+      { label: 'Dialysis Water Demand', value: demand.toLocaleString(), unit: 'L/day', cls: 'warn' },
+      { label: 'Design Permeate (×1.2)', value: permeate.toLocaleString(), unit: 'L/day', cls: 'accent' },
+      { label: 'Feed Water', value: Math.round(feed).toLocaleString(), unit: 'L/day' },
+      { label: 'Peak Flow', value: peakFlow.toFixed(1), unit: 'L/min' },
+      { label: 'Membranes (1st pass)', value: membranes1, unit: '× 4"' },
+      { label: 'Membranes (2nd pass)', value: membranes2, unit: '× 4"' },
+      { label: 'Permeate TDS', value: Math.round(permeateTDS), unit: 'ppm', cls: 'success' },
+      { label: 'HP Pump Power', value: pumpPower.toFixed(1), unit: 'kW' },
+    ])}
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 1rem;">
+      <h3 style="color:var(--danger);">AAMI/ISO 23500 Treatment Train</h3>
+      <p style="color:var(--text-dim); font-size:0.82rem; margin-bottom:0.75rem;">
+        Multi-barrier system: pre-treatment → 2-pass RO → EDI → 0.2 μm. Closed-loop recirculation with continuous disinfection.
+      </p>
+      ${renderFlowDiagram(train)}
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <h3>Dialysis Water Specifications</h3>
+      ${renderSpecTable([
+        { label: 'Dialysis stations', value: stations },
+        { label: 'Patients per station per shift', value: patients },
+        { label: 'Shifts per day', value: shifts },
+        { label: 'Session duration', value: `${hours} hours` },
+        { label: 'Daily patients treated', value: stations * patients * shifts },
+        { label: 'Water per session (per station)', value: `${hours * 120} L` },
+        { label: 'Total daily demand', value: `${demand.toLocaleString()} L/day`, critical: true },
+        { label: 'Design permeate (20% margin)', value: `${permeate.toLocaleString()} L/day` },
+        { label: 'Feed water required', value: `${Math.round(feed).toLocaleString()} L/day` },
+        { label: 'Reject water', value: `${Math.round(reject).toLocaleString()} L/day` },
+        { label: '1st pass membranes', value: `${membranes1} × 4" BWRO` },
+        { label: '2nd pass membranes', value: `${membranes2} × 4" BWRO` },
+        { label: 'Feed TDS', value: `${tds} ppm` },
+        { label: 'Permeate TDS (2-pass)', value: `${Math.round(permeateTDS)} ppm`, ok: true },
+        { label: 'Bacterial limit (AAMI)', value: '< 100 CFU/mL', critical: true },
+        { label: 'Endotoxin limit (AAMI)', value: '< 0.25 EU/mL', critical: true },
+      ])}
+    </div>
+
+    <div class="callout callout-danger" style="margin-top: 1rem;">
+      <strong>Critical safety requirements:</strong> The dialysis water loop must be a continuous recirculation system (no dead legs > 6 pipe diameters). Disinfection must be performed between shifts using heat (≥85°C for 20 min) or chemical (peracetic acid). Weekly bacterial and endotoxin sampling is mandatory. An emergency backup water supply and storage tank (minimum 1 dialysis shift volume) must be maintained.
+    </div>
+  `;
+  document.getElementById('dialysis-results').innerHTML = html;
+  document.getElementById('dialysis-results').classList.remove('hidden');
+}
+
+// ============================================================
+// CSSD CALCULATION
+// ============================================================
+function calcCSSD() {
+  const sets = +document.getElementById('c-sets').value;
+  const autoclaves = +document.getElementById('c-autoclaves').value;
+  const washers = +document.getElementById('c-washers').value;
+  const tds = +document.getElementById('h-tds').value;
+  const temp = +document.getElementById('h-temp').value;
+
+  const setsDemand = sets * DEMAND.hospital.cssd_per_set;
+  const autoclaveDemand = autoclaves * DEMAND.hospital.cssd_autoclave * 4; // 4 cycles/day
+  const washerDemand = washers * DEMAND.hospital.cssd_washer * 4;
+  const demand = setsDemand + autoclaveDemand + washerDemand;
+
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const reject = feed - permeate;
+  const membranes = calcMembranes(permeate, 4, temp);
+  const membranes2 = Math.ceil(membranes * 0.5);
+  const permeateTDS = tds * (1 - REJECTION_TDS) * (1 - 0.90);
+  const pumpPower = (feed * 12 * 9.81) / (3600 * 1000 * 0.7);
+
+  const train = buildTreatmentTrain(tds, 'cssd', true);
+
+  const html = `
+    ${renderKPIs([
+      { label: 'CSSD Water Demand', value: demand.toLocaleString(), unit: 'L/day', cls: 'warn' },
+      { label: 'Design Permeate', value: permeate.toLocaleString(), unit: 'L/day', cls: 'accent' },
+      { label: 'Feed Water', value: Math.round(feed).toLocaleString(), unit: 'L/day' },
+      { label: 'Membranes (1st pass)', value: membranes, unit: '× 4"' },
+      { label: 'Membranes (2nd pass)', value: membranes2, unit: '× 4"' },
+      { label: 'Permeate TDS', value: Math.round(permeateTDS), unit: 'ppm', cls: 'success' },
+      { label: 'HP Pump Power', value: pumpPower.toFixed(1), unit: 'kW' },
+      { label: 'Endotoxin Target', value: '< 0.25', unit: 'EU/mL' },
+    ])}
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 1rem;">
+      <h3 style="color:var(--warn);">CSSD Treatment Train</h3>
+      <p style="color:var(--text-dim); font-size:0.82rem; margin-bottom:0.75rem;">
+        2-pass RO + EDI for low-endotoxin water. Feeds autoclaves, washer-disinfectors, and final instrument rinse.
+      </p>
+      ${renderFlowDiagram(train)}
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <h3>CSSD Specifications</h3>
+      ${renderSpecTable([
+        { label: 'Instrument sets / day', value: sets },
+        { label: 'Autoclaves', value: `${autoclaves} (4 cycles each)` },
+        { label: 'Washer-disinfectors', value: `${washers} (4 cycles each)` },
+        { label: 'Sets rinse demand', value: `${setsDemand.toLocaleString()} L/day` },
+        { label: 'Autoclave feed demand', value: `${autoclaveDemand.toLocaleString()} L/day` },
+        { label: 'Washer demand', value: `${washerDemand.toLocaleString()} L/day` },
+        { label: 'Total daily demand', value: `${demand.toLocaleString()} L/day` },
+        { label: 'Design permeate (20% margin)', value: `${permeate.toLocaleString()} L/day` },
+        { label: 'Feed water required', value: `${Math.round(feed).toLocaleString()} L/day` },
+        { label: '1st pass membranes', value: `${membranes} × 4" BWRO` },
+        { label: '2nd pass membranes', value: `${membranes2} × 4" BWRO` },
+        { label: 'Endotoxin limit', value: '< 0.25 EU/mL', critical: true },
+        { label: 'Bacterial limit', value: '< 10 CFU/mL', critical: true },
+      ])}
+    </div>
+
+    <div class="callout callout-warn" style="margin-top: 1rem;">
+      <strong>Note:</strong> CSSD water feeds steam sterilizers — silica and dissolved minerals cause scaling on instrument surfaces and sterilizer chambers. The 2-pass RO + EDI train ensures < 0.1 ppm silica in the feed, preventing sterilizer damage.
+    </div>
+  `;
+  document.getElementById('cssd-results').innerHTML = html;
+  document.getElementById('cssd-results').classList.remove('hidden');
+}
+
+// ============================================================
+// LAB CALCULATION
+// ============================================================
+function calcLab() {
+  const tests = +document.getElementById('l-tests').value;
+  const analysers = +document.getElementById('l-analysers').value;
+  const tds = +document.getElementById('h-tds').value;
+  const temp = +document.getElementById('h-temp').value;
+
+  const testDemand = tests * DEMAND.hospital.lab_per_test;
+  const analyserDemand = analysers * DEMAND.hospital.lab_analyser_purge;
+  const demand = testDemand + analyserDemand;
+
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const reject = feed - permeate;
+  const membranes = calcMembranes(permeate, 4, temp);
+  const membranes2 = Math.ceil(membranes * 0.5);
+  const permeateTDS = tds * (1 - REJECTION_TDS) * (1 - 0.90);
+  const pumpPower = (feed * 12 * 9.81) / (3600 * 1000 * 0.7);
+
+  const train = buildTreatmentTrain(tds, 'lab', true);
+
+  const html = `
+    ${renderKPIs([
+      { label: 'Lab Water Demand', value: demand.toLocaleString(), unit: 'L/day', cls: 'warn' },
+      { label: 'Design Permeate', value: permeate.toLocaleString(), unit: 'L/day', cls: 'accent' },
+      { label: 'Feed Water', value: Math.round(feed).toLocaleString(), unit: 'L/day' },
+      { label: 'Membranes (1st pass)', value: membranes, unit: '× 4"' },
+      { label: 'Membranes (2nd pass)', value: membranes2, unit: '× 4"' },
+      { label: 'Permeate TDS', value: Math.round(permeateTDS), unit: 'ppm', cls: 'success' },
+      { label: 'Resistivity Target', value: '≥ 1', unit: 'MΩ·cm' },
+      { label: 'HP Pump Power', value: pumpPower.toFixed(1), unit: 'kW' },
+    ])}
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 1rem;">
+      <h3>Lab Water (CLRW) Treatment Train</h3>
+      <p style="color:var(--text-dim); font-size:0.82rem; margin-bottom:0.75rem;">
+        Clinical Laboratory Reagent Water per CLSI guidelines. 2-pass RO + EDI achieves Type II / CLRW grade.
+      </p>
+      ${renderFlowDiagram(train)}
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <h3>Lab Water Specifications</h3>
+      ${renderSpecTable([
+        { label: 'Lab tests / day', value: tests },
+        { label: 'Analysers', value: analysers },
+        { label: 'Test water demand', value: `${testDemand.toLocaleString()} L/day` },
+        { label: 'Analyser purge demand', value: `${analyserDemand.toLocaleString()} L/day` },
+        { label: 'Total daily demand', value: `${demand.toLocaleString()} L/day` },
+        { label: 'Design permeate (20% margin)', value: `${permeate.toLocaleString()} L/day` },
+        { label: 'Feed water required', value: `${Math.round(feed).toLocaleString()} L/day` },
+        { label: '1st pass membranes', value: `${membranes} × 4" BWRO` },
+        { label: '2nd pass membranes', value: `${membranes2} × 4" BWRO` },
+        { label: 'Water grade', value: 'Type II / CLRW' },
+        { label: 'Resistivity target', value: '≥ 1 MΩ·cm', ok: true },
+        { label: 'Bacterial limit', value: '< 10 CFU/mL' },
+        { label: 'TOC target', value: '< 500 ppb' },
+      ])}
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1rem;">
+      <strong>Note:</strong> CLRW (Clinical Laboratory Reagent Water) replaces the older Type II classification under CLSI C3-A4. If the lab performs trace metal analysis or molecular diagnostics, a polisher with 18.2 MΩ·cm resistivity (Type I) may be needed at the point of use — add a small point-of-use polisher rather than upgrading the entire system.
+    </div>
+  `;
+  document.getElementById('lab-results').innerHTML = html;
+  document.getElementById('lab-results').classList.remove('hidden');
+}
+
+// ============================================================
+// KITCHEN CALCULATION
+// ============================================================
+function calcKitchen() {
+  const meals = +document.getElementById('k-meals').value;
+  const stations = +document.getElementById('k-stations').value;
+  const tds = +document.getElementById('h-tds').value;
+  const temp = +document.getElementById('h-temp').value;
+  const hours = +document.getElementById('h-hours').value;
+
+  const mealDemand = meals * DEMAND.hospital.kitchen_per_meal;
+  const drinkingDemand = stations * DEMAND.hospital.drinking_station;
+  const demand = mealDemand + drinkingDemand;
+
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const reject = feed - permeate;
+  const peakFlow = permeate * PEAK_FACTOR_HOSPITAL / hours / 60;
+  const membranes = calcMembranes(permeate, 4, temp);
+  const permeateTDS = tds * (1 - REJECTION_TDS);
+  const pumpPower = (feed * 10 * 9.81) / (3600 * 1000 * 0.7);
+
+  const train = buildTreatmentTrain(tds, 'kitchen', false);
+
+  const html = `
+    ${renderKPIs([
+      { label: 'Kitchen + Drinking Demand', value: demand.toLocaleString(), unit: 'L/day', cls: 'accent' },
+      { label: 'Design Permeate', value: permeate.toLocaleString(), unit: 'L/day' },
+      { label: 'Feed Water', value: Math.round(feed).toLocaleString(), unit: 'L/day' },
+      { label: 'Peak Flow', value: peakFlow.toFixed(1), unit: 'L/min' },
+      { label: 'Membranes', value: membranes, unit: '× 4"' },
+      { label: 'Permeate TDS', value: Math.round(permeateTDS), unit: 'ppm', cls: 'success' },
+      { label: 'Recovery', value: '75', unit: '%' },
+      { label: 'HP Pump Power', value: pumpPower.toFixed(1), unit: 'kW' },
+    ])}
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 1rem;">
+      <h3>Kitchen & Drinking Water Treatment Train</h3>
+      <p style="color:var(--text-dim); font-size:0.82rem; margin-bottom:0.75rem;">
+        Single-pass RO + UV. Meets IS 10500:2012 acceptable limits and WHO drinking water guidelines.
+      </p>
+      ${renderFlowDiagram(train)}
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <h3>Kitchen & Drinking Water Specifications</h3>
+      ${renderSpecTable([
+        { label: 'Meals served / day', value: meals },
+        { label: 'Drinking water stations', value: stations },
+        { label: 'Kitchen cooking demand', value: `${mealDemand.toLocaleString()} L/day` },
+        { label: 'Drinking water demand', value: `${drinkingDemand.toLocaleString()} L/day` },
+        { label: 'Total daily demand', value: `${demand.toLocaleString()} L/day` },
+        { label: 'Design permeate (20% margin)', value: `${permeate.toLocaleString()} L/day` },
+        { label: 'Feed water required', value: `${Math.round(feed).toLocaleString()} L/day` },
+        { label: 'Reject water', value: `${Math.round(reject).toLocaleString()} L/day` },
+        { label: 'Membranes', value: `${membranes} × 4" BWRO` },
+        { label: 'Feed TDS', value: `${tds} ppm` },
+        { label: 'Permeate TDS', value: `${Math.round(permeateTDS)} ppm`, ok: true },
+        { label: 'Compliance', value: 'IS 10500 + WHO', ok: true },
+      ])}
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1rem;">
+      <strong>Distribution note:</strong> Hospital kitchen and drinking water must be distributed through a separate piping network from the critical-grade (dialysis/CSSD/lab) loop. Drinking water stations should have inline UV units at the point of use. Kitchen supply should feed the main cooking areas and the pot-wash final rinse.
+    </div>
+  `;
+  document.getElementById('kitchen-results').innerHTML = html;
+  document.getElementById('kitchen-results').classList.remove('hidden');
+}
+
+// ============================================================
+// RESIDENTIAL
+// ============================================================
+function calcResidential() {
+  const units = +document.getElementById('r-units').value;
+  const ppf = +document.getElementById('r-ppf').value;
+  const lpcd = +document.getElementById('r-lpcd').value;
+  const tds = +document.getElementById('r-tds').value;
+  const hours = +document.getElementById('r-hours').value;
+  const temp = 25;
+
+  const population = units * ppf;
+  const demand = population * lpcd;
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const reject = feed - permeate;
+  const peakFlow = permeate * PEAK_FACTOR_RESIDENTIAL / hours / 60;
+  const membraneSize = permeate > 10000 ? 8 : 4;
+  const membranes = calcMembranes(permeate, membraneSize, temp);
+  const permeateTDS = tds * (1 - REJECTION_TDS);
+  const pumpPower = (feed * 10 * 9.81) / (3600 * 1000 * 0.7);
+  const storageTank = permeate * 0.5; // half-day storage
+
+  const train = buildTreatmentTrain(tds, 'residential', false);
+
+  const html = `
+    ${renderKPIs([
+      { label: 'Population Served', value: population.toLocaleString(), unit: 'persons' },
+      { label: 'Daily Demand', value: demand.toLocaleString(), unit: 'L/day' },
+      { label: 'Design Permeate', value: permeate.toLocaleString(), unit: 'L/day', cls: 'accent' },
+      { label: 'Feed Water', value: Math.round(feed).toLocaleString(), unit: 'L/day' },
+      { label: 'Peak Flow', value: peakFlow.toFixed(1), unit: 'L/min' },
+      { label: 'Membranes', value: membranes, unit: `× ${membraneSize}"` },
+      { label: 'Storage Tank', value: Math.round(storageTank).toLocaleString(), unit: 'L' },
+      { label: 'HP Pump Power', value: pumpPower.toFixed(1), unit: 'kW' },
+    ])}
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 1rem;">
+      <h3>Residential Treatment Train</h3>
+      ${renderFlowDiagram(train)}
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <h3>System Specifications</h3>
+      ${renderSpecTable([
+        { label: 'Number of flats', value: units },
+        { label: 'Persons per flat', value: ppf },
+        { label: 'Total population', value: population },
+        { label: 'Per-capita demand', value: `${lpcd} L/day` },
+        { label: 'Total daily demand', value: `${demand.toLocaleString()} L/day` },
+        { label: 'Design permeate (20% margin)', value: `${permeate.toLocaleString()} L/day` },
+        { label: 'Feed water required', value: `${Math.round(feed).toLocaleString()} L/day` },
+        { label: 'Reject water', value: `${Math.round(reject).toLocaleString()} L/day` },
+        { label: 'Membranes', value: `${membranes} × ${membraneSize}" BWRO` },
+        { label: 'Feed TDS', value: `${tds} ppm` },
+        { label: 'Permeate TDS', value: `${Math.round(permeateTDS)} ppm`, ok: true },
+        { label: 'Storage tank (0.5 day)', value: `${Math.round(storageTank).toLocaleString()} L` },
+        { label: 'Compliance', value: 'IS 10500 + WHO', ok: true },
+      ])}
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1rem;">
+      <strong>Distribution note:</strong> For complexes above 100 flats, consider a dual-tank system with automatic switchover for continuous supply. Reject water (25% of feed) can be routed to gardening, toilet flushing, or cooling tower make-up to improve overall water efficiency.
+    </div>
+  `;
+  document.getElementById('residential-results').innerHTML = html;
+  document.getElementById('residential-results').classList.remove('hidden');
+}
+
+// ============================================================
+// COMMERCIAL
+// ============================================================
+function calcCommercial() {
+  const occ = +document.getElementById('co-occ').value;
+  const floors = +document.getElementById('co-floors').value;
+  const lpcd = +document.getElementById('co-lpcd').value;
+  const hvac = +document.getElementById('co-hvac').value;
+  const tds = +document.getElementById('co-tds').value;
+  const hours = +document.getElementById('co-hours').value;
+  const temp = 25;
+
+  const drinkingDemand = occ * lpcd;
+  const demand = drinkingDemand + hvac;
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const reject = feed - permeate;
+  const peakFlow = permeate * PEAK_FACTOR_COMMERCIAL / hours / 60;
+  const membraneSize = permeate > 10000 ? 8 : 4;
+  const membranes = calcMembranes(permeate, membraneSize, temp);
+  const permeateTDS = tds * (1 - REJECTION_TDS);
+  const pumpPower = (feed * 10 * 9.81) / (3600 * 1000 * 0.7);
+  const storageTank = permeate * 0.4;
+
+  const train = buildTreatmentTrain(tds, 'commercial', false);
+
+  const html = `
+    ${renderKPIs([
+      { label: 'Occupants', value: occ.toLocaleString(), unit: 'persons' },
+      { label: 'Total Demand', value: demand.toLocaleString(), unit: 'L/day' },
+      { label: 'Design Permeate', value: permeate.toLocaleString(), unit: 'L/day', cls: 'accent' },
+      { label: 'Feed Water', value: Math.round(feed).toLocaleString(), unit: 'L/day' },
+      { label: 'Peak Flow', value: peakFlow.toFixed(1), unit: 'L/min' },
+      { label: 'Membranes', value: membranes, unit: `× ${membraneSize}"` },
+      { label: 'Storage Tank', value: Math.round(storageTank).toLocaleString(), unit: 'L' },
+      { label: 'HP Pump Power', value: pumpPower.toFixed(1), unit: 'kW' },
+    ])}
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 1rem;">
+      <h3>Commercial Building Treatment Train</h3>
+      ${renderFlowDiagram(train)}
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <h3>System Specifications</h3>
+      ${renderSpecTable([
+        { label: 'Occupants', value: occ },
+        { label: 'Floors / zones', value: floors },
+        { label: 'Drinking water demand', value: `${drinkingDemand.toLocaleString()} L/day` },
+        { label: 'HVAC make-up demand', value: `${hvac.toLocaleString()} L/day` },
+        { label: 'Total daily demand', value: `${demand.toLocaleString()} L/day` },
+        { label: 'Design permeate (20% margin)', value: `${permeate.toLocaleString()} L/day` },
+        { label: 'Feed water required', value: `${Math.round(feed).toLocaleString()} L/day` },
+        { label: 'Reject water', value: `${Math.round(reject).toLocaleString()} L/day` },
+        { label: 'Membranes', value: `${membranes} × ${membraneSize}" BWRO` },
+        { label: 'Feed TDS', value: `${tds} ppm` },
+        { label: 'Permeate TDS', value: `${Math.round(permeateTDS)} ppm`, ok: true },
+        { label: 'Storage tank (0.4 day)', value: `${Math.round(storageTank).toLocaleString()} L` },
+        { label: 'Compliance', value: 'IS 10500 + WHO', ok: true },
+      ])}
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1rem;">
+      <strong>Note:</strong> HVAC cooling tower make-up water quality is less stringent than drinking water — consider a separate smaller RO or softener-only train for the HVAC loop to reduce overall membrane cost. Drinking water should have a dedicated distribution line per floor with point-of-use UV dispensers.
+    </div>
+  `;
+  document.getElementById('commercial-results').innerHTML = html;
+  document.getElementById('commercial-results').classList.remove('hidden');
+}
+
+// ============================================================
+// HOTEL
+// ============================================================
+function calcHotel() {
+  const star = +document.getElementById('ht-star').value;
+  const rooms = +document.getElementById('ht-rooms').value;
+  const occ = +document.getElementById('ht-occ').value / 100;
+  const covers = +document.getElementById('ht-covers').value;
+  const laundry = +document.getElementById('ht-laundry').value;
+  const pool = +document.getElementById('ht-pool').value;
+  const tds = +document.getElementById('ht-tds').value;
+  const hours = +document.getElementById('ht-hours').value;
+  const temp = 25;
+
+  const occupiedRooms = rooms * occ;
+  const guestDemand = occupiedRooms * DEMAND.hotel.star_demand[star];
+  const kitchenDemand = covers * DEMAND.hotel.kitchen_per_cover;
+  const laundryDemand = laundry * DEMAND.hotel.laundry_per_kg;
+  const poolDemand = pool * DEMAND.hotel.pool_turnover_pct;
+  const demand = guestDemand + kitchenDemand + laundryDemand + poolDemand;
+
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const reject = feed - permeate;
+  const peakFlow = permeate * PEAK_FACTOR_HOTEL / hours / 60;
+  const membraneSize = permeate > 15000 ? 8 : 4;
+  const membranes = calcMembranes(permeate, membraneSize, temp);
+  const permeateTDS = tds * (1 - REJECTION_TDS);
+  const pumpPower = (feed * 10 * 9.81) / (3600 * 1000 * 0.7);
+  const storageTank = permeate * 0.4;
+
+  const train = buildTreatmentTrain(tds, 'hotel', false);
+
+  // Star-specific notes
+  const starNotes = {
+    2: '2-star: Basic drinking water + kitchen. No spa or pool make-up typically required.',
+    3: '3-star: Drinking + kitchen + laundry. Pool make-up if present.',
+    4: '4-star: Full-service including spa, pool, premium laundry. Higher per-key demand.',
+    5: '5-star: All amenities + spa, pool, premium laundry, specialty kitchen. Highest quality expectation.'
+  };
+
+  const html = `
+    ${renderKPIs([
+      { label: 'Star Rating', value: star, unit: 'star' },
+      { label: 'Occupied Rooms', value: Math.round(occupiedRooms), unit: 'keys' },
+      { label: 'Total Demand', value: Math.round(demand).toLocaleString(), unit: 'L/day' },
+      { label: 'Design Permeate', value: Math.round(permeate).toLocaleString(), unit: 'L/day', cls: 'accent' },
+      { label: 'Feed Water', value: Math.round(feed).toLocaleString(), unit: 'L/day' },
+      { label: 'Peak Flow', value: peakFlow.toFixed(1), unit: 'L/min' },
+      { label: 'Membranes', value: membranes, unit: `× ${membraneSize}"` },
+      { label: 'HP Pump Power', value: pumpPower.toFixed(1), unit: 'kW' },
+    ])}
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 1rem;">
+      <h3>Hotel Treatment Train</h3>
+      ${renderFlowDiagram(train)}
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <h3>Hotel System Specifications</h3>
+      ${renderSpecTable([
+        { label: 'Star rating', value: `${star} Star` },
+        { label: 'Total rooms', value: rooms },
+        { label: 'Occupancy', value: `${(occ*100).toFixed(0)} %` },
+        { label: 'Occupied rooms', value: Math.round(occupiedRooms) },
+        { label: 'Per-key demand (star-rated)', value: `${DEMAND.hotel.star_demand[star]} L/key/day` },
+        { label: 'Guest water demand', value: `${Math.round(guestDemand).toLocaleString()} L/day` },
+        { label: 'Kitchen demand', value: `${kitchenDemand.toLocaleString()} L/day` },
+        { label: 'Laundry demand', value: `${laundryDemand.toLocaleString()} L/day` },
+        { label: 'Pool make-up demand', value: `${Math.round(poolDemand).toLocaleString()} L/day` },
+        { label: 'Total daily demand', value: `${Math.round(demand).toLocaleString()} L/day` },
+        { label: 'Design permeate (20% margin)', value: `${Math.round(permeate).toLocaleString()} L/day` },
+        { label: 'Feed water required', value: `${Math.round(feed).toLocaleString()} L/day` },
+        { label: 'Reject water', value: `${Math.round(reject).toLocaleString()} L/day` },
+        { label: 'Membranes', value: `${membranes} × ${membraneSize}" BWRO` },
+        { label: 'Feed TDS', value: `${tds} ppm` },
+        { label: 'Permeate TDS', value: `${Math.round(permeateTDS)} ppm`, ok: true },
+        { label: 'Storage tank (0.4 day)', value: `${Math.round(storageTank).toLocaleString()} L` },
+        { label: 'Compliance', value: 'IS 10500 + WHO', ok: true },
+      ])}
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1rem;">
+      <strong>${star}-star note:</strong> ${starNotes[star]}
+    </div>
+    <div class="callout callout-warn" style="margin-top: 0.5rem;">
+      <strong>Laundry & spa:</strong> Hotel laundry demands soft, low-TDS water to protect linens and prevent scale on ironing equipment. For 4–5 star properties, consider a separate softener train for the laundry in addition to the RO permeate. Spa and pool make-up water should be filtered and disinfected separately.
+    </div>
+  `;
+  document.getElementById('hotel-results').innerHTML = html;
+  document.getElementById('hotel-results').classList.remove('hidden');
+}
+
+// ============================================================
+// DORMITORY
+// ============================================================
+function calcDormitory() {
+  const residents = +document.getElementById('dm-residents').value;
+  const meals = +document.getElementById('dm-meals').value;
+  const lpcd = +document.getElementById('dm-lpcd').value;
+  const tds = +document.getElementById('dm-tds').value;
+  const hours = +document.getElementById('dm-hours').value;
+  const temp = 25;
+
+  const drinkingDemand = residents * lpcd;
+  const mealDemand = meals * DEMAND.dormitory.per_meal;
+  const demand = drinkingDemand + mealDemand;
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const reject = feed - permeate;
+  const peakFlow = permeate * PEAK_FACTOR_DORM / hours / 60;
+  const membraneSize = permeate > 10000 ? 8 : 4;
+  const membranes = calcMembranes(permeate, membraneSize, temp);
+  const permeateTDS = tds * (1 - REJECTION_TDS);
+  const pumpPower = (feed * 10 * 9.81) / (3600 * 1000 * 0.7);
+  const storageTank = permeate * 0.5;
+
+  const train = buildTreatmentTrain(tds, 'dormitory', false);
+
+  const html = `
+    ${renderKPIs([
+      { label: 'Residents', value: residents.toLocaleString(), unit: 'persons' },
+      { label: 'Total Demand', value: demand.toLocaleString(), unit: 'L/day' },
+      { label: 'Design Permeate', value: permeate.toLocaleString(), unit: 'L/day', cls: 'accent' },
+      { label: 'Feed Water', value: Math.round(feed).toLocaleString(), unit: 'L/day' },
+      { label: 'Peak Flow', value: peakFlow.toFixed(1), unit: 'L/min', cls: 'warn' },
+      { label: 'Membranes', value: membranes, unit: `× ${membraneSize}"` },
+      { label: 'Storage Tank', value: Math.round(storageTank).toLocaleString(), unit: 'L' },
+      { label: 'HP Pump Power', value: pumpPower.toFixed(1), unit: 'kW' },
+    ])}
+
+    <div class="card" style="background:var(--surface-2); padding: 1.25rem; margin-top: 1rem;">
+      <h3>Dormitory / Canteen Treatment Train</h3>
+      ${renderFlowDiagram(train)}
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <h3>System Specifications</h3>
+      ${renderSpecTable([
+        { label: 'Number of residents', value: residents },
+        { label: 'Meals served / day', value: meals },
+        { label: 'Per-capita drinking demand', value: `${lpcd} L/day` },
+        { label: 'Drinking water demand', value: `${drinkingDemand.toLocaleString()} L/day` },
+        { label: 'Cooking water demand', value: `${mealDemand.toLocaleString()} L/day` },
+        { label: 'Total daily demand', value: `${demand.toLocaleString()} L/day` },
+        { label: 'Design permeate (20% margin)', value: `${permeate.toLocaleString()} L/day` },
+        { label: 'Feed water required', value: `${Math.round(feed).toLocaleString()} L/day` },
+        { label: 'Reject water', value: `${Math.round(reject).toLocaleString()} L/day` },
+        { label: 'Membranes', value: `${membranes} × ${membraneSize}" BWRO` },
+        { label: 'Feed TDS', value: `${tds} ppm` },
+        { label: 'Permeate TDS', value: `${Math.round(permeateTDS)} ppm`, ok: true },
+        { label: 'Storage tank (0.5 day)', value: `${Math.round(storageTank).toLocaleString()} L` },
+        { label: 'Peak factor', value: `${PEAK_FACTOR_DORM}× (burst demand)`, warn: true },
+        { label: 'Compliance', value: 'IS 10500 + WHO', ok: true },
+      ])}
+    </div>
+
+    <div class="callout callout-warn" style="margin-top: 1rem;">
+      <strong>Burst demand pattern:</strong> Dormitories and canteens have very high peak factors (3×) due to concentrated usage at meal times and before/after classes. The storage tank must be sized to buffer these peaks — consider oversizing the tank to 0.5–0.75 day's demand. Multiple drinking water dispensers should be distributed across the campus to avoid queueing.
+    </div>
+  `;
+  document.getElementById('dormitory-results').innerHTML = html;
+  document.getElementById('dormitory-results').classList.remove('hidden');
+}
+
+// ============================================================
+// COMPARISON
+// ============================================================
+function calcCompare() {
+  // Generate comparison at typical values
+  const scenarios = [
+    { name: 'Residential (50 flats)', calc: () => calcResidentialCompare(50, 4, 10) },
+    { name: 'Commercial (300 occupants)', calc: () => calcCommercialCompare(300, 2000) },
+    { name: 'Hospital (150 beds, 8 dialysis)', calc: () => calcHospitalCompare(150, 8) },
+    { name: 'Hotel 4★ (120 rooms)', calc: () => calcHotelCompare(4, 120) },
+    { name: 'Dormitory (500 residents)', calc: () => calcDormitoryCompare(500, 1500) },
+  ];
+
+  let cards = '';
+  scenarios.forEach(s => {
+    const r = s.calc();
+    cards += `
+      <div class="comp-card">
+        <h3>${s.name}</h3>
+        <div class="comp-spec"><strong>Daily demand:</strong> ${r.demand.toLocaleString()} L/day</div>
+        <div class="comp-spec"><strong>Design permeate:</strong> ${r.permeate.toLocaleString()} L/day</div>
+        <div class="comp-spec"><strong>Feed water:</strong> ${r.feed.toLocaleString()} L/day</div>
+        <div class="comp-spec"><strong>Membranes:</strong> ${r.membranes} × ${r.membraneSize}"</div>
+        <div class="comp-spec"><strong>Permeate TDS:</strong> ${r.permeateTDS} ppm</div>
+        <div class="comp-spec"><strong>Recovery:</strong> 75%</div>
+        <div class="comp-spec"><strong>Pump power:</strong> ${r.pumpPower} kW</div>
+        <div class="comp-spec"><strong>Train:</strong> ${r.train}</div>
+        <div class="comp-spec"><strong>Standard:</strong> ${r.standard}</div>
+      </div>
+    `;
+  });
+
+  // Comparison table
+  const tableHtml = `
+    <div class="table-wrap" style="margin-top: 1.5rem;">
+      <table>
+        <thead>
+          <tr>
+            <th>Application</th>
+            <th class="num">Demand (L/day)</th>
+            <th class="num">Permeate (L/day)</th>
+            <th class="num">Feed (L/day)</th>
+            <th class="num">Membranes</th>
+            <th class="num">Permeate TDS</th>
+            <th class="num">Pump (kW)</th>
+            <th>Treatment Train</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${scenarios.map(s => {
+            const r = s.calc();
+            return `<tr>
+              <td><strong>${s.name}</strong></td>
+              <td class="num">${r.demand.toLocaleString()}</td>
+              <td class="num">${r.permeate.toLocaleString()}</td>
+              <td class="num">${r.feed.toLocaleString()}</td>
+              <td class="num">${r.membranes} × ${r.membraneSize}"</td>
+              <td class="num">${r.permeateTDS} ppm</td>
+              <td class="num">${r.pumpPower}</td>
+              <td>${r.train}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById('compare-results').innerHTML = `
+    <div class="comp-grid">${cards}</div>
+    ${tableHtml}
+    <div class="callout callout-info" style="margin-top: 1rem;">
+      <strong>Key insight:</strong> Hospitals require 2–3× the membrane count of similarly-sized applications due to the critical-grade 2-pass RO + EDI polishing train. The dialysis loop alone can account for 15–25% of total hospital membrane capacity despite serving a small patient population, because AAMI/ISO water quality demands a multi-barrier treatment approach.
+    </div>
+  `;
+  document.getElementById('compare-results').classList.remove('hidden');
+}
+
+function calcResidentialCompare(units, ppf, lpcd) {
+  const pop = units * ppf;
+  const demand = pop * lpcd;
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const membraneSize = permeate > 10000 ? 8 : 4;
+  return {
+    demand: Math.round(demand), permeate: Math.round(permeate), feed: Math.round(feed),
+    membranes: calcMembranes(permeate, membraneSize, 25), membraneSize,
+    permeateTDS: Math.round(1500 * (1 - REJECTION_TDS)),
+    pumpPower: ((feed * 10 * 9.81) / (3600 * 1000 * 0.7)).toFixed(1),
+    train: '1-Pass RO + UV', standard: 'IS 10500 + WHO'
+  };
+}
+function calcCommercialCompare(occ, hvac) {
+  const demand = occ * 5 + hvac;
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const membraneSize = permeate > 10000 ? 8 : 4;
+  return {
+    demand: Math.round(demand), permeate: Math.round(permeate), feed: Math.round(feed),
+    membranes: calcMembranes(permeate, membraneSize, 25), membraneSize,
+    permeateTDS: Math.round(1500 * (1 - REJECTION_TDS)),
+    pumpPower: ((feed * 10 * 9.81) / (3600 * 1000 * 0.7)).toFixed(1),
+    train: '1-Pass RO + UV', standard: 'IS 10500 + WHO'
+  };
+}
+function calcHospitalCompare(beds, dialysis) {
+  const dialysisDemand = dialysis * 2 * 4 * 120;
+  const cssdDemand = beds * 0.8 * 5 + 3 * 150 * 4 + 2 * 200 * 4;
+  const labDemand = 500 * 1.5 + 4 * 50;
+  const generalDemand = beds * 400 + 600 * 15;
+  const critical = (dialysisDemand + cssdDemand + labDemand * 0.3) * SAFETY_FACTOR;
+  const general = (generalDemand + beds * 2 * 10) * SAFETY_FACTOR;
+  const permeate = critical + general;
+  const feed = permeate / RECOVERY_BWRO;
+  return {
+    demand: Math.round(dialysisDemand + cssdDemand + labDemand + generalDemand),
+    permeate: Math.round(permeate), feed: Math.round(feed),
+    membranes: calcMembranes(critical, 4, 25) + Math.ceil(calcMembranes(critical, 4, 25) * 0.5) + calcMembranes(general, 8, 25),
+    membraneSize: 8,
+    permeateTDS: Math.round(1500 * (1 - REJECTION_TDS) * (1 - 0.90)),
+    pumpPower: ((feed * 12 * 9.81) / (3600 * 1000 * 0.7)).toFixed(1),
+    train: '2-Pass RO + EDI (critical) + 1-Pass RO (general)', standard: 'AAMI/ISO + IS 10500'
+  };
+}
+function calcHotelCompare(star, rooms) {
+  const occ = 0.7;
+  const occupied = rooms * occ;
+  const demand = occupied * DEMAND.hotel.star_demand[star] + 400 * 15 + 500 * 15 + 100000 * 0.02;
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const membraneSize = permeate > 15000 ? 8 : 4;
+  return {
+    demand: Math.round(demand), permeate: Math.round(permeate), feed: Math.round(feed),
+    membranes: calcMembranes(permeate, membraneSize, 25), membraneSize,
+    permeateTDS: Math.round(1500 * (1 - REJECTION_TDS)),
+    pumpPower: ((feed * 10 * 9.81) / (3600 * 1000 * 0.7)).toFixed(1),
+    train: '1-Pass RO + UV', standard: 'IS 10500 + WHO'
+  };
+}
+function calcDormitoryCompare(residents, meals) {
+  const demand = residents * 8 + meals * 5;
+  const permeate = demand * SAFETY_FACTOR;
+  const feed = permeate / RECOVERY_BWRO;
+  const membraneSize = permeate > 10000 ? 8 : 4;
+  return {
+    demand: Math.round(demand), permeate: Math.round(permeate), feed: Math.round(feed),
+    membranes: calcMembranes(permeate, membraneSize, 25), membraneSize,
+    permeateTDS: Math.round(1500 * (1 - REJECTION_TDS)),
+    pumpPower: ((feed * 10 * 9.81) / (3600 * 1000 * 0.7)).toFixed(1),
+    train: '1-Pass RO + UV', standard: 'IS 10500 + WHO'
+  };
+}
+
+// ============================================================
+// STANDARDS TABLES
+// ============================================================
+function renderStandards() {
+  const drinkingParams = [
+    { param: 'TDS', is10500: '500 (2000)', who: '600 (1000)', target: '< 100', rejection: '97%' },
+    { param: 'Turbidity', is10500: '1 (5)', who: '< 5', target: '< 0.5', rejection: '99%' },
+    { param: 'Total Hardness (as CaCO₃)', is10500: '200 (600)', who: '< 200', target: '< 50', rejection: '95%' },
+    { param: 'Chlorides (as Cl)', is10500: '250 (1000)', who: '< 250', target: '< 50', rejection: '96%' },
+    { param: 'Sulphates (as SO₄)', is10500: '200 (400)', who: '< 250', target: '< 30', rejection: '97%' },
+    { param: 'Fluoride (as F)', is10500: '1.0 (1.5)', who: '< 1.5', target: '< 0.3', rejection: '92%' },
+    { param: 'Nitrate (as NO₃)', is10500: '45 (No relax)', who: '< 50', target: '< 5', rejection: '95%' },
+    { param: 'Iron (as Fe)', is10500: '0.3 (No relax)', who: '< 0.3', target: '< 0.05', rejection: '98%' },
+    { param: 'Arsenic (as As)', is10500: '0.01 (0.05)', who: '< 0.01', target: '< 0.005', rejection: '95%' },
+    { param: 'pH', is10500: '6.5–8.5', who: '6.5–8.5', target: '6.5–8.5', rejection: '—' },
+    { param: 'Total Coliform', is10500: 'Absent', who: 'Absent', target: 'Absent', rejection: 'UV final' },
+    { param: 'E. coli', is10500: 'Absent', who: 'Absent', target: 'Absent', rejection: 'UV final' },
+  ];
+
+  const tbody = document.getElementById('standards-table');
+  tbody.innerHTML = drinkingParams.map(p => `
+    <tr>
+      <td>${p.param}</td>
+      <td class="num">${p.is10500}</td>
+      <td class="num">${p.who}</td>
+      <td class="num ok-cell">${p.target}</td>
+      <td>${p.rejection}</td>
+    </tr>
+  `).join('');
+
+  const hospitalParams = [
+    { dept: 'Dialysis (AAMI/ISO 23500-3)', std: 'AAMI/ISO 23500', bacteria: '< 100 CFU/mL', endotoxin: '< 0.25 EU/mL', resistivity: '—' },
+    { dept: 'Dialysis Ultrapore', std: 'ISO 23500-3', bacteria: '< 10 CFU/mL', endotoxin: '< 0.03 EU/mL', resistivity: '—' },
+    { dept: 'CSSD / Sterile Services', std: 'HTM 01-01', bacteria: '< 10 CFU/mL', endotoxin: '< 0.25 EU/mL', resistivity: '—' },
+    { dept: 'Lab (CLRW)', std: 'CLSI C3-A4', bacteria: '< 10 CFU/mL', endotoxin: '< 0.25 EU/mL', resistivity: '≥ 1 MΩ·cm' },
+    { dept: 'Lab Type I (point-of-use)', std: 'ASTM D1193', bacteria: '< 1 CFU/mL', endotoxin: '< 0.03 EU/mL', resistivity: '≥ 18 MΩ·cm' },
+    { dept: 'Kitchen + Drinking', std: 'IS 10500 + WHO', bacteria: 'Absent', endotoxin: '—', resistivity: '—' },
+  ];
+
+  const tbody2 = document.getElementById('hospital-standards-table');
+  tbody2.innerHTML = hospitalParams.map(p => `
+    <tr>
+      <td><strong>${p.dept}</strong></td>
+      <td>${p.std}</td>
+      <td class="num ${p.bacteria.includes('Absent') || p.bacteria.includes('< 1') ? 'ok-cell' : ''}">${p.bacteria}</td>
+      <td class="num">${p.endotoxin}</td>
+      <td class="num">${p.resistivity}</td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+document.querySelectorAll('#tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Hospital dept tabs
+document.querySelectorAll('#hospital-dept-tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#hospital-dept-tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.dept-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('dept-' + btn.dataset.dept).classList.add('active');
+  });
+});
+
+// Init
+renderStandards();
+calcHospital();
+</script>
+</body>
+</html>
